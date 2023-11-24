@@ -1,0 +1,86 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+
+[CMake]
+Build Directory Count=2
+Current Build Directory Index-Host System=1
+
+[CMake][CMake Build Directory 0]
+Build Directory Path=/data/building/leonutils
+Build Type=Release
+CMake Binary=/usr/bin/cmake
+CMake Executable=/usr/bin/cmake
+Environment Profile=
+Extra Arguments=
+Install Directory=/data/releases/leonutils
+Runtime=Host System
+
+[CMake][CMake Build Directory 1]
+Build Directory Path=/data/debuging/leonutils
+Build Type=Debug
+CMake Binary=/usr/bin/cmake
+CMake Executable=/usr/bin/cmake
+Environment Profile=
+Extra Arguments=
+Install Directory=/data/releases/leonutils
+Runtime=Host System
+
+[Cppcheck]
+extraParameters=-std=c++20
+useProjectIncludes=false
+
+[CustomDefinesAndIncludes][ProjectPath0]
+Path=.
+parseAmbiguousAsCPP=true
+parserArguments=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++2a
+parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c99
+parserArgumentsCuda=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++14
+parserArgumentsOpenCL=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -cl-std=CL2.0
+
+[CustomDefinesAndIncludes][ProjectPath0][Compiler]
+Name=GCC
+
+[CustomDefinesAndIncludes][ProjectPath0][Includes]
+1=/data/projects/leonutils
+
+[Launch]
+Launch Configurations=Launch Configuration 0,Launch Configuration 1
+
+[Launch][Launch Configuration 1]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=unit-test
+Type=Native Application
+
+[Launch][Launch Configuration 1][Data]
+Arguments=--gtest_filter="TestSHMRQ_WITH_ELEMENT_F.elementLifeCycle"
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x03\x00\x00\x00\x12\x00l\x00e\x00o\x00n\x00u\x00t\x00i\x00l\x00s\x00\x00\x00\x12\x00u\x00n\x00i\x00t\x00-\x00t\x00e\x00s\x00t\x00\x00\x00\x12\x00u\x00n\x00i\x00t\x00-\x00t\x00e\x00s\x00t)
+Dependency Action=Build
+EnvironmentGroup=
+Executable=file:///data/projects/leonutils
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Kill Before Executing Again=4194304
+Project Target=leonutils,unit-test,unit-test
+Use External Terminal=false
+Working Directory=
+isExecutable=false
+
+[MakeBuilder]
+Number Of Jobs=2
+Override Number Of Jobs=true
+
+[Project]
+VersionControlSupport=kdevgit
+
+[SourceFormatter]
+ModelinesEnabled=true
+OverrideKateIndentation=true
+UseDefault=false
+text/x-c++hdr=kdevastyle||User1
+text/x-c++src=kdevastyle||User1
+text/x-chdr=kdevastyle||User1
+text/x-csharp=kdevcustomscript||GNU_indent_GNU
+text/x-csrc=kdevastyle||User1
+text/x-java=kdevcustomscript||GNU_indent_GNU
+text/x-objc++src=kdevcustomscript||GNU_indent_GNU
+text/x-objcsrc=kdevcustomscript||GNU_indent_GNU
