@@ -9,7 +9,7 @@
 #include "CraflinRQ.tpp"
 #include "misc/Converts.hpp"
 
-using namespace leon_ext;
+using namespace leon_utl;
 using namespace leon_log;
 using namespace std;
 

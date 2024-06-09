@@ -27,11 +27,15 @@ add_executable( unit-test UnitTestMain.cpp
 	../convert/StrSet-test.cpp
 	../convert/Unicodes-test.cpp
 	../convert/UnionTypes-test.cpp
+	../except/CallStack-test.cpp
+	../queue/CraflinRQ-test.cpp
+	# ../queue/PosixMQ-test.cpp
 	../queue/SHMRQ-test.cpp
+	../sys/Signals-test.cpp
 )
 target_include_directories( unit-test PRIVATE ${PROJECT_SOURCE_DIR} )
 target_link_libraries( unit-test
-	objCommon
+	target_static
 	# objUniteTest
 
 	GTest::gtest GTest::gtest_main

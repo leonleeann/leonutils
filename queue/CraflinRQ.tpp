@@ -15,23 +15,23 @@ inline constexpr std::memory_order mo_acq_rel = std::memory_order::acq_rel;
 inline constexpr std::memory_order mo_seq_cst = std::memory_order::seq_cst;
 
 template <typename T>
-inline CraflinRQ_t<T>::CraflinRQ_t( size_t capa_ ) {
+inline CraflinRQ_t<T>::CraflinRQ_t( QueSize_t capa_ ) {
 	// 让容量刚好是2的整数次幂, 因为_mask必须是全1
 	// 目的是 capa_ = std::pow( 2, std::ceil( std::log2( capa_ ) ) ); 实际用下面的方法
 #if( __GNUC__ >= 10 )
 // gcc-10 之后要用这个
 	capa_ = std::bit_ceil( capa_ );
-	constexpr size_t MOST_ELEMENTS = std::bit_floor( MAX_MEM_USAGE / sizeof( Node_t ) );
+	constexpr QueSize_t MOST_ELEMENTS = std::bit_floor( MAX_MEM_USAGE / sizeof( Node_t ) );
 #else
 // gcc-9 要用这个
 	capa_ = std::ceil2( capa_ );
-	constexpr size_t MOST_ELEMENTS = std::floor2( MAX_MEM_USAGE / sizeof( Node_t ) );
+	constexpr QueSize_t MOST_ELEMENTS = std::floor2( MAX_MEM_USAGE / sizeof( Node_t ) );
 #endif
 
 	capa_ = std::min( capa_, MOST_ELEMENTS );
 	capa_ = std::max( capa_, LEAST_ELEMNTS );
-	const_cast<size_t&>( _capa ) = capa_;
-	const_cast<size_t&>( _mask ) = capa_ - 1;
+	const_cast<QueSize_t&>( _capa ) = capa_;
+	const_cast<QueSize_t&>( _mask ) = capa_ - 1;
 
 	// 分配内存
 	_buff = _allc.allocate( capa_ );
@@ -40,7 +40,7 @@ inline CraflinRQ_t<T>::CraflinRQ_t( size_t capa_ ) {
 		throw std::runtime_error( "CraflinRQ_t:地址未从64字节整倍数开始!" );
 
 	const_cast<Node_t*&>( _base ) = _buff;
-	for( size_t i = 0; i < _capa; ++i ) {
+	for( QueSize_t i = 0; i < _capa; ++i ) {
 		_base[i].tail.store( i, mo_relaxed );
 		_base[i].head.store( -1, mo_relaxed );
 //		_base[i].data = {};
@@ -53,7 +53,7 @@ inline CraflinRQ_t<T>::CraflinRQ_t( size_t capa_ ) {
 
 template <typename T>
 inline CraflinRQ_t<T>::~CraflinRQ_t() {
-	for( size_t j = _head.load(); j < _tail.load(); ++j )
+	for( QueSize_t j = _head.load(); j < _tail.load(); ++j )
 // 		_allc.destroy_at( & _base[j & _mask] );
 		_base[j & _mask].data.~T();
 
@@ -61,13 +61,13 @@ inline CraflinRQ_t<T>::~CraflinRQ_t() {
 };
 
 template <typename T>
-inline size_t CraflinRQ_t<T>::capa() const {
+inline QueSize_t CraflinRQ_t<T>::capa() const {
 	return _capa;
 };
 
 template <typename T>
-inline size_t CraflinRQ_t<T>::size() const {
-	size_t head = _head.load( mo_acquire );
+inline QueSize_t CraflinRQ_t<T>::size() const {
+	QueSize_t head = _head.load( mo_acquire );
 	return _tail.load( mo_relaxed ) - head;
 };
 
@@ -75,14 +75,14 @@ template <typename T>
 template <typename U>
 inline bool CraflinRQ_t<T>::enque( U&& src_ ) {
 	Node_t* node;
-	size_t tail = _tail.load( mo_relaxed );
+	QueSize_t tail = _tail.load( mo_relaxed );
 	do {
 		node = & _base[tail & _mask];
 		if( node->tail.load( mo_relaxed ) != tail )
 			return false;
 	} while( ! _tail.compare_exchange_weak( tail, tail + 1, mo_relaxed ) );
 
-// 	_allc.construct_at( node, std::move( src_ ) );
+//	_allc.construct_at( node, std::move( src_ ) );
 	new( & node->data ) T( std::forward<U>( src_ ) );
 	node->head.store( tail, mo_release );
 	return true;
@@ -91,7 +91,7 @@ inline bool CraflinRQ_t<T>::enque( U&& src_ ) {
 template <typename T>
 inline bool CraflinRQ_t<T>::deque( T& dest_ ) {
 	Node_t* node;
-	size_t head = _head.load( mo_relaxed );
+	QueSize_t head = _head.load( mo_relaxed );
 	do {
 		node = & _base[head & _mask];
 		if( node->head.load( mo_relaxed ) != head )

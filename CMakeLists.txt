@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 0 )   # 次版本
-set( PROJECT_VERSION_PATCH 2 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 3 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "版本信息小调整" )
+set( PROJECT_VERSION_NOTES "增加CraflinRQ、PosixMQ、异常定义、信号处理" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -37,6 +37,7 @@ set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 # 线程库基本上每个子项目都会用到,这里统一找了吧
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
+find_package( fmt REQUIRED )
 
 # 对任何头文件的搜索都可 以本目录为根开始
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
@@ -52,6 +53,8 @@ add_library( objCommon OBJECT
 	convert/Converts.cpp
 	convert/StrSet.cpp
 	convert/Unicodes.cpp
+	except/CallStack.cpp
+	sys/Signals.cpp
 )
 
 ######## 主要产出 ###############################################################
@@ -66,7 +69,7 @@ set_target_properties( target_static PROPERTIES
 #	ARCHIVE_OUTPUT_NAME_RELEASE  "ARCHIVE_OUTPUT_NAME_.${PROJECT_VERSION}"
 #	LIBRARY_OUTPUT_NAME_RELEASE  "LIBRARY_OUTPUT_NAME_.${PROJECT_VERSION}"
 )
-target_link_libraries( target_static objCommon )
+target_link_libraries( target_static objCommon fmt::fmt )
 install( TARGETS target_static
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

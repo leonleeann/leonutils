@@ -5,11 +5,11 @@
 #include <iomanip>
 #include <iostream>
 
-#include "buffer/CraflinRQ.tpp"
+#include "queue/CraflinRQ.tpp"
 
 using namespace std;
 
-namespace leon_ext {
+namespace leon_utl {
 
 int imp_created = 0; // 隐式创建计数
 int exp_created = 0; // 显式创建计数
@@ -40,7 +40,8 @@ struct Record3Bytes {
 TEST( TestCraflinRQ, AutoExtToPowerOf2 ) {
 
 	ASSERT_EQ( sizeof( Record3Bytes ), 3 );
-	ASSERT_EQ( sizeof( CraflinRQ_t<Record3Bytes>::Node_t ), 64 );
+	// 一个head,一个tail,加data,怎么也是64字节的3倍,跟 Record3Bytes 大小无关
+	ASSERT_EQ( sizeof( CraflinRQ_t<Record3Bytes>::Node_t ), 64 * 3 );
 
 	CraflinRQ_t<Record3Bytes> rq0 { 0 };
 	ASSERT_EQ( rq0.capa(), 4 );
@@ -52,26 +53,26 @@ TEST( TestCraflinRQ, AutoExtToPowerOf2 ) {
 	ASSERT_EQ( rq2.capa(), 32 );
 };
 
-/* 去掉这个测试不是因为不该这样测,只是因为它确实太慢了！
+/* 去掉这个测试不是因为不该这样测,只是因为它确实太慢了! */
 // 占用内存不超1G
 TEST( TestCraflinRQ, NeverUseMemoryMoreThan1G ) {
-   size_t max_capa = pow( 2, log2( CraflinRQ_t<int>::MAX_MEM_USAGE
-                                   / sizeof( CraflinRQ_t<int>::Node_t ) ) );
-   CraflinRQ_t<int> rq0 { max_capa + 1 };
-   ASSERT_EQ( rq0.capa(), max_capa );
+	QueSize_t max_capa = pow( 2, log2( CraflinRQ_t<int>::MAX_MEM_USAGE
+									   / sizeof( CraflinRQ_t<int>::Node_t ) ) );
+	CraflinRQ_t<int> rq0 { max_capa + 1 };
+	ASSERT_EQ( rq0.capa(), max_capa );
 
-   CraflinRQ_t<int> rq1 { max_capa };
-   ASSERT_EQ( rq1.capa(), max_capa );
+	CraflinRQ_t<int> rq1 { max_capa };
+	ASSERT_EQ( rq1.capa(), max_capa );
 
-   max_capa = pow( 2, log2( CraflinRQ_t<Record3Bytes>::MAX_MEM_USAGE
-                            / sizeof( CraflinRQ_t<Record3Bytes>::Node_t ) ) );
+	max_capa = pow( 2, log2( CraflinRQ_t<Record3Bytes>::MAX_MEM_USAGE
+							 / sizeof( CraflinRQ_t<Record3Bytes>::Node_t ) ) );
 
-   CraflinRQ_t<Record3Bytes> rq2 { max_capa + 1 };
-   ASSERT_EQ( rq2.capa(), max_capa );
+	CraflinRQ_t<Record3Bytes> rq2 { max_capa + 1 };
+	ASSERT_EQ( rq2.capa(), max_capa );
 
-   CraflinRQ_t<Record3Bytes> rq3 { max_capa };
-   ASSERT_EQ( rq3.capa(), max_capa );
-};*/
+	CraflinRQ_t<Record3Bytes> rq3 { max_capa };
+	ASSERT_EQ( rq3.capa(), max_capa );
+};
 
 TEST( TestCraflinRQ, sizeAndPayload ) {
 	CraflinRQ_t<int> rq( 4 );
@@ -148,7 +149,7 @@ struct ConsWatch_t {
 	static atomic_int move_asgns;// 移动赋值计数
 	static atomic_int copy_asgns;// 复制赋值计数
 
-	static void clearCounts() {
+	static void ClearCounts() {
 		deft_conss = 0;
 		expl_conss = 0;
 		move_conss = 0;
@@ -167,7 +168,7 @@ atomic_int ConsWatch_t::copy_asgns { 0 };
 
 // 确保该新造对象时新造，该移动对象时移动
 TEST( TestCraflinRQ, perfectForwarding ) {
-	ConsWatch_t::clearCounts();
+	ConsWatch_t::ClearCounts();
 	CraflinRQ_t<ConsWatch_t> rq( 4 );
 	ASSERT_EQ( ConsWatch_t::deft_conss.load(), 0 );
 	ASSERT_EQ( ConsWatch_t::expl_conss.load(), 0 );
@@ -211,11 +212,11 @@ TEST( TestCraflinRQ, perfectForwarding ) {
 
 // 地址对齐核对
 struct TestCraflinRQ_F : public testing::Test {
-	CraflinRQ_t<Record3Bytes>  rq { 4 };
+	CraflinRQ_t<Record3Bytes>					rq { 4 };
 
-	const CraflinRQ_t<Record3Bytes>::Node_t*  p_buff = rq._buff;
-	const atomic<size_t>*                     p_tail = &rq._tail;
-	const atomic<size_t>*                     p_head = &rq._head;
+	const CraflinRQ_t<Record3Bytes>::Node_t*	p_buff = rq._buff;
+	const AtmSize_t*							p_head = &rq._head;
+	const AtmSize_t*							p_tail = &rq._tail;
 
 	TestCraflinRQ_F() {
 		imp_created = exp_created = destroied = 0;
@@ -224,7 +225,7 @@ struct TestCraflinRQ_F : public testing::Test {
 
 TEST_F( TestCraflinRQ_F, checkingWhetherAddressAligned ) {
 	auto pNode = p_buff;
-	for( size_t k = 0; k < rq.capa(); ++k, ++pNode ) {
+	for( QueSize_t k = 0; k < rq.capa(); ++k, ++pNode ) {
 		ASSERT_EQ( reinterpret_cast<uintptr_t>( pNode ) % 64, 0 );
 		ASSERT_NE( reinterpret_cast<uintptr_t>( & pNode->tail ) % 64, 0 );
 		ASSERT_NE( reinterpret_cast<uintptr_t>( & pNode->head ) % 64, 0 );
@@ -261,5 +262,5 @@ TEST_F( TestCraflinRQ_F, nodeConstructorWouldBeCalled ) {
 	ASSERT_EQ( destroied, 1 );
 };
 
-}; // namespace leon_ext
+}; // namespace leon_utl
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
