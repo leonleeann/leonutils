@@ -40,8 +40,7 @@ struct Record3Bytes {
 TEST( TestCraflinRQ, AutoExtToPowerOf2 ) {
 
 	ASSERT_EQ( sizeof( Record3Bytes ), 3 );
-	// 一个head,一个tail,加data,怎么也是64字节的3倍,跟 Record3Bytes 大小无关
-	ASSERT_EQ( sizeof( CraflinRQ_t<Record3Bytes>::Node_t ), 64 * 3 );
+	ASSERT_EQ( sizeof( CraflinRQ_t<Record3Bytes>::Node_t ), 64 * 2 );
 
 	CraflinRQ_t<Record3Bytes> rq0 { 0 };
 	ASSERT_EQ( rq0.capa(), 4 );
@@ -212,11 +211,11 @@ TEST( TestCraflinRQ, perfectForwarding ) {
 
 // 地址对齐核对
 struct TestCraflinRQ_F : public testing::Test {
-	CraflinRQ_t<Record3Bytes>					rq { 4 };
+	CraflinRQ_t<Record3Bytes>					_rq { 4 };
 
-	const CraflinRQ_t<Record3Bytes>::Node_t*	p_buff = rq._buff;
-	const AtmSize_t*							p_head = &rq._head;
-	const AtmSize_t*							p_tail = &rq._tail;
+	const CraflinRQ_t<Record3Bytes>::Node_t*	_buff = _rq._buff;
+	const AtmSize_t*							_head = &_rq._head;
+	const AtmSize_t*							_tail = &_rq._tail;
 
 	TestCraflinRQ_F() {
 		imp_created = exp_created = destroied = 0;
@@ -224,18 +223,16 @@ struct TestCraflinRQ_F : public testing::Test {
 };
 
 TEST_F( TestCraflinRQ_F, checkingWhetherAddressAligned ) {
-	auto pNode = p_buff;
-	for( QueSize_t k = 0; k < rq.capa(); ++k, ++pNode ) {
-		ASSERT_EQ( reinterpret_cast<uintptr_t>( pNode ) % 64, 0 );
-		ASSERT_NE( reinterpret_cast<uintptr_t>( & pNode->tail ) % 64, 0 );
-		ASSERT_NE( reinterpret_cast<uintptr_t>( & pNode->head ) % 64, 0 );
-		ASSERT_EQ( reinterpret_cast<uintptr_t>( & pNode->tail ) % 8, 0 );
-		ASSERT_EQ( reinterpret_cast<uintptr_t>( & pNode->head ) % 8, 0 );
+	auto node = _buff;
+	for( QueSize_t k = 0; k < _rq.capa(); ++k, ++node ) {
+		ASSERT_EQ( reinterpret_cast<uintptr_t>( node ) % 64, 0 );
+		ASSERT_EQ( reinterpret_cast<uintptr_t>( & node->tail ) % 64, 0 );
+		ASSERT_EQ( reinterpret_cast<uintptr_t>( & node->head ) % 64, 0 );
 	}
 
-	ASSERT_EQ( reinterpret_cast<uintptr_t>( p_buff ) % 64, 0 );
-	ASSERT_EQ( reinterpret_cast<uintptr_t>( p_tail ) % 64, 0 );
-	ASSERT_EQ( reinterpret_cast<uintptr_t>( p_head ) % 64, 0 );
+	ASSERT_EQ( reinterpret_cast<uintptr_t>( _buff ) % 64, 0 );
+	ASSERT_EQ( reinterpret_cast<uintptr_t>( _tail ) % 64, 0 );
+	ASSERT_EQ( reinterpret_cast<uintptr_t>( _head ) % 64, 0 );
 };
 
 TEST_F( TestCraflinRQ_F, nodeConstructorWouldBeCalled ) {
@@ -250,13 +247,13 @@ TEST_F( TestCraflinRQ_F, nodeConstructorWouldBeCalled ) {
 	r4.b0 = r4.b1 = r4.b2 = true;
 
 	// 入队一个,构造器应该被调1次
-	ASSERT_TRUE( rq.enque( r3 ) );
+	ASSERT_TRUE( _rq.enque( r3 ) );
 	ASSERT_EQ( exp_created, 1 );
 	ASSERT_EQ( destroied, 0 );
 
 	// 出队一个,析构器应该被调1次
 	ASSERT_FALSE( r3.b0 == r4.b0 && r3.b1 == r4.b1 && r3.b2 == r4.b2 );
-	ASSERT_TRUE( rq.deque( r4 ) );
+	ASSERT_TRUE( _rq.deque( r4 ) );
 	ASSERT_TRUE( r3.b0 == r4.b0 && r3.b1 == r4.b1 && r3.b2 == r4.b2 );
 	ASSERT_EQ( exp_created, 1 );
 	ASSERT_EQ( destroied, 1 );

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace leon_ext {
+namespace leon_utl {
 
 using str_t = std::string;
 
@@ -44,6 +44,6 @@ private:
 	size_t	_bytes {};
 };
 
-};	// namespace leon_ext
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

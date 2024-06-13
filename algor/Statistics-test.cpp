@@ -7,7 +7,6 @@
 #include "algor/Algorithms.hpp"
 
 using namespace leon_utl;
-using std::forward_list;
 using std::numeric_limits;
 using std::vector;
 
@@ -66,9 +65,8 @@ NumPairs_t RANDS_2D {
 
 TEST( TestStatistics, statNormally ) {
 	std::vector<double> samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0, 0 };
-	StatisticResult_t result {};
+	Statistic_t result { samples };
 
-	ASSERT_TRUE( StatisticAll( samples, result ) );
 	ASSERT_TRUE( eq( result.sum, 10019.89159 ) );
 	ASSERT_TRUE( eq( result.avg, 1252.48644875 ) );
 	ASSERT_TRUE( eq( result.med, 3.070795 ) );
@@ -79,10 +77,9 @@ TEST( TestStatistics, statNormally ) {
 
 TEST( TestStatistics, statOddsNumber ) {
 	std::vector<double> samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0 };
-	StatisticResult_t result {};
+	Statistic_t result {};
 
-	ASSERT_TRUE( StatisticAll( samples, result ) );
-
+	ASSERT_TRUE( result( samples ) );
 	ASSERT_TRUE( eq( result.sum, 10019.89159 ) );
 	ASSERT_TRUE( eq( result.avg, 1431.41308428571 ) );
 	ASSERT_TRUE( eq( result.med, 3.14159 ) );
@@ -91,10 +88,10 @@ TEST( TestStatistics, statOddsNumber ) {
 	ASSERT_TRUE( eq( result.std, 3777.95204127486 ) );
 
 	samples.clear();
-	ASSERT_FALSE( StatisticAll( samples, result ) );
+	ASSERT_FALSE( result( samples ) );
 
 	samples.push_back( 0.0 );
-	ASSERT_TRUE( StatisticAll( samples, result ) );
+	ASSERT_TRUE( result( samples ) );
 	ASSERT_TRUE( eq( result.sum, 0.0 ) );
 	ASSERT_TRUE( eq( result.avg, 0.0 ) );
 	ASSERT_TRUE( eq( result.med, 0.0 ) );
@@ -103,7 +100,7 @@ TEST( TestStatistics, statOddsNumber ) {
 	ASSERT_TRUE( eq( result.std, 0.0 ) );
 
 	samples[0] = 123.456;
-	ASSERT_TRUE( StatisticAll( samples, result ) );
+	ASSERT_TRUE( result( samples ) );
 
 	ASSERT_TRUE( eq( result.sum, 123.456 ) );
 	ASSERT_TRUE( eq( result.avg, 123.456 ) );
@@ -115,34 +112,34 @@ TEST( TestStatistics, statOddsNumber ) {
 
 TEST( TestStatistics, CoeOfDeterm ) {
 	// 序列必须倒序
-	forward_list<double> samples = { 4, 3, 2, 1 };
-	ASSERT_TRUE( eq( CoeOfDeterm( samples, 4, 2.5 ), 1.0 ) );
+	vector<double> samples = { 4, 3, 2, 1 };
+	ASSERT_TRUE( eq( r_square( samples, 2.5 ), 1.0 ) );
 
 	samples = { 25, 16, 9, 4, 1, };
-	double coe_deter = CoeOfDeterm( samples, 5, 11 );
+	double coe_deter = r_square( samples, 11 );
 	ASSERT_TRUE( eq( coe_deter, 0.72192513368984 ) );
 };
 
 TEST( TestStatistics, PearsonCorrelation ) {
 	constexpr double result = -0.21328709971621806;
-	ASSERT_DOUBLE_EQ( PearsnCorr( RANDS_2D ), result );
+	ASSERT_DOUBLE_EQ( pearson( RANDS_2D ), result );
 
 	NumPairs_t empty_nps {};
-	ASSERT_TRUE( eq( PearsnCorr( empty_nps ), std::numeric_limits<double>::quiet_NaN() ) );
+	ASSERT_TRUE( eq( pearson( empty_nps ), std::numeric_limits<double>::quiet_NaN() ) );
 
 	NumPairs_t only_1_np { { 123, 456 } };
-	ASSERT_DOUBLE_EQ( PearsnCorr( only_1_np ), 1. );
+	ASSERT_DOUBLE_EQ( pearson( only_1_np ), 1. );
 };
 
 TEST( TestStatistics, SpearmanCorrelation ) {
 	constexpr double result = -0.21936993699369936;
-	ASSERT_DOUBLE_EQ( SpearmCorr( RANDS_2D ), result );
+	ASSERT_DOUBLE_EQ( spearman( RANDS_2D ), result );
 
 	NumPairs_t empty_nps {};
-	ASSERT_TRUE( eq( SpearmCorr( empty_nps ), std::numeric_limits<double>::quiet_NaN() ) );
+	ASSERT_TRUE( eq( spearman( empty_nps ), std::numeric_limits<double>::quiet_NaN() ) );
 
 	NumPairs_t only_1_np { { 123, 456 } };
-	ASSERT_DOUBLE_EQ( SpearmCorr( only_1_np ), 1. );
+	ASSERT_DOUBLE_EQ( spearman( only_1_np ), 1. );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

@@ -5,10 +5,9 @@
 
 using namespace leon_utl;
 using std::set;
-using std::string;
 
 TEST( TestStrSets, splitStr2set ) {
-	string s = "abc,def,ghi";
+	str_t s = "abc,def,ghi";
 	StrSet_t tokens = split2set( s, ',' );
 	ASSERT_TRUE( tokens.contains( "abc" ) );
 	ASSERT_TRUE( tokens.contains( "def" ) );

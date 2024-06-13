@@ -49,6 +49,7 @@ include_directories( "." )	# 这不是本文件的目录！是包含者文件的
 add_library( objCommon OBJECT
 	algor/Algorithms.cpp
 	algor/Statistics.cpp
+	buffer/ShmBuffer.cpp
 	chrono/Chrono.cpp
 	convert/Converts.cpp
 	convert/StrSet.cpp

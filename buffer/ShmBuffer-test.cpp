@@ -5,7 +5,7 @@
 
 #include "ShmBuffer.hpp"
 
-namespace leon_ext {
+namespace leon_utl {
 
 namespace fs = std::filesystem;
 using path_t = fs::path;
@@ -106,6 +106,6 @@ TEST( TestShmBuffer, crashWhenSubscriptBeyond ) {
 	ASSERT_DEATH( lg_debg << ( wr[0] = 1 ), "" );
 }; */
 
-}; // namespace leon_ext
+}; // namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

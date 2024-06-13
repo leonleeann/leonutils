@@ -1,15 +1,13 @@
 #pragma once
 #include <atomic>
 #include <memory>		// allocator
-// #include <cstddef>
 
 /* 一个多线程无锁的环状队列
- * 特点:
- *   1.无锁
- *   2.环状队列,整个生命周期不会追加/释放内存
- *   3.支持多线程，多生产者/多消费者(MPMC)
- *   4.只能在同一进程内使用
- */
+	特点:
+	1.无锁
+	2.环状队列,整个生命周期不会追加/释放内存
+	3.支持多线程，多生产者/多消费者(MPMC)
+	4.只能在同一进程内使用 */
 namespace leon_utl {
 
 using AtmSize_t = std::atomic_size_t;

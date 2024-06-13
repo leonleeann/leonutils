@@ -1,19 +1,19 @@
-#include <LeonLog>
 #include <cerrno>		// errno
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <fcntl.h>		// O_CREAT, O_TRUNC, O_RDWR, S_IRUSR, S_IWUSR
 #include <filesystem>
+#include <iostream>
 #include <sys/mman.h>	// shm_open, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON
 #include <unistd.h>		// syscall, ftruncate, open, close
 
 #include "ShmBuffer.hpp"
-#include "misc/Exceptions.hpp"
+#include "except/Exceptions.hpp"
 
-namespace leon_ext {
+namespace leon_utl {
 
-using namespace leon_log;
-using path_t = std::filesystem::path;
-using std::filesystem::exists;
+namespace fs = std::filesystem;
+using path_t = fs::path;
+using fs::exists;
 
 ShmBuffer_t::~ShmBuffer_t() {
 	if( _shm_p != nullptr )
@@ -35,7 +35,8 @@ void* CreateOrPlug( const str_t& n_, size_t b_, bool cr_,
 		throw std::runtime_error( "mmap错误:" + str_t( std::strerror( errno ) ) );
 
 	if( close( shm_fd ) != 0 )
-		lg_erro << "close( shm_fd )错误:" << std::strerror( errno );
+		throw std::runtime_error( "close( shm_fd )错误:" +
+								  str_t( std::strerror( errno ) ) );
 
 	if( ( reinterpret_cast<intptr_t>( shm_pt ) & 63 ) != 0 )
 		throw std::runtime_error( n_ + ":地址未从64字节整倍数开始!" );
@@ -51,8 +52,8 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_ ) {
 	// 把原有 shm 删除
 	shm_unlink( n_.c_str() );
 	path_t shm_path { "/dev/shm/" + n_ };
-	if( std::filesystem::exists( shm_path ) )
-		lg_erro << "shm_unlink之后依然存在:" << shm_path << ",shm尺寸可能错乱!";
+	if( fs::exists( shm_path ) )
+		std::cerr << "shm_unlink之后依然存在:" << shm_path << ",shm尺寸可能错乱!";
 
 	/* 1.权限分三类:
 		a. f_mask: 当前打开的fd对应的操作权限 (O_RDONLY | O_RDWR | O_CREAT | O_TRUNC)
@@ -68,12 +69,11 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_ ) {
 	_shm_p = CreateOrPlug( n_, b_, true, f_mask, u_mask, m_mask );
 	_shm_n = n_;
 
-	if( std::filesystem::exists( shm_path ) ) {
-		_bytes = std::filesystem::file_size( shm_path );
+	if( fs::exists( shm_path ) ) {
+		_bytes = fs::file_size( shm_path );
 		if( _bytes != b_ )
-			lg_erro << "实际创建的shm大小:" << _bytes << "不等于期望值:" < b_;
-		else
-			lg_debg << "成功创建shm:" << shm_path << ",文件尺寸:" << _bytes;
+			std::cerr << "实际创建的shm大小:" << _bytes << "不等于期望值:" << b_;
+		// else std::cerr << "成功创建shm:" << shm_path << ",文件尺寸:" << _bytes;
 	} else {
 		_shm_n.clear(); _shm_p = nullptr; _bytes = 0;
 		throw std::runtime_error( shm_path.native() + ":shm创建完了居然不存在?" );
@@ -89,9 +89,9 @@ size_t ShmBuffer_t::plug( const str_t& n_, bool wr_ ) {
 
 	path_t shm_path { "/dev/shm/" + n_ };
 	size_t rs {};
-	if( std::filesystem::exists( shm_path ) ) {
-		rs = std::filesystem::file_size( shm_path );
-		lg_debg << "将要对接shm:" << n_ << ",文件尺寸:" << rs;
+	if( fs::exists( shm_path ) ) {
+		rs = fs::file_size( shm_path );
+		// std::cerr << "将要对接shm:" << n_ << ",文件尺寸:" << rs;
 	} else
 		throw std::runtime_error( shm_path.native() + ":shm不存在?" );
 
@@ -121,19 +121,19 @@ void ShmBuffer_t::unplug( bool rm_ ) {
 		throw bad_usage( "重复释放shm!!!" );
 
 	path_t shm_path { "/dev/shm/" + _shm_n };
-	lg_debg << shm_path << "munmap前:" << ( exists( shm_path ) ? "存在" : "不存在" );
+	// std::cerr << shm_path << "munmap前:" << ( exists( shm_path ) ? "存在" : "不存在" );
 
 	if( munmap( _shm_p, _bytes ) != 0 )
-		lg_erro << "munmap错误:\"" << str_t( std::strerror( errno ) )
-				<< "\",shm_name:" << _shm_n;
-	lg_debg << shm_path << ":munmap后:" << ( exists( shm_path ) ? "存在" : "不存在" );
+		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
+				  << "\",shm_name:" << _shm_n;
+	// std::cerr << shm_path << ":munmap后:" << ( exists( shm_path ) ? "存在" : "不存在" );
 
 	if( rm_ ) {
-		if( ! std::filesystem::exists( shm_path ) )
-			lg_erro << "准备删除:" << shm_path << "时,它已经不存在了.";
+		if( ! fs::exists( shm_path ) )
+			std::cerr << "准备删除:" << shm_path << "时,它已经不存在了.";
 		else if( shm_unlink( _shm_n.c_str() ) != 0 )
-			lg_erro << "shm_unlink错误:\"" << std::strerror( errno )
-					<< "\",shm_name:" << _shm_n;
+			std::cerr << "shm_unlink错误:\"" << std::strerror( errno )
+					  << "\",shm_name:" << _shm_n;
 	}
 
 	_shm_n.clear();
@@ -141,6 +141,6 @@ void ShmBuffer_t::unplug( bool rm_ ) {
 	_bytes = 0;
 };
 
-};	// namespace leon_ext
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

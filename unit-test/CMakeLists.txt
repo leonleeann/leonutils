@@ -4,17 +4,19 @@ find_package( GTest REQUIRED )
 
 #======= TARGET unit-test ==============
 add_executable( unit-test UnitTestMain.cpp
-	# ../algor/Algorithms-test.cpp
-	# ../algor/Statistics-test.cpp
-	# ../chrono/Chrono-test.cpp
-	# ../convert/Converts-test.cpp
-	# ../convert/StrSet-test.cpp
-	# ../convert/Unicodes-test.cpp
-	# ../convert/UnionTypes-test.cpp
-	# ../except/CallStack-test.cpp
-	# ../queue/CraflinRQ-test.cpp
-	# ../queue/PosixMQ-test.cpp
-	# ../queue/SHMRQ-test.cpp
+	../algor/Algorithms-test.cpp
+	../algor/Statistics-test.cpp
+	../buffer/ShmBuffer-test.cpp
+	../chrono/Chrono-test.cpp
+	../convert/Converts-test.cpp
+	../convert/StrSet-test.cpp
+	../convert/Unicodes-test.cpp
+	../convert/UnionTypes-test.cpp
+	../except/CallStack-test.cpp
+	../queue/CraflinRQ-test.cpp
+#	../queue/PosixMQ-test.cpp
+	../queue/RingQue-test.cpp
+#	../queue/SHMRQ-test.cpp
 	../sys/Signals-test.cpp
 )
 target_include_directories( unit-test PRIVATE ${PROJECT_SOURCE_DIR} )

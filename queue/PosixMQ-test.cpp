@@ -5,7 +5,6 @@
 
 #include "PosixMQ.hpp"
 #include "chrono/Chrono.hpp"
-#include "event/Message.hpp"
 #include "use-case/UseCase-Quotes.hpp"
 
 using namespace leon_utl;

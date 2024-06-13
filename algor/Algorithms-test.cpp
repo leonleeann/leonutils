@@ -22,12 +22,12 @@ TEST( TestAlgorithms, numericChecking ) {
 	ASSERT_FALSE( strict_max( numeric_limits<double>::quiet_NaN() ) );
 	ASSERT_TRUE( strict_low( numeric_limits<double>::lowest() ) );
 
-	char     cc = 123;
-	int      ii = 123;
-	float    f7 =  1234567.1;
-	float    f8 = 12345678.1;
-	double   d15 =  999999999.1;
-	double   d16 = 9999999999.1;
+	char	cc = 123;
+	int		ii = 123;
+	float	f7 =  1234567.1;
+	float	f8 = 12345678.1;
+	double	d15 =  999999999.1;
+	double	d16 = 9999999999.1;
 
 	ASSERT_TRUE( about_int( cc ) );
 	ASSERT_TRUE( about_int( ii ) );

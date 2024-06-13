@@ -3,9 +3,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include "RingQue.hpp"
+#include "RingQueue.hpp"
 
-using namespace leon_ext;
+using namespace leon_utl;
 
 struct Rec3B_t {
 	// unsigned char pch3[3];

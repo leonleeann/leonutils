@@ -205,23 +205,23 @@ TEST( TestChrono, parseTime ) {
 TEST( TestChrono, parseTime2 ) {
 	milliseconds mil_sec {};
 	ASSERT_EQ( mil_sec.count(), 0 );
-	mil_sec = parse_time<milliseconds>( "00:00:05" );
+	mil_sec = duration_cast<milliseconds>( parse_time( "00:00:05" ) );
 	ASSERT_EQ( mil_sec.count(), 5000 );
-	mil_sec = parse_time<milliseconds>( "00:00:05.123" );
+	mil_sec = duration_cast<milliseconds>( parse_time( "00:00:05.123" ) );
 	ASSERT_EQ( mil_sec.count(), 5123 );
 
 	seconds secs {};
 	ASSERT_EQ( secs.count(), 0 );
-	secs = parse_time<seconds>( "00:00:05" );
+	secs = duration_cast<seconds>( parse_time( "00:00:05" ) );
 	ASSERT_EQ( secs.count(), 5 );
-	secs = parse_time<seconds>( "00:00:05.999" );
+	secs = duration_cast<seconds>( parse_time( "00:00:05.999" ) );
 	ASSERT_EQ( secs.count(), 5 );
 
 	nanoseconds nano_sec {};
 	ASSERT_EQ( nano_sec.count(), 0 );
-	nano_sec = parse_time<nanoseconds>( "00:00:05" );
+	nano_sec = parse_time( "00:00:05" );
 	ASSERT_EQ( nano_sec.count(), 5000000000 );
-	nano_sec = parse_time<nanoseconds>( "00:00:05.123456789" );
+	nano_sec = parse_time( "00:00:05.123456789" );
 	ASSERT_EQ( nano_sec.count(), 5123456789 );
 };
 
@@ -233,13 +233,7 @@ TEST( TestChrono, parseDate ) {
 	ASSERT_EQ( tm1.tm_year, 2019 - 1900 );
 	ASSERT_EQ( tm1.tm_mon, 6 );
 
-	ASSERT_EQ( parse_date<SysTime_t::duration>( "20190729" ),
-			   make_sys_time( 2019, 7, 29 ) );
-
-	time_point<system_clock, seconds> d2, d3;
-	d2 = parse_date<seconds>( "20190729" );
-	d3 = time_point_cast<seconds>( make_sys_time( 2019, 7, 29 ) );
-	ASSERT_EQ( d2, d3 );
+	ASSERT_EQ( parse_date( "20190729" ), make_time( 2019, 7, 29 ) );
 };
 
 TEST( TestFormatTimeP, WithFormat ) {
@@ -265,12 +259,12 @@ TEST( TestFormatTimeP, WithFormat ) {
 };
 
 TEST( TestMakeSysTime, makeSysTime ) {
-	auto stp1 = make_sys_time( 2019, 7, 29, 23, 59, 59, 123, 456, 789 );
+	auto stp1 = make_time( 2019, 7, 29, 23, 59, 59, 123, 456, 789 );
 	ASSERT_EQ( format_time( stp1, 9 ), "19/07/29 23:59:59.123456789" );
 };
 
 TEST( TestMakeUSTime, makeUSTime ) {
-	auto stp1 = make_time<microseconds>( 2019, 7, 29, 23, 59, 59, 123, 456 );
+	auto stp1 = make_time( 2019, 7, 29, 23, 59, 59, 123, 456 );
 	ASSERT_EQ( format_time( stp1, 6 ), "19/07/29 23:59:59.123456" );
 	ASSERT_EQ( format_time( stp1, 9 ), "19/07/29 23:59:59.123456000" );
 };
@@ -284,3 +278,4 @@ TEST( TestFormatDuration, formatDura ) {
 
 	ASSERT_EQ( format_secs( 3599001ms ), "3599.001s" );
 };
+// kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

@@ -242,7 +242,7 @@ TEST( TestUnionTypes, RawConvert ) {
 	ASSERT_EQ( RawI64U( int64_t( 0 ) ),                       uint64_t( 0 ) );
 	ASSERT_EQ( RawI64U( std::numeric_limits<int64_t>::max() ),     uint64_t( 0x7fffffffffffffff ) );
 
-//	ASSERT_TRUE( leon_ext::eq( RawU64D( 0x407b4999999999abUL ), 436.6 ) );
+//	ASSERT_TRUE( leon_utl::eq( RawU64D( 0x407b4999999999abUL ), 436.6 ) );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
