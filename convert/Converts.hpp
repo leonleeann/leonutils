@@ -1,9 +1,13 @@
 #pragma once
+#include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <iomanip>
-#include <sstream>
+#include <iosfwd>
 #include <string>
 
 namespace leon_utl {
+
+using oss_t = std::ostringstream;
+using str_t = std::string;
 
 inline bool is_alpha( char c ) {
 	return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' );
@@ -53,53 +57,80 @@ inline bool is_number( const char* pc, size_t s ) {
 	}
 };
 
-inline bool is_number( const std::string& s ) {
+inline bool is_number( const str_t& s ) {
 	return is_number( s.c_str(), s.size() );
 };
 
-inline std::string trim_l( const std::string& src ) {
+inline str_t trim_l( const str_t& src ) {
 	auto pos = src.find_first_not_of( ' ' );
-	return ( std::string::npos == pos ? "" : src.substr( pos ) );
+	return ( str_t::npos == pos ? "" : src.substr( pos ) );
 };
 
-inline std::string trim_r( const std::string& src ) {
+inline str_t trim_r( const str_t& src ) {
 	auto pos = src.find_last_not_of( ' ' );
-	return ( std::string::npos == pos ? "" : src.substr( 0, pos + 1 ) );
+	return ( str_t::npos == pos ? "" : src.substr( 0, pos + 1 ) );
 };
 
-inline std::string trim( const std::string& src ) {
+inline str_t trim( const str_t& src ) {
 	return trim_l( trim_r( src ) );
 };
 
-inline std::string pad_l( const std::string& str, size_t wide,
-						  const std::string& tail = " ", char pad_ch = ' ' ) {
-	std::ostringstream oss;
-	oss << std::setw( wide - tail.size() ) << std::right
-		<< std::setfill( pad_ch ) << str << tail;
-	return oss.str();
+inline void copy_str( const char* src_, char* dest_, ssize_t size_ = -1 ) {
+	ssize_t src_len = std::strlen( src_ );
+	if( size_ < 0 )
+		size_ = src_len + 1;
+
+	ssize_t to_cp = std::min( src_len, size_ - 1 );
+	std::memcpy( dest_, src_, to_cp );
+	dest_[to_cp] = '\0';
 };
 
-inline std::string pad_r( const std::string& str, size_t wide,
-						  const std::string& head = " ", char pad_ch = ' ' ) {
-	std::ostringstream oss;
-	oss << head << std::setw( wide - head.size() ) << std::left
-		<< std::setfill( pad_ch ) << str;
-	return oss.str();
+/* 因为 std::strncpy 不太满足需求,只好自己做一个. 比如:
+ * CTP 的一个 TradingDay 字段是 char[9], 我们用一个 string("20240217") 本来刚好填充.
+ * 但调用 strncpy, 最后一个参数如果给 9, 要得到 gcc 警告"Wstringop-truncation";
+ * 如果给8, 又不能保证末尾有个 null 字符. */
+inline void copy_str( const str_t& src_, char* dest_, ssize_t size_ = -1 ) {
+	ssize_t src_len = src_.size();
+	if( size_ < 0 )
+		size_ = src_len + 1;
+
+	ssize_t to_cp = std::min( src_len, size_ - 1 );
+	std::memcpy( dest_, src_.c_str(), to_cp );
+	dest_[to_cp] = '\0';
 };
 
-inline std::string to_lower( const std::string& src ) {
-	std::string s = src;
+inline str_t pad_l( const str_t& s, size_t w,
+					const str_t& tail = " ", char ch = ' ' ) {
+	oss_t o;
+	o << std::setw( w - tail.size() ) << std::right << std::setfill( ch )
+	  << s << tail;
+	return o.str();
+};
+
+inline str_t pad_r( const str_t& s, size_t w,
+					const str_t& head = " ", char ch = ' ' ) {
+	oss_t o;
+	o << head << std::setw( w - head.size() ) << std::left << std::setfill( ch )
+	  << s;
+	return o.str();
+};
+
+inline str_t to_lower( const str_t& src ) {
+	str_t s = src;
 	for( auto& c : s )
 		c = std::tolower( c );
 	return s;
 };
 
-inline std::string to_upper( const std::string& src ) {
-	std::string s = src;
+inline str_t to_upper( const str_t& src ) {
+	str_t s = src;
 	for( auto& c : s )
 		c = std::toupper( c );
 	return s;
 };
+
+// 移除字符串内的特殊字符,仅保留字母、数字,和下划线
+str_t rm_special( const char* source );
 
 template <typename T>
 inline constexpr const char* parse_int( T& i, const char* s, size_t n ) {
@@ -118,15 +149,15 @@ inline const char* parse_all( T& i, const char* s ) {
 };
 
 // 指针按十六进制输出地址值, 便于调试时对比内存位置是否相同
-std::string ptr2hex( const void* );
+str_t ptr2hex( const void* ptr );
 
 template<typename T>
-std::string format( const T	value,			//源数值
-					size_t	width = 0,		//结果宽度(含填充及分隔符)
-					size_t	preci = 3,		//精度(小数位数)
-					size_t	group = 0,		//分组位数(隔几位分一下)
-					char	pad_c = ' ',	//左边填充字符
-					char	sep_c = '\'' );	//分组分隔符
+str_t format( const T	value,		//源数值
+			  size_t	width = 0,	//结果宽度(含填充及分隔符)
+			  size_t	preci = 3,	//精度(小数位数)
+			  size_t	group = 0,	//分组位数(隔几位分一下)
+			  char	pad_c = ' ',	//左边填充字符
+			  char	sep_c = '\'' );	//分组分隔符
 
 }; //namespace leon_utl
 

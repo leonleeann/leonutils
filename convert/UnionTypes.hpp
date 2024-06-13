@@ -9,6 +9,9 @@
 
 namespace leon_utl {
 
+using str_t = std::string;
+using stv_t = std::string_view;
+
 union U16_u {
 	U16_u() = default;
 	constexpr U16_u( U16_u&& ) = default;
@@ -23,13 +26,13 @@ union U16_u {
 
 	/* 这四个函数要做到constexpr不容易,暂时不想操心了.
 	constexpr U16_u( const char* p_ ) : b0( p_ ? p_[0] : 0 ), b1( p_ ? p_[1] : 0 ) {};
-	constexpr U16_u( const std::string& s_ ) : b0( s_[0] ), b1( s_[1] ) {}; */
+	constexpr U16_u( const str_t& s_ ) : b0( s_[0] ), b1( s_[1] ) {}; */
 	U16_u( const char* p_ ): asU( *reinterpret_cast<const uint16_t*>( p_ ) ) {};
-	U16_u( const std::string& s_ ): U16_u( s_.c_str() ) {};
+	U16_u( const str_t& s_ ): U16_u( s_.c_str() ) {};
 	U16_u operator=( const char* p_ ) {
 		asU = * reinterpret_cast<const uint16_t*>( p_ ); return *this;
 	};
-	U16_u operator=( const std::string& s_ ) {
+	U16_u operator=( const str_t& s_ ) {
 		asU = * reinterpret_cast<const uint16_t*>( s_.c_str() ); return *this;
 	};
 
@@ -40,12 +43,12 @@ union U16_u {
 	constexpr bool operator!=( U16_u o_ ) const { return asU != o_.asU; };
 	constexpr bool operator==( U16_u o_ ) const { return asU == o_.asU; };
 
-	constexpr std::string_view view() const {
-		return std::string_view( asA, sizeof( uint16_t ) );
+	constexpr stv_t view() const {
+		return stv_t( asA, sizeof( uint16_t ) );
 	};
 
-	std::string to_str() const {
-		return std::string( asA, sizeof( uint16_t ) );
+	str_t to_str() const {
+		return str_t( asA, sizeof( uint16_t ) );
 	};
 
 	int16_t		asI;
@@ -69,11 +72,11 @@ union U32_u {
 	constexpr U32_u operator=( uint32_t u_ )	{ asU = u_; return *this; };
 
 	U32_u( const char* p_ ): asU( *reinterpret_cast<const uint32_t*>( p_ ) ) {};
-	U32_u( const std::string& s_ ): U32_u( s_.c_str() ) {};
+	U32_u( const str_t& s_ ): U32_u( s_.c_str() ) {};
 	U32_u operator=( const char* p_ ) {
 		asU = * reinterpret_cast<const uint32_t*>( p_ ); return *this;
 	};
-	U32_u operator=( const std::string& s_ ) {
+	U32_u operator=( const str_t& s_ ) {
 		asU = * reinterpret_cast<const uint32_t*>( s_.c_str() ); return *this;
 	};
 
@@ -84,12 +87,12 @@ union U32_u {
 	constexpr bool operator!=( U32_u o_ ) const { return asU != o_.asU; };
 	constexpr bool operator==( U32_u o_ ) const { return asU == o_.asU; };
 
-	constexpr std::string_view view() const  {
-		return std::string_view( asA, sizeof( uint32_t ) );
+	constexpr stv_t view() const  {
+		return stv_t( asA, sizeof( uint32_t ) );
 	};
 
-	std::string to_str() const  {
-		return std::string( asA, sizeof( uint32_t ) );
+	str_t to_str() const  {
+		return str_t( asA, sizeof( uint32_t ) );
 	};
 
 	float		asF;
@@ -115,11 +118,11 @@ union U64_u {
 	constexpr U64_u operator=( uint64_t u_ )	{ asU = u_; return *this; };
 
 	U64_u( const char* p_ ): asU( *reinterpret_cast<const uint64_t*>( p_ ) ) {};
-	U64_u( const std::string& s_ ): U64_u( s_.c_str() ) {};
+	U64_u( const str_t& s_ ): U64_u( s_.c_str() ) {};
 	U64_u operator=( const char* p_ ) {
 		asU = * reinterpret_cast<const uint64_t*>( p_ ); return *this;
 	};
-	U64_u operator=( const std::string& s_ ) {
+	U64_u operator=( const str_t& s_ ) {
 		asU = * reinterpret_cast<const uint64_t*>( s_.c_str() ); return *this;
 	};
 
@@ -130,12 +133,12 @@ union U64_u {
 	constexpr bool operator!=( U64_u o_ ) const { return asU != o_.asU; };
 	constexpr bool operator==( U64_u o_ ) const { return asU == o_.asU; };
 
-	constexpr std::string_view view() const  {
-		return std::string_view( asA, sizeof( uint64_t ) );
+	constexpr stv_t view() const  {
+		return stv_t( asA, sizeof( uint64_t ) );
 	};
 
-	std::string to_str() const  {
-		return std::string( asA, sizeof( uint64_t ) );
+	str_t to_str() const  {
+		return str_t( asA, sizeof( uint64_t ) );
 	};
 
 	double		asD;

@@ -5,34 +5,28 @@
 #include "Algorithms.hpp"
 #include "Statistics.hpp"
 
-using std::accumulate;
-using std::for_each;
-using std::forward_list;
-using std::sort;
-using std::sqrt;
 using std::vector;
 
 namespace leon_utl {
 
-double Average( const std::forward_list<double>& samps_ ) {
+double average( const vector<double>& samps_ ) {
 	if( samps_.empty() )
 		return 0.0;
 
-	double total = 0.0, count = 0.0;
-	for( const auto v : samps_ ) {
+	double total = 0.0;
+	for( const auto v : samps_ )
 		total += v;
-		++count;
-	}
 
-	return total / count;
+	return total / samps_.size();
 };
 
-double CoeOfDeterm( const forward_list<double>& samps_, int cnt_, double avg_ ) {
-	if( cnt_ <= 1 )
+double r_square( const vector<double>& samps_, double avg_ ) {
+	auto cnt = samps_.size();
+	if( cnt <= 1 )
 		return 1.0;
 
 	double idea_v = samps_.front();
-	double step_v = idea_v / cnt_;
+	double step_v = idea_v / cnt;
 	double dif_sum = 0.0;  // 累计 ∑(y - ŷ)² :  ∑(实测值 - 理想值)²
 	double std_sum = 0.0;  // 累计 ∑(y - ȳ)² :  ∑(实测值 - 平均值)²
 
@@ -45,55 +39,49 @@ double CoeOfDeterm( const forward_list<double>& samps_, int cnt_, double avg_ ) 
 		std_sum += diff * diff;
 	}
 
-	// 可决系数 = 1 - ∑(y - ŷ)² / ∑(y - ȳ)²
+	// R² = 1 - ∑(y - ŷ)² / ∑(y - ȳ)²
 	return gt( std_sum, 0.0 ) ? 1 - dif_sum / std_sum : 1.0;
 };
 
-bool StatisticAll( vector<double>& samps_, StatisticResult_t& reslt_ ) {
+Statistic_t::Statistic_t( vector<double>& samps_ ) {
+	if( operator()( samps_ ) )
+		return;
+	sum = max = min = med = avg = std = cnt = 0;
+};
+
+bool Statistic_t::operator()( vector<double>& samps_ ) {
 	// 空集的结果是"未定义",不用初始化变量
 	if( samps_.empty() )
 		return false;
 
-	reslt_ = {};
-	reslt_.cnt = static_cast<int64_t>( samps_.size() );
+	cnt = static_cast<int64_t>( samps_.size() );
 	// 只有一个样本
-	if( reslt_.cnt == 1 ) {
-		reslt_.sum = reslt_.avg = reslt_.med = reslt_.max = reslt_.min = samps_[0];
+	if( cnt == 1 ) {
+		sum = max = min = med = avg = samps_[0]; std = 0.0;
 		return true;
 	}
 
 	// 因为样本数超过1,所以 iLast 至少等于 1
-	int64_t iLast = reslt_.cnt - 1;
+	int64_t iLast = cnt - 1;
 
 	sort( samps_.begin(), samps_.end() );
+	sum = accumulate( samps_.begin(), samps_.end(), 0.0 );
+	max = samps_[iLast];
+	min = samps_[0];
 
-	// 总和
-	reslt_.sum = accumulate( samps_.begin(), samps_.end(), 0.0 );
-
-	// 平均值
-	reslt_.avg = reslt_.sum / samps_.size();
-
-	// 最大、最小值
-	reslt_.max = samps_[iLast];
-	reslt_.min = samps_[0];
-
-	// 中位数
 	int64_t iMed = iLast / 2;
-	if( iLast % 2 != 0 ) {
-		reslt_.med = ( samps_[iMed] + samps_[iMed + 1] ) / 2.0;
-	} else
-		reslt_.med = samps_[iMed];
+	med = ( iLast % 2 == 0 ) ? samps_[iMed]
+		  : ( samps_[iMed] + samps_[iMed + 1] ) / 2.0;
 
-	// 标准差
-	reslt_.std = accumulate(
-					 samps_.begin(), samps_.end(), 0.0,
-	[ = ]( const double & a, const double & b ) {
-		double diff = b - reslt_.avg;
+	avg = sum / cnt;
+	std = accumulate( samps_.begin(), samps_.end(), 0.0,
+	[this]( const double & a, const double & b ) {
+		double diff = b - avg;
 		return a + diff * diff;
 	} );
-	// 通过有限样本估算全体标准差(而非样本内标准差),应让除数少1,所以是iLast而不是size()
-	reslt_.std = sqrt( reslt_.std / iLast );
 
+	// 通过有限样本估算全体标准差(而非样本内标准差),应让除数少1,所以是iLast而不是size()
+	std = sqrt( std / iLast );
 	return true;
 };
 
@@ -133,7 +121,7 @@ double _PearsnCorr( vector<T>& nps_ ) {
 };
 */
 
-double PearsnCorr( NumPairs_t& nps_ ) {
+double pearson( NumPairs_t& nps_ ) {
 	// 空集的结果是"NaN"
 	if( nps_.empty() )
 		return std::numeric_limits<double>::quiet_NaN();
@@ -141,7 +129,7 @@ double PearsnCorr( NumPairs_t& nps_ ) {
 	if( nps_.size() == 1 )
 		return 1.;
 
-	StatisticResult_t x_st {}, y_st {};
+	Statistic_t x_st {}, y_st {};
 	x_st.cnt = y_st.cnt = static_cast<int64_t>( nps_.size() );
 
 	// 总和
@@ -166,7 +154,7 @@ double PearsnCorr( NumPairs_t& nps_ ) {
 	return cov / std_pro;
 };
 
-double SpearmCorr( NumPairs_t& nps_ ) {
+double spearman( NumPairs_t& nps_ ) {
 	/* 思路:
 	 * 1.先得出每个X的序号、每个Y的序号
 	 * 2.然后计算两个序号序列的 Pearson 相关系数,即为结果
@@ -185,7 +173,7 @@ double SpearmCorr( NumPairs_t& nps_ ) {
 	// 1. 先按 x 值排序, 并以序号代替 x 字段的原始值
 	sort( nps_.begin(), nps_.end(), []( const NumPair_t& l, const NumPair_t& r ) {
 		return l.x < r.x;
-	});
+	} );
 	double ord = 0.;
 	for( auto& p : nps_ )
 		p.x = ord++;
@@ -193,13 +181,13 @@ double SpearmCorr( NumPairs_t& nps_ ) {
 	// 2. 按 y 值排序, 并以序号代替 y 字段的原始值
 	sort( nps_.begin(), nps_.end(), []( const NumPair_t& l, const NumPair_t& r ) {
 		return l.y < r.y;
-	});
+	} );
 	ord = 0.;
 	for( auto& p : nps_ )
 		p.y = ord++;
 
 	// 3. 两个序号构成的序列的 Pearson 相关系数, 就是 Spearman 相关系数
-	return PearsnCorr( nps_ );
+	return pearson( nps_ );
 };
 
 };  // namespace leon_utl

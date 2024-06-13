@@ -243,6 +243,9 @@ inline bool lt( double v1, double v2, double epsilon ) {
 	return v1 < v2 - epsilon;
 };
 
+// 自动处理"除数为零"的除法
+double safe_div( double num, double deno );
+
 // 找出小数精确位数
 int decimals( const double );
 

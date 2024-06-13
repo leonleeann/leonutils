@@ -4,17 +4,14 @@
 
 namespace leon_utl {
 
-using StrSet_t = std::set<std::string>;
+using str_t = std::string;
+using StrSet_t = std::set<str_t>;
 
 // 切分字符串到集合
-StrSet_t split2set( const std::string& src, char delimiter );
+StrSet_t split2set( const str_t& src, char delimiter );
 
 // 字符串集合输出
-std::string set2str( const StrSet_t& );
-
-/* 输出字符串集合(好像gcc-12的重载决议会用到系统库,还没找到原因,只好暂时不用流式输出)
-std::ostream& operator<<( std::ostream&, const StrSet_t& ); */
-std::ostream& output( std::ostream&, const StrSet_t& );
+str_t set2str( const StrSet_t& );
 
 // 字符串集合求并集
 StrSet_t union_of( const StrSet_t&, const StrSet_t& );
@@ -26,5 +23,8 @@ StrSet_t differ_of( const StrSet_t&, const StrSet_t& );
 StrSet_t intersect( const StrSet_t&, const StrSet_t& );
 
 }; //namespace leon_utl
+
+// 必须放在 namespace 之外
+std::ostream& operator<<( std::ostream&, const std::set<std::string>& );
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

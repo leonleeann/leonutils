@@ -1,16 +1,16 @@
 #include <fmt/format.h>
 #include <forward_list>
-#include <iostream>
+#include <sstream>
 #include <string>
 
 #include "CallStack.hpp"
 
-using std::forward_list;
-using std::string;
-
 namespace leon_utl {
 
-thread_local forward_list<const char*> tl_call_stack;
+using str_t = std::string;
+using oss_t = std::ostringstream;
+
+thread_local std::forward_list<const char*> tl_call_stack;
 
 Tracer_t::Tracer_t( const char* point_ ): _name( point_ ) {
 	tl_call_stack.emplace_front( point_ );
@@ -32,13 +32,14 @@ void Tracer_t::ClearCallStack() {
 	tl_call_stack.clear();
 };
 
-void Tracer_t::PrintCallStack( std::ostream& o ) {
-	forward_list<const char*> reversed { tl_call_stack };
-	reversed.reverse();
+void Tracer_t::PrintCallStack( std::ostream& os_ ) {
+	tl_call_stack.reverse();
 
-	string tabs;
-	for( auto& fn : reversed )
-		o << ( tabs += '\t' ) << fn << "()\n";
+	str_t tabs;
+	for( auto& fn : tl_call_stack )
+		os_ << ( tabs += '\t' ) << fn << "()\n";
+
+	tl_call_stack.clear();
 };
 
 }; //namespace leon_utl

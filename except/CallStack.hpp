@@ -1,6 +1,5 @@
 #pragma once
 #include <iosfwd>
-#include <string>
 
 namespace leon_utl {
 
@@ -22,14 +21,10 @@ private:
 	const char* _name;
 };
 
-#ifdef DEBUG
-
-#define TRACE_POINT( trace_point_name ) Tracer_t { trace_point_name }
-
+#if defined DEBUG || defined APP_ROLE_IS_TD
+#define TRACE_POINT Tracer_t _tracer { __func__ }
 #else
-
-#define TRACE_POINT( trace_point_name ) {}
-
+#define TRACE_POINT {}
 #endif
 
 }; //namespace leon_utl

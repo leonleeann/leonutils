@@ -7,7 +7,7 @@
 namespace leon_utl {
 
 /* 类定义
- * RingQueue_t 用定长数组实现一个循环队列
+ * RingQue_t 用定长数组实现一个循环队列
  * 入队下标(生产者使用)指向队尾，出队下标(消费者使用)指向队首。下标单调增长(不能
  * 倒退)，达到数组边界就回绕;
  * 允许入队下标“追上/超越”出队下标，也就是允许入队操作覆盖尚未出队的数据！
@@ -21,113 +21,76 @@ namespace leon_utl {
  *    有断言检查, 但那只在调试期有作用)。
  */
 template <typename Payload_t>
-class RingQueue_t {
-//=======   对外接口    =======
+class RingQue_t {
 public:
-	static constexpr size_t MAX_CAPACITY =
-		std::pow( 2,
-				  std::floor(
-					  std::log2( std::pow( 2, 31 ) / sizeof( Payload_t ) ) ) );
+//======== 类(static)接口 =======================================================
+	// 最大内存占用
+	static constexpr size_t MAX_MEM_USAGE = 0x40000000;  //1GB
 
+	// 至少容纳几个元素
+	static constexpr size_t LEAST_ELEMNTS = 4;
+
+	// 最多容纳几个元素(要对齐到2的n次幂,因为要用mask)
+#if( __GNUC__ >= 10 )
+// gcc-10 之后要用这个
+	static constexpr size_t MOST_ELEMENTS =
+		std::bit_floor( MAX_MEM_USAGE / sizeof( Payload_t ) );
+#else
+// gcc-9 要用这个
+	static constexpr size_t MOST_ELEMENTS =
+		std::floor2( MAX_MEM_USAGE / sizeof( Payload_t ) );
+#endif
+
+//======== 对象接口 =============================================================
 	// 只能显式构造
-	RingQueue_t() = delete;
-	RingQueue_t( RingQueue_t& ) = delete;
-	RingQueue_t( RingQueue_t&& ) = delete;
-	RingQueue_t( const RingQueue_t& ) = delete;
-	RingQueue_t( const RingQueue_t&& ) = delete;
-	RingQueue_t& operator=( RingQueue_t& ) = delete;
-	RingQueue_t& operator=( RingQueue_t&& ) = delete;
-	RingQueue_t& operator=( const RingQueue_t& ) = delete;
-	RingQueue_t& operator=( const RingQueue_t&& ) = delete;
-	explicit RingQueue_t( const size_t p_uiCapaHint ) {
-		// 容量要对齐为2的n次幂,因回绕指针不再用" % m_capa", 改用" & m_mask"
-		m_capa = std::pow( 2, std::ceil( std::log2( p_uiCapaHint ) ) );
-		// 占用内存不能超过2G
-		m_capa = std::min( MAX_CAPACITY, m_capa );
+	explicit RingQue_t( size_t capa_hint ) {
+		// 容量要对齐为2的n次幂,因回绕指针不再用" % _capa", 改用" & _mask"
+#if( __GNUC__ >= 10 )
+// gcc-10 之后要用这个
+		capa_hint = std::min( MOST_ELEMENTS, std::bit_ceil( capa_hint ) );
+#else
+// gcc-9 要用这个
+		capa_hint = std::min( MOST_ELEMENTS, std::ceil2( capa_hint ) );
+#endif
 
-		m_upBuffer = std::make_unique< Payload_t[] >( m_capa );
-		m_base = m_upBuffer.get();
-		m_mask = m_capa - 1;
+		_buff = std::make_unique<Payload_t[]>( capa_hint );
+		_base = _buff.get();
+		_mask = capa_hint - 1;
 	};
 
-	// 容量
-	inline size_t capacity() const {
-		return m_capa;
-	};
+	size_t	capa() const { return _mask + 1; };
+	void	clear() { _head = _tail = 0; };
+	bool	empty() const { return _tail <= _head; };
+	bool	fully() const { return _tail - _head > _mask; };
+	size_t	size() const { return _tail - _head; };
 
-	// 是否为空
-	inline bool isEmpty() const {
-		bool bResult = ( m_tail == m_head );
-		asm volatile( "mfence" ::: "memory" );
-		return bResult;
-	};
+	// 队首元素的引用(下一个出队位置)
+	const Payload_t&	head() const { return _base[_head & _mask]; };
+	// 队尾元素的引用(下一个入队位置)
+	Payload_t&			tail() const { return _base[_tail & _mask]; };
 
-	// 是否已满
-	inline bool isFull() const {
-		bool bResult = ( m_tail - m_head > m_mask );
-		asm volatile( "mfence" ::: "memory" );
-		return bResult;
-	};
+	// 入队, _tail 增一
+	void	enque() { ++_tail; };
+	// 复制入队
+	// void	enque( const Payload_t& pl ) { _base[_tail++ & _mask] = pl; };
+	// 复制/移动入队
+	template<typename U>
+	void	enque( U&& pl ) { _base[_tail++ & _mask] = std::forward<U>( pl ); };
 
-	// 抛弃队内元素
-	inline void clear() {
-		m_head = m_tail = 0;
-	};
+	// 出队, _head 增一
+	Payload_t&&	deque() { return std::move( _base[_head++ & _mask] ); };
+	void	deque( Payload_t& pl ) { pl = std::move( _base[_head++ & _mask] ); };
 
-	// 是否有货, 等价于 !isEmpty()
-	inline bool hasData() const {
-//       bool bResult = ( m_tail != m_head );
-//       asm volatile( "mfence" ::: "memory" );
-		return ( m_tail != m_head );
-	};
+	// 作废队尾记录, _tail 减一
+	void	rtail() { --_tail; };
 
-	// 可用(已入队元素)计数
-	inline size_t availabeCount() const {
-		return ( m_tail - m_head );
-	};
-
-	// 返回队尾元素的地址, 下标不动.这个元素应该是一个空白元素(可填入内容)
-	inline Payload_t* tail() const {
-		return m_base + ( m_tail & m_mask );
-	};
-
-	// 入队一个元素, 入队下标增一
-	inline void enque() {
-//       assert( ! isFull() );
-		asm volatile( "mfence" ::: "memory" );
-		++m_tail;
-	};
-
-	// 返回队首元素的地址, 下标不动.如果队列为空, 后果未定义
-	inline const Payload_t* head() const {
-//       assert( hasData() );
-		return m_base + ( m_head & m_mask );
-	};
-
-	// 出队一个元素, 出队下标增一
-	inline void deque() {
-//       assert( hasData() );
-		asm volatile( "mfence" ::: "memory" );
-		++m_head;
-	};
-
-//=======   内部实现    =======
+//======== 内部实现 =============================================================
 private:
-	// 内部例程
-
-	// 内部变量
-// std::array<PayLoad_T, m_uiSize> amBuffer;
-// PayLoad_T   amBuffer[ m_uiSize ];
-	std::unique_ptr< Payload_t[] >  m_upBuffer;
-	Payload_t*                 m_base;
-	size_t                     m_capa = 4;
-	size_t                     m_mask = 3;
-
-	// 入队下标, 大于等于MaxSize时回绕
-	size_t                     m_tail = 0;
-
-	// 出队下标, 大于等于MaxSize时回绕
-	size_t                     m_head = 0;
+	std::unique_ptr<Payload_t[]>	_buff {};
+	Payload_t*	_base {};
+	size_t		_mask {};
+	size_t		_head {};
+	size_t		_tail {};
 };
 
 };  //namespace leon_utl

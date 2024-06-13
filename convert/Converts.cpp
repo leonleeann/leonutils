@@ -1,16 +1,31 @@
 #include <cmath>		// abs, ceil, floor, isnan, log, log10, log2, pow, round, sqrt
+#include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <iomanip>		// hex, dec, boolalpha, setw, endl
 #include <iostream>
+#include <numeric>
+#include <sstream>
+#include <type_traits>	// is_floating_point_v, is_signed_v, is_unsigned_v
 
 #include "algor/Algorithms.hpp"
 #include "Converts.hpp"
 
-using std::string;
+using std::ostream;
 
 namespace leon_utl {
 
-string ptr2hex( const void* ptr_ ) {
-	std::ostringstream oss;
+str_t rm_special( const char* src_ ) {
+	oss_t oss;
+	char c;
+	while( ( c = *src_ ) ) {
+		if( is_alpha( c ) || is_digit( c ) )
+			oss << c;
+		++src_;
+	}
+	return oss.str();
+};
+
+str_t ptr2hex( const void* ptr_ ) {
+	oss_t oss;
 	oss << std::hex << ptr_;
 	return oss.str();
 };
@@ -29,8 +44,8 @@ struct CustomGrouper_t : std::numpunct<char> {
 	char do_thousands_sep() const override {
 		return group_c;
 	};
-	string do_grouping() const override {
-		return std::string( 1, group_w );
+	str_t do_grouping() const override {
+		return str_t( 1, group_w );
 	};
 
 	char group_w = 0;  // 隔几位分一下？
@@ -40,21 +55,21 @@ struct CustomGrouper_t : std::numpunct<char> {
 thread_local CustomGrouper_t tl_grouper( '\0', '\'', 1 );
 
 template<typename T>
-string format( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
+str_t format( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
 
 	// 浮点数的特殊值
 	if( std::is_floating_point_v<T> ) {
 		if( std::isnan( v_ ) )
-			return ( std::string( w_, f_ ) + "nan" ).substr( 3, w_ );
+			return ( str_t( w_, f_ ) + "nan" ).substr( 3, w_ );
 		if( std::isinf( v_ ) )
-			return ( std::string( w_, f_ ) + "inf" ).substr( 3, w_ );
+			return ( str_t( w_, f_ ) + "inf" ).substr( 3, w_ );
 		if( strict_max( v_ ) )
-			return ( std::string( w_, f_ ) + "maximu" ).substr( 3, w_ );
+			return ( str_t( w_, f_ ) + "maximu" ).substr( 3, w_ );
 		if( strict_low( v_ ) )
-			return ( std::string( w_, f_ ) + "lowest" ).substr( 3, w_ );
+			return ( str_t( w_, f_ ) + "lowest" ).substr( 3, w_ );
 	}
 
-	std::ostringstream oss;
+	oss_t oss;
 	tl_grouper.group_w = static_cast<char>( g_ );
 	tl_grouper.group_c = s_;
 	std::locale locGrpDigits( oss.getloc(), &tl_grouper );
@@ -71,34 +86,24 @@ string format( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
 	else
 		oss << static_cast<int>( v_ );
 
-	std::string strResult( oss.str() );
-	if( w_ > 0 && strResult.length() > w_ )
-		return std::string( w_, '*' );
+	str_t result( oss.str() );
+	if( w_ > 0 && result.length() > w_ )
+		return str_t( w_, '*' );
 	else
-		return strResult;
+		return result;
 };
 
 // 显式地实例化一下,以免链接时找不到
-template
-string format<int8_t>( const int8_t, size_t, size_t, size_t, char, char );
-template
-string format<uint8_t>( const uint8_t, size_t, size_t, size_t, char, char );
-template
-string format<int16_t>( const int16_t, size_t, size_t, size_t, char, char );
-template
-string format<uint16_t>( const uint16_t, size_t, size_t, size_t, char, char );
-template
-string format<int32_t>( const int32_t, size_t, size_t, size_t, char, char );
-template
-string format<uint32_t>( const uint32_t, size_t, size_t, size_t, char, char );
-template
-string format<int64_t>( const int64_t, size_t, size_t, size_t, char, char );
-template
-string format<uint64_t>( const uint64_t, size_t, size_t, size_t, char, char );
-template
-string format<float>( const float, size_t, size_t, size_t, char, char );
-template
-string format<double>( const double, size_t, size_t, size_t, char, char );
+template str_t format<int8_t>( const int8_t, size_t, size_t, size_t, char, char );
+template str_t format<uint8_t>( const uint8_t, size_t, size_t, size_t, char, char );
+template str_t format<int16_t>( const int16_t, size_t, size_t, size_t, char, char );
+template str_t format<uint16_t>( const uint16_t, size_t, size_t, size_t, char, char );
+template str_t format<int32_t>( const int32_t, size_t, size_t, size_t, char, char );
+template str_t format<uint32_t>( const uint32_t, size_t, size_t, size_t, char, char );
+template str_t format<int64_t>( const int64_t, size_t, size_t, size_t, char, char );
+template str_t format<uint64_t>( const uint64_t, size_t, size_t, size_t, char, char );
+template str_t format<float>( const float, size_t, size_t, size_t, char, char );
+template str_t format<double>( const double, size_t, size_t, size_t, char, char );
 
 }; //namespace leon_utl
 

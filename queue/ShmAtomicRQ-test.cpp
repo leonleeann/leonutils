@@ -3,20 +3,12 @@
 #include <iostream>
 #include <iomanip>
 
-#include "RingQue.hpp"
+#include "ShmAtomicRQ.hpp"
 
-using namespace leon_ext;
-
-struct Rec3B_t {
-	// unsigned char pch3[3];
-	bool b0;
-	bool b1;
-	bool b2;
-};
-using RQ3B_t = RingQue_t<Rec3B_t>;
+namespace octopus {
 
 // 自动扩展容量到2的n次方
-TEST( TestRingQue, AutoExtToPowerOf2 ) {
+TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
 
 	ASSERT_EQ( sizeof( Rec3B_t ),  3 );
 
@@ -33,24 +25,6 @@ TEST( TestRingQue, AutoExtToPowerOf2 ) {
 	ASSERT_EQ( rq2.capa(), max_capa );
 	*/
 };
-
-using RQInt_t = RingQue_t<int>;
-
-/* 注释原因: 并非本测试不该有,只因分配一块大内存实在太慢,影响日常检查.需测试时可临时恢复
-// 占用内存不超1G bytes
-TEST( TestRingQue, NeverUseMemoryMoreThanMax ) {
-	size_t capa = RQInt_t::MAX_MEM_USAGE / sizeof( int );
-
-	RQInt_t rq0( capa + 1 );
-	ASSERT_EQ( rq0.capa(), capa );
-
-	RQInt_t rq1( capa );
-	ASSERT_EQ( rq1.capa(), capa );
-
-	RQInt_t rq2( capa - 1 );
-	ASSERT_EQ( rq2.capa(), capa );
-};
-*/
 
 TEST( TestRingQue, emptyOrFully ) {
 	RQInt_t rq( 4 );
@@ -237,5 +211,7 @@ TEST( TestRingQue, moveOut ) {
 	ASSERT_EQ( LiveWatch_t::copy_asgns, 0 );
 	ASSERT_EQ( rq.size(), 0 );
 };
+
+};	// namespace octopus
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

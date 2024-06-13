@@ -5,16 +5,12 @@
 
 #include "StrSet.hpp"
 
-using std::ostream;
-using std::ostringstream;
-using std::set;
-using std::set_union;
-using std::string;
-
 namespace leon_utl {
 
-set<string> split2set( const string& src_, char d_ ) {
-	set<string> tokens;
+using oss_t = std::ostringstream;
+
+StrSet_t split2set( const str_t& src_, char d_ ) {
+	StrSet_t tokens;
 	if( src_.empty() )
 		return tokens;
 
@@ -28,8 +24,8 @@ set<string> split2set( const string& src_, char d_ ) {
 	return tokens;
 };
 
-string set2str( const set<string>& set_ ) {
-	ostringstream oss;
+str_t set2str( const StrSet_t& set_ ) {
+	oss_t oss;
 	oss << '{';
 	for( const auto& s0 : set_ )
 		oss << s0 << ',';
@@ -37,34 +33,34 @@ string set2str( const set<string>& set_ ) {
 	return oss.str();
 };
 
-ostream& output( ostream& os_, const set<string>& s_ ) {
-	os_ << '{';
-	for( const auto& str : s_ )
-		os_ << str << ',';
-	return os_ << '}';
-};
-
-set<string> union_of( const set<string>& s1_, const set<string>& s2_ ) {
-	set<string> result;
+StrSet_t union_of( const StrSet_t& s1_, const StrSet_t& s2_ ) {
+	StrSet_t result;
 	std::set_union( s1_.cbegin(), s1_.cend(), s2_.cbegin(), s2_.cend(),
 					std::inserter( result, result.begin() ) );
 	return result;
 };
 
-set<string> differ_of( const set<string>& s1_, const set<string>& s2_ ) {
-	set<string> result;
+StrSet_t differ_of( const StrSet_t& s1_, const StrSet_t& s2_ ) {
+	StrSet_t result;
 	std::set_difference( s1_.cbegin(), s1_.cend(), s2_.cbegin(), s2_.cend(),
 						 std::inserter( result, result.begin() ) );
 	return result;
 };
 
-set<string> intersect( const set<string>& s1_, const set<string>& s2_ ) {
-	set<string> result;
+StrSet_t intersect( const StrSet_t& s1_, const StrSet_t& s2_ ) {
+	StrSet_t result;
 	std::set_intersection( s1_.cbegin(), s1_.cend(), s2_.cbegin(), s2_.cend(),
 						   std::inserter( result, result.begin() ) );
 	return result;
 };
 
 }; //namespace leon_utl
+
+std::ostream& operator<<( std::ostream& os_, const std::set<std::string>& s_ ) {
+	os_ << '{';
+	for( const auto& str : s_ )
+		os_ << str << ',';
+	return os_ << '}';
+};
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
