@@ -10,12 +10,12 @@
 #include <thread>
 #include <vector>
 
-#include "buffer/ShmAtomicRQ.tpp"
-#include "event/MemoryOrder.hpp"
-#include "misc/Algorithms.hpp"
-#include "misc/Converts.hpp"
+#include "algor/Statistics.hpp"
+#include "convert/Converts.hpp"
+#include "queue/MemoryOrder.hpp"
+#include "queue/ShmAtomicRQ.hpp"
 
-using namespace leon_ext;
+using namespace leon_utl;
 using namespace leon_log;
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -25,7 +25,7 @@ union Msg_u {
 	int64_t	as_tstamp;
 	char	as_buffer[ sizeof( uint64_t ) ];
 };
-using MsgQ_t = ShmAtmRQ_t<Msg_u>;
+using MsgQ_t = ShmAtmRQ_t<Msg_u, int32_t>;
 
 using Delays_t = vector<double>;
 

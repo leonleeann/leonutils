@@ -1,14 +1,13 @@
 #pragma once
-#include <LeonLog>
 #include <atomic>
 #include <bit>
 
-#include "ShmBuffer.hpp"
-#include "event/MemoryOrder.hpp"
+#include "buffer/ShmBuffer.hpp"
+#include "queue/MemoryOrder.hpp"
 
-namespace leon_ext {
+namespace leon_utl {
 
-using namespace leon_log;
+// using namespace leon_log;
 using str_t = std::string;
 using ai32_t = std::atomic_int32_t;
 using ai64_t = std::atomic_int64_t;
@@ -170,12 +169,12 @@ void ShmAtmRQ_t<T, SIZE_TYPE>::make( SIZE_TYPE capa_, const str_t& name_ ) {
 		//		<< ",.t:" << node.t_tag.load();
 	}
 
-	lg_debg << '"' << name_		<< "\"SHM Atomic RingQue 已对接:"
-			<< "\n控制区[" << static_cast<void*>( _meta )  << "]尺寸:" << sizeof( Meta_t )
-			<< "\n数据区[" << static_cast<void*>( _base ) << "]尺寸:" << _capa* sizeof( Node_t )
-			<< "\n载荷尺寸:"	<< sizeof( T )	<< ",节点尺寸:"	<< sizeof( Node_t )
-			<< ",容量:"		<< _capa		<< ",mask:"		<< _mask
-			<< ",总尺寸:"	<< bytes		<< ",\nSHM:\t"	<< _buff.get();
+	/*	lg_debg << '"' << name_		<< "\"SHM Atomic RingQue 已对接:"
+				<< "\n控制区[" << static_cast<void*>( _meta )  << "]尺寸:" << sizeof( Meta_t )
+				<< "\n数据区[" << static_cast<void*>( _base ) << "]尺寸:" << _capa* sizeof( Node_t )
+				<< "\n载荷尺寸:"	<< sizeof( T )	<< ",节点尺寸:"	<< sizeof( Node_t )
+				<< ",容量:"		<< _capa		<< ",mask:"		<< _mask
+				<< ",总尺寸:"	<< bytes		<< ",\nSHM:\t"	<< _buff.get(); */
 };
 
 template<typename T, typename SIZE_TYPE>
@@ -207,12 +206,12 @@ void ShmAtmRQ_t<T, SIZE_TYPE>::plug( const str_t& name_ ) {
 		lg_debg << name_ << '[' << i << "].h:" << node.h_tag.load() << ",.t:" << node.t_tag.load();
 	} */
 
-	lg_debg << '"' << name_		<< "\"SHM Atomic RingQue 已对接:"
-			<< "\n控制区[" << static_cast<void*>( _meta )  << "]尺寸:" << sizeof( Meta_t )
-			<< "\n数据区[" << static_cast<void*>( _base ) << "]尺寸:" << _capa* sizeof( Node_t )
-			<< "\n载荷尺寸:"	<< sizeof( T )	<< ",节点尺寸:"	<< sizeof( Node_t )
-			<< ",容量:"		<< _capa		<< ",mask:"		<< _mask
-			<< ",总尺寸:"	<< real_bytes	<< ",\nSHM:\t"	<< _buff.get();
+	/*	lg_debg << '"' << name_		<< "\"SHM Atomic RingQue 已对接:"
+				<< "\n控制区[" << static_cast<void*>( _meta )  << "]尺寸:" << sizeof( Meta_t )
+				<< "\n数据区[" << static_cast<void*>( _base ) << "]尺寸:" << _capa* sizeof( Node_t )
+				<< "\n载荷尺寸:"	<< sizeof( T )	<< ",节点尺寸:"	<< sizeof( Node_t )
+				<< ",容量:"		<< _capa		<< ",mask:"		<< _mask
+				<< ",总尺寸:"	<< real_bytes	<< ",\nSHM:\t"	<< _buff.get(); */
 };
 
 template<typename T, typename SIZE_TYPE>
@@ -274,7 +273,7 @@ bool ShmAtmRQ_t<T, SIZE_TYPE>::enque( const T& g_ ) {
 			try_cnt = 0;
 		}
 		if( ++try_cnt > 3 ) {
-			lg_erro << _buff.name() << "入队失败,已抛弃!";
+//			lg_erro << _buff.name() << "入队失败,已抛弃!";
 			return false;
 		}
 	}
@@ -342,6 +341,6 @@ void ShmAtmRQ_t<T, SIZE_TYPE>::set_flag( int64_t f_ ) {
 	_meta->_flag.store( f_, mo_release );
 };
 
-};	// namespace leon_ext
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

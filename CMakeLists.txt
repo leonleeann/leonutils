@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 0 )   # 次版本
-set( PROJECT_VERSION_PATCH 4 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 5 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "再次从octopus更新" )
+set( PROJECT_VERSION_NOTES "调整目录结构之前" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -55,37 +55,61 @@ add_library( objCommon OBJECT
 	convert/StrSet.cpp
 	convert/Unicodes.cpp
 	except/CallStack.cpp
+	sys/ChildProc.cpp
+	sys/FileSystem.cpp
 	sys/Signals.cpp
 )
 
 ######## 主要产出 ###############################################################
 #======== 静态版 ========================
-add_library( target_static STATIC )
-set_target_properties( target_static PROPERTIES
+add_library( leonutl_static STATIC )
+set_target_properties( leonutl_static PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
 	OUTPUT_NAME_DEBUG		LeonUtils
 	VERSION					${PROJECT_VERSION}
-#	PUBLIC_HEADER			LeonUtils.hpp
-	SUFFIX					".a.${PROJECT_VERSION}"
+#	SUFFIX					".a.${PROJECT_VERSION}"
 #	ARCHIVE_OUTPUT_NAME_RELEASE  "ARCHIVE_OUTPUT_NAME_.${PROJECT_VERSION}"
 #	LIBRARY_OUTPUT_NAME_RELEASE  "LIBRARY_OUTPUT_NAME_.${PROJECT_VERSION}"
 )
-target_link_libraries( target_static objCommon fmt::fmt )
-install( TARGETS target_static
+target_sources( leonutl_static PUBLIC FILE_SET HEADERS FILES
+	algor/Algorithms.hpp
+	algor/Statistics.hpp
+	buffer/ShmBuffer.hpp
+	chrono/ChronoTypes.hpp
+	chrono/Chrono.hpp
+	convert/Converts.hpp
+	convert/StrSet.hpp
+	convert/Unicodes.hpp
+	convert/UnionTypes.hpp
+	except/CallStack.hpp
+	except/Exceptions.hpp
+	queue/CraflinRQ.hpp
+	queue/CraflinRQ.tpp
+	queue/MemoryOrder.hpp
+	queue/RingQueue.hpp
+	queue/ShmAtomicRQ.hpp
+	sys/ChildProc.hpp
+	sys/FileSystem.hpp
+	sys/Signals.hpp
+)
+
+target_link_libraries( leonutl_static objCommon fmt::fmt )
+install( TARGETS leonutl_static
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	FILE_SET HEADERS
 )
 
 #======== 动态版 =====================
-add_library( target_dynmic SHARED )
-set_target_properties( target_dynmic PROPERTIES
+add_library( leonutl_dynmic SHARED )
+set_target_properties( leonutl_dynmic PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
 	OUTPUT_NAME_DEBUG		LeonUtils
 	VERSION					${PROJECT_VERSION}
 	SOVERSION				${PROJECT_VERSION_MAJOR}
 )
-target_link_libraries( target_dynmic objCommon )
-install( TARGETS target_dynmic
+target_link_libraries( leonutl_dynmic objCommon )
+install( TARGETS leonutl_dynmic
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

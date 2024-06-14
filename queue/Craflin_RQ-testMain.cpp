@@ -7,7 +7,7 @@
 #include <thread>
 
 #include "CraflinRQ.tpp"
-#include "misc/Converts.hpp"
+#include "convert/Converts.hpp"
 
 using namespace leon_utl;
 using namespace leon_log;
@@ -33,7 +33,7 @@ atomic_bool more_data { true };
 
 void producer_f( MsgQue_t* pq, MsgMap_t* sent_msgs,
 				 size_t fr, size_t to, int myid ) {
-	registThreadName( "生产者" + to_string( myid ) );
+	RegistThread( "生产者" + to_string( myid ) );
 	std::random_device   rd( "/dev/urandom" );   // 初始随机数生成器
 	std::mt19937         rand_gen( rd() );       // 随机数生成器
 	std::uniform_int_distribution<int>  dist;    // 均匀分布
@@ -50,7 +50,7 @@ void producer_f( MsgQue_t* pq, MsgMap_t* sent_msgs,
 };
 
 void consumer_f( MsgQue_t* pq, Msg_t* pMsg, size_t* pCnt, int myid ) {
-	registThreadName( "消费者" + to_string( myid ) );
+	RegistThread( "消费者" + to_string( myid ) );
 
 	*pCnt = 0;
 	do {
@@ -73,7 +73,7 @@ void consumer_f( MsgQue_t* pq, Msg_t* pMsg, size_t* pCnt, int myid ) {
 
 int main( int argc, const char* const* const args ) {
 	parseCmdLineOpts( argc, args );
-	startLogging( string( args[0] ) + ".log", g_logl, 9, 1048576 );
+	StartLogging( string( args[0] ) + ".log", g_logl, 9, 1048576 );
 
 	MsgQue_t que( g_que_size );
 	auto t = que.capa();
@@ -130,7 +130,7 @@ int main( int argc, const char* const* const args ) {
 		lg_debg << "核对成功. 发送总数:" << total_sent << ", 接收总数:" << total_recv;
 	else
 		lg_debg << "核对失败! 发送总数:" << total_sent << ", 接收总数:" << total_recv;
-	stopLogging();
+	StopLogging();
 };
 
 void ShowUsageAndExit() {
@@ -154,7 +154,7 @@ void parseCmdLineOpts( int argc, const char* const* const args ) {
 		string val = trim( args[i] );
 //-------- 通用的选项 --------
 		if( val == "-H" || val == "--help" ) {
-			showUsageAndExit();
+			ShowUsageAndExit();
 		} else if( val == "-L" || val == "--log-level" ) {
 			if( !( opt_err = ++i >= argc ) )
 				g_logl = static_cast<LogLevel_e>( strtoul( args[i], nullptr, 10 ) );
@@ -176,11 +176,11 @@ void parseCmdLineOpts( int argc, const char* const* const args ) {
 //-------- 未知的选项 --------
 		} else {
 			cerr << '"' << val << "\" 是无法识别的选项,无法继续!" << endl;
-			showUsageAndExit();
+			ShowUsageAndExit();
 		}
 
 		if( opt_err )
-			showUsageAndExit();
+			ShowUsageAndExit();
 	};
 };
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

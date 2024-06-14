@@ -186,8 +186,8 @@ TEST( TestAlgorithms, doubleEqualWithEpsilon ) {
 TEST( TestAlgorithms, doulbeEquality ) {
 	double d1 = 1234567890.0, d2 = 1234567890.1;
 	/* U64_u u2 = d1; ++u2.asU; d2 = u2.asD;
-	lg_fatl << "d1:" << formatNumber( d1, 0, 30 )
-	          << ", d2:" << formatNumber( d2, 0, 30 );*/
+	lg_fatl << "d1:" << format( d1, 0, 30 )
+	          << ", d2:" << format( d2, 0, 30 );*/
 	ASSERT_TRUE( eq( d1, d2 ) );
 	d2 = 1234567890.2;
 	ASSERT_FALSE( eq( d1, d2 ) );

@@ -5,7 +5,7 @@
 
 #include "ShmAtomicRQ.hpp"
 
-namespace octopus {
+namespace leon_utl {
 
 // 自动扩展容量到2的n次方
 TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
@@ -212,6 +212,6 @@ TEST( TestRingQue, moveOut ) {
 	ASSERT_EQ( rq.size(), 0 );
 };
 
-};	// namespace octopus
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

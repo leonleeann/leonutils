@@ -30,7 +30,7 @@ void ThreadProducer( MsgQ_t* mq_, int my_id_ ) {
 		lock_guard lkgd( s_upd_mutex );
 		for( const auto d : delays )
 			s_all_delays.push_back( d );
-		cout << "====thread" << formatNumber( my_id_, 2, 0, 0, '0' )
+		cout << "====thread" << format( my_id_, 2, 0, 0, '0' )
 			 << "结束" << endl;
 	}
 };
@@ -39,7 +39,8 @@ int main( int argc, char** args ) {
 	ParseCmdLineOpts( argc, args );
 	cout << "main:SHMRQ producers. capacity:" << s_que_capa
 		 << endl;
-	MsgQ_t msg_que { SHARQ_NAME, 123, };
+	MsgQ_t msg_que;
+	msg_que.plug( SHARQ_NAME );
 
 	forward_list<thread> producers;
 	for( int j = 0; j < s_thrd_cnt; ++j )
@@ -48,8 +49,7 @@ int main( int argc, char** args ) {
 	for( auto& thrd : producers )
 		thrd.join();
 
-	StatisticResult_t result;
-	StatisticAll(s_all_delays, result);
+	Statistic_t result { s_all_delays };
 	cout << "\n总共发送:" << result.cnt
 		 << "\n用时平均:" << result.avg
 		 << "\n用时标差:" << result.std

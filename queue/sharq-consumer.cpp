@@ -30,7 +30,7 @@ void ThreadConsumer( MsgQ_t* mq_, int my_id_ ) {
 		lock_guard lkgd( s_upd_mutex );
 		for( const auto d : delays )
 			s_all_delays.push_back( d );
-		cout << "====thread" << formatNumber( my_id_, 2, 0, 0, '0' )
+		cout << "====thread" << format( my_id_, 2, 0, 0, '0' )
 			 << "结束" << endl;
 	}
 };
@@ -39,7 +39,8 @@ int main( int argc, char** args ) {
 	ParseCmdLineOpts( argc, args );
 	cout << "main:SHMRQ consumers." << endl;
 
-	MsgQ_t msg_que { s_que_capa, SHARQ_NAME, };
+	MsgQ_t msg_que;
+	msg_que.make( s_que_capa, SHARQ_NAME );
 	msg_que.set_flag( RUN_CONTINUOUSLY );
 
 	forward_list<thread> consumers;
@@ -51,8 +52,7 @@ int main( int argc, char** args ) {
 	for( auto& thrd : consumers )
 		thrd.join();
 
-	StatisticResult_t result;
-	StatisticAll(s_all_delays, result);
+	Statistic_t result { s_all_delays };
 	cout << "\n总共接收:" << result.cnt
 		 << "\n延迟平均:" << result.avg
 		 << "\n延迟标差:" << result.std

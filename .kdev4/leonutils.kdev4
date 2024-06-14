@@ -25,3 +25,6 @@ parserArgumentsOpenCL=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunuse
 
 [CustomDefinesAndIncludes][ProjectPath0][Compiler]
 Name=Clang
+
+[CustomDefinesAndIncludes][ProjectPath0][Includes]
+1=/data/projects/leonutils
