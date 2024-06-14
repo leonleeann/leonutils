@@ -9,7 +9,7 @@ set( PROJECT_VERSION_PATCH 5 )   # 修订号(Bug fix)
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "调整目录结构之前" )
+set( PROJECT_VERSION_NOTES "调整目录结构" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -43,21 +43,21 @@ find_package( fmt REQUIRED )
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
 # 不知道下面这句与上面一句有何区别
 include_directories( "." )	# 这不是本文件的目录！是包含者文件的目录！！！
-# include_directories( "/data/projects/leonutils" )
+include_directories( "/data/projects/leonutils/include" )
 
 ######## 主要模块 ###############################################################
 add_library( objCommon OBJECT
-	algor/Algorithms.cpp
-	algor/Statistics.cpp
-	buffer/ShmBuffer.cpp
-	chrono/Chrono.cpp
-	convert/Converts.cpp
-	convert/StrSet.cpp
-	convert/Unicodes.cpp
-	except/CallStack.cpp
-	sys/ChildProc.cpp
-	sys/FileSystem.cpp
-	sys/Signals.cpp
+	src/Algorithms.cpp
+	src/CallStack.cpp
+	src/ChildProc.cpp
+	src/Chrono.cpp
+	src/Converts.cpp
+	src/FileSystem.cpp
+	src/ShmBuffer.cpp
+	src/Signals.cpp
+	src/Statistics.cpp
+	src/StrSet.cpp
+	src/Unicodes.cpp
 )
 
 ######## 主要产出 ###############################################################
@@ -71,26 +71,27 @@ set_target_properties( leonutl_static PROPERTIES
 #	ARCHIVE_OUTPUT_NAME_RELEASE  "ARCHIVE_OUTPUT_NAME_.${PROJECT_VERSION}"
 #	LIBRARY_OUTPUT_NAME_RELEASE  "LIBRARY_OUTPUT_NAME_.${PROJECT_VERSION}"
 )
-target_sources( leonutl_static PUBLIC FILE_SET HEADERS FILES
-	algor/Algorithms.hpp
-	algor/Statistics.hpp
-	buffer/ShmBuffer.hpp
-	chrono/ChronoTypes.hpp
-	chrono/Chrono.hpp
-	convert/Converts.hpp
-	convert/StrSet.hpp
-	convert/Unicodes.hpp
-	convert/UnionTypes.hpp
-	except/CallStack.hpp
-	except/Exceptions.hpp
-	queue/CraflinRQ.hpp
-	queue/CraflinRQ.tpp
-	queue/MemoryOrder.hpp
-	queue/RingQueue.hpp
-	queue/ShmAtomicRQ.hpp
-	sys/ChildProc.hpp
-	sys/FileSystem.hpp
-	sys/Signals.hpp
+target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include"
+FILES
+	include/leonutils/Algorithms.hpp
+	include/leonutils/CallStack.hpp
+	include/leonutils/ChildProc.hpp
+	include/leonutils/Chrono.hpp
+	include/leonutils/ChronoTypes.hpp
+	include/leonutils/Converts.hpp
+	include/leonutils/CraflinRQ.hpp
+	include/leonutils/CraflinRQ.tpp
+	include/leonutils/Exceptions.hpp
+	include/leonutils/FileSystem.hpp
+	include/leonutils/MemoryOrder.hpp
+	include/leonutils/RingQueue.hpp
+	include/leonutils/ShmAtomicRQ.hpp
+	include/leonutils/ShmBuffer.hpp
+	include/leonutils/Signals.hpp
+	include/leonutils/Statistics.hpp
+	include/leonutils/StrSet.hpp
+	include/leonutils/Unicodes.hpp
+	include/leonutils/UnionTypes.hpp
 )
 
 target_link_libraries( leonutl_static objCommon fmt::fmt )
@@ -115,6 +116,6 @@ install( TARGETS leonutl_dynmic
 )
 
 ######## 单元测试 ###############################################################
-add_subdirectory( unit-test )
+add_subdirectory( tests )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;
