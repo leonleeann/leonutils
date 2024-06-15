@@ -21,16 +21,16 @@ union U16_u {
 
 	constexpr U16_u( int16_t i_ )	:	asI( i_ ) {};
 	constexpr U16_u( uint16_t u_ )	:	asU( u_ ) {};
+	constexpr U16_u( const char* p_ )
+		: b0( p_ ? p_[0] : 0 ), b1( p_ ? p_[1] : 0 ) {};
+	U16_u( const str_t& s_ ): asU( *reinterpret_cast<const uint16_t*>( s_.c_str() ) ) {};
+
 	constexpr U16_u operator=( int16_t i_ )		{ asI = i_; return *this; };
 	constexpr U16_u operator=( uint16_t u_ )	{ asU = u_; return *this; };
-
-	/* 这四个函数要做到constexpr不容易,暂时不想操心了.
-	constexpr U16_u( const char* p_ ) : b0( p_ ? p_[0] : 0 ), b1( p_ ? p_[1] : 0 ) {};
-	constexpr U16_u( const str_t& s_ ) : b0( s_[0] ), b1( s_[1] ) {}; */
-	U16_u( const char* p_ ): asU( *reinterpret_cast<const uint16_t*>( p_ ) ) {};
-	U16_u( const str_t& s_ ): U16_u( s_.c_str() ) {};
-	U16_u operator=( const char* p_ ) {
-		asU = * reinterpret_cast<const uint16_t*>( p_ ); return *this;
+	constexpr U16_u operator=( const char* p_ ) {
+		b0 = p_ ? p_[0] : 0;
+		b1 = p_ ? p_[1] : 0;
+		return *this;
 	};
 	U16_u operator=( const str_t& s_ ) {
 		asU = * reinterpret_cast<const uint16_t*>( s_.c_str() ); return *this;

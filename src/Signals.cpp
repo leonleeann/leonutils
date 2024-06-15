@@ -51,7 +51,7 @@ thread_local sigjmp_buf	tl_recovery_point;
 // 崩溃计次
 thread_local int		tl_crashing_count { 0 };
 
-bool GlobalSigCatched() {
+bool GlobalSigCatching() {
 	return s_taked_over.load();
 };
 
@@ -163,7 +163,7 @@ void CatchGlobalSig( SigAction_f def_ ) {
 	Takeover( SIGSYS   , new_act, blocks );	// 31
 */
 
-void RestoreGlogalSig() {
+void RevocGlogalSig() {
 	if( ! s_taked_over.load() )
 		throw bad_usage( "全局信号捕获并未设置,不能恢复!" );
 
@@ -181,13 +181,13 @@ void RestoreGlogalSig() {
 //			  << "\n恢复为:\n" << SigMask( s_blocks_bak ) << std::endl;
 };
 
-bool CrashSigCatched() {
+bool CrashCatching() {
 	return tl_taked_over;
 };
 
 void CatchCrashSig() {
 	if( tl_taked_over )
-		throw bad_usage( "线程信号处理已经设置,不能重复设置!" );
+		return;
 
 	sigset_t blocks {};
 	// 准备一个空集
@@ -209,9 +209,9 @@ void CatchCrashSig() {
 	std::cerr << "线程崩溃保护已设置." << std::endl;
 };
 
-void RestoreCrashSig() {
+void RevocCrashSig() {
 	if( !tl_taked_over )
-		throw bad_usage( "线程崩溃保护并未设置,不能撤销!" );
+		return;
 
 	pthread_sigmask( SIG_SETMASK, &tl_blocks_bak, nullptr );
 

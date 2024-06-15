@@ -35,18 +35,18 @@ using SigAction_t = struct sigaction;
 
 //====== 函数申明 ===============================================================
 // 整个进程信号处理已接管
-bool GlobalSigCatched();
+bool GlobalSigCatching();
 // 接管整个进程的信号处理(全系统只应做一次!)
 void CatchGlobalSig( SigAction_f default_action );
-// 恢复整个进程的信号处理(全系统只应做一次!)
-void RestoreGlogalSig();
+// 撤销整个进程的信号处理(全系统只应做一次!)
+void RevocGlogalSig();
 
-// 当前线程"崩溃信号"已开放
-bool CrashSigCatched();
-// 开放"崩溃信号"信号, longjump 到 tl_recovery_point
+// 当前线程"崩溃保护"已启用
+bool CrashCatching();
+// 启用当前线程"崩溃保护", longjump 到 tl_recovery_point
 void CatchCrashSig();
-// 关闭"崩溃信号"处理
-void RestoreCrashSig();
+// 停用当前线程"崩溃保护", 整个 app 会崩溃
+void RevocCrashSig();
 
 // 转换信号集到字符串,方便输出
 str_t SigSet2Str( const sigset_t );

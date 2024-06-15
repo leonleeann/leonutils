@@ -72,8 +72,8 @@ struct SigHandling_F : public ::testing::Test {
 
 		_crash_cnt = sigsetjmp( tl_recovery_point, 1 );
 		if( _crash_cnt.load() >= 9 ) {
-			if( CrashSigCatched() )
-				RestoreCrashSig();
+			if( CrashCatching() )
+				RevocCrashSig();
 			_exited = true;
 			return;
 		}
@@ -99,18 +99,18 @@ struct SigHandling_F : public ::testing::Test {
 	};
 
 	void SetUp() override {
-		if( CrashSigCatched() )
-			RestoreCrashSig();
-		if( GlobalSigCatched() )
-			RestoreGlogalSig();
+		if( CrashCatching() )
+			RevocCrashSig();
+		if( GlobalSigCatching() )
+			RevocGlogalSig();
 		s_last_sig = 0;
 	};
 
 	void TearDown() override {
-		if( CrashSigCatched() )
-			RestoreCrashSig();
-		if( GlobalSigCatched() )
-			RestoreGlogalSig();
+		if( CrashCatching() )
+			RevocCrashSig();
+		if( GlobalSigCatching() )
+			RevocGlogalSig();
 	};
 };
 
@@ -118,7 +118,7 @@ TEST_F( SigHandling_F, backupAndRestore ) {
 	SigAction_t sa_bak {}, sa_new {};
 
 	// 初始应该没有任何 handler
-	ASSERT_FALSE( GlobalSigCatched() );
+	ASSERT_FALSE( GlobalSigCatching() );
 
 	sigaction( SIGHUP, nullptr, &sa_bak );
 	std::cerr << pad_r( strsignal( SIGHUP ), 28 ) << "备份为:" << sa_bak << std::endl;
@@ -127,7 +127,7 @@ TEST_F( SigHandling_F, backupAndRestore ) {
 
 	// 设置
 	CatchGlobalSig( DefaultAction );
-	ASSERT_TRUE( GlobalSigCatched() );
+	ASSERT_TRUE( GlobalSigCatching() );
 
 	// 检查
 	sigaction( SIGHUP, nullptr, &sa_new );
@@ -140,7 +140,7 @@ TEST_F( SigHandling_F, backupAndRestore ) {
 	ASSERT_NE( sa_new.sa_sigaction, sa_bak.sa_sigaction );
 
 	// 恢复
-	RestoreGlogalSig();
+	RevocGlogalSig();
 
 	// 检查
 	sigaction( SIGHUP, nullptr, &sa_new );
