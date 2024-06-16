@@ -44,7 +44,7 @@ void* CreateOrPlug( const str_t& n_, size_t b_, bool cr_,
 	return shm_pt;
 };
 
-size_t ShmBuffer_t::make( const str_t& n_, size_t b_ ) {
+size_t ShmBuffer_t::make( const str_t& n_, size_t b_, bool wr_ ) {
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
 		throw bad_usage( "用于申请shm:\"" + n_ +
 						 "\"的ShmBuffer_t对象已作为\"" + _shm_n + "\"之用!!!" );
@@ -57,7 +57,7 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_ ) {
 
 	/* 1.权限分三类:
 		a. f_mask: 当前打开的fd对应的操作权限 (O_RDONLY | O_RDWR | O_CREAT | O_TRUNC)
-			仅当有写权(O_RDWR)时才能 ftruncate 文件,否则创建者也不能.
+			仅当有写权(O_RDWR)时才能 ftruncate 文件, 所以创建者必有 O_RDWR.
 		b. u_mask: 在文件系统内的权限 (S_IRUSR | S_IWUSR)
 			统一保持为(S_IRUSR | S_IWUSR), 因为这是针对某个 Linux 用户的权限. 只要进程
 			由某个 user 运行, 即便是创建者也不能修改.
@@ -65,7 +65,10 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_ ) {
 	 */
 	auto f_mask = O_RDWR | O_CREAT | O_TRUNC;
 	auto u_mask = S_IRUSR | S_IWUSR;
-	auto m_mask = PROT_READ | PROT_WRITE;
+	auto m_mask = PROT_READ;
+	if( wr_ )
+		m_mask |= PROT_WRITE;
+
 	_shm_p = CreateOrPlug( n_, b_, true, f_mask, u_mask, m_mask );
 	_shm_n = n_;
 

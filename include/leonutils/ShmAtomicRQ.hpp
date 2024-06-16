@@ -133,7 +133,7 @@ template<typename T, typename SIZE_TYPE>
 void ShmAtmRQ_t<T, SIZE_TYPE>::make( SIZE_TYPE capa_, const str_t& name_ ) {
 	capa_ = AlignCapa( capa_ );
 	size_t bytes = sizeof( Meta_t ) + capa_ * sizeof( Node_t );
-	bytes = _buff.make( name_, bytes );
+	bytes = _buff.make( name_, bytes, true );
 
 	/***************************************************************************
 		注意: Meta_t 结构要在公共区最开始!!!!!!!!!!!!!!!

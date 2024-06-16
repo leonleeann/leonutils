@@ -23,7 +23,7 @@ public:
 
 	//---- 公开例程 ---------------------------------------------
 	// 创建底层SHM, 返回真实创建的字节数
-	size_t make( const str_t& name, size_t bytes );
+	size_t make( const str_t& name, size_t bytes, bool writable );
 
 	// 对接底层SHM, 返回真实的字节数
 	size_t plug( const str_t& name, bool writable );

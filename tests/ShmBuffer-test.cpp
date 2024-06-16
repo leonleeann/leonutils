@@ -22,14 +22,16 @@ TEST( TestShmBuffer, createdByWriter ) {
 	shm_path /= UT_SHM_NAME;
 	ASSERT_FALSE( fs::exists( shm_path ) );
 
-	wr_buf.make( UT_SHM_NAME, UT_SHM_SIZE );
+	wr_buf.make( UT_SHM_NAME, UT_SHM_SIZE, true );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 	ASSERT_EQ( wr_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( wr_buf.bytes(), UT_SHM_SIZE );
+	ASSERT_EQ( reinterpret_cast<uintptr_t>( wr_buf.get() ) % 64, 0 );
 
 	rd_buf.plug( UT_SHM_NAME, false );
 	ASSERT_EQ( rd_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( rd_buf.bytes(), UT_SHM_SIZE );
+	ASSERT_EQ( reinterpret_cast<uintptr_t>( rd_buf.get() ) % 64, 0 );
 	// 不是同一次映射,应该不相等
 	ASSERT_NE( rd_buf.get(), wr_buf.get() );
 
@@ -45,6 +47,7 @@ TEST( TestShmBuffer, createdByWriter ) {
 		ASSERT_EQ( rd[j], j );
 	}
 
+	ASSERT_DEATH( rd[0] = 12345, "" );
 	rd_buf.unplug( false );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 	wr_buf.unplug( true );
@@ -60,7 +63,7 @@ TEST( TestShmBuffer, createdByReader ) {
 	shm_path /= UT_SHM_NAME;
 	ASSERT_FALSE( fs::exists( shm_path ) );
 
-	rd_buf.make( UT_SHM_NAME, UT_SHM_SIZE );
+	rd_buf.make( UT_SHM_NAME, UT_SHM_SIZE, false );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 	ASSERT_EQ( rd_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( rd_buf.bytes(), UT_SHM_SIZE );
@@ -81,6 +84,7 @@ TEST( TestShmBuffer, createdByReader ) {
 		ASSERT_EQ( rd[j], j );
 	}
 
+	ASSERT_DEATH( rd[0] = 12345, "" );
 	rd_buf.unplug( false );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 	wr_buf.unplug( true );
