@@ -119,6 +119,7 @@ void CatchGlobalSig( SigAction_f def_ ) {
 	// 在 CrashAction 中处理的崩溃信号
 	new_act.sa_sigaction = CrashAction;
 	Takeover( SIGILL,  new_act, blocks );	// 04
+	Takeover( SIGABRT, new_act, blocks );	// 06
 	Takeover( SIGFPE,  new_act, blocks );	// 08
 	Takeover( SIGSEGV, new_act, blocks );	// 11
 
@@ -199,6 +200,7 @@ void CatchCrashSig() {
 
 	// sigfillset( &blocks ); 不再从全集中逐项排除,改为从当前屏蔽集中精准排除
 	sigdelset( &blocks, SIGILL );
+	sigdelset( &blocks, SIGABRT );
 	sigdelset( &blocks, SIGFPE );
 	sigdelset( &blocks, SIGSEGV );
 
