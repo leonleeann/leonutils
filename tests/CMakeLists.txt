@@ -16,6 +16,7 @@ add_executable( unit-test UnitTestMain.cpp
 	Signals-test.cpp
 	Statistics-test.cpp
 	StrSet-test.cpp
+	TextSheet-test.cpp
 	Unicodes-test.cpp
 	UnionTypes-test.cpp
 )

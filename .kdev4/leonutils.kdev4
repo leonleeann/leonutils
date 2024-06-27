@@ -38,3 +38,7 @@ Name=Clang
 
 [CustomDefinesAndIncludes][ProjectPath0][Includes]
 1=/data/projects/leonutils/include
+
+[MakeBuilder]
+Number Of Jobs=8
+Override Number Of Jobs=true

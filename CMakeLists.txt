@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 0 )   # 次版本
-set( PROJECT_VERSION_PATCH 8 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 9 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "崩溃保护包含Abort" )
+set( PROJECT_VERSION_NOTES "移入TextSheet" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -57,6 +57,7 @@ add_library( objCommon OBJECT
 	src/Signals.cpp
 	src/Statistics.cpp
 	src/StrSet.cpp
+	src/TextSheet.cpp
 	src/Unicodes.cpp
 )
 
@@ -90,6 +91,7 @@ FILES
 	include/leonutils/Signals.hpp
 	include/leonutils/Statistics.hpp
 	include/leonutils/StrSet.hpp
+	include/leonutils/TextSheet.hpp
 	include/leonutils/Unicodes.hpp
 	include/leonutils/UnionTypes.hpp
 )

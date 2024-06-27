@@ -208,7 +208,7 @@ void CatchCrashSig() {
 	pthread_sigmask( SIG_SETMASK, &blocks, &tl_blocks_bak );
 
 	tl_taked_over = true;
-	std::cerr << "线程崩溃保护已设置." << std::endl;
+//	std::cerr << "线程崩溃保护已设置." << std::endl;
 };
 
 void RevocCrashSig() {
@@ -218,7 +218,7 @@ void RevocCrashSig() {
 	pthread_sigmask( SIG_SETMASK, &tl_blocks_bak, nullptr );
 
 	tl_taked_over = false;
-	std::cerr << "线程崩溃保护已撤销." << std::endl;
+//	std::cerr << "线程崩溃保护已撤销." << std::endl;
 };
 
 str_t SigSet2Str( const sigset_t ss_ ) {
