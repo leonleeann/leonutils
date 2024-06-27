@@ -1,4 +1,7 @@
+#include <leonlog/LeonLog.hpp>
 #include "sharq-common.hpp"
+
+using namespace leon_log;
 
 void ParseCmdLineOpts( int argc, const char* const* const args );
 

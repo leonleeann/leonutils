@@ -1,5 +1,4 @@
 #pragma once
-#include <LeonLog>
 #include <atomic>
 #include <chrono>
 #include <forward_list>
@@ -16,7 +15,6 @@
 #include "leonutils/Statistics.hpp"
 
 using namespace leon_utl;
-using namespace leon_log;
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using namespace std;

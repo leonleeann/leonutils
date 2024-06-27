@@ -2,20 +2,23 @@ cmake_minimum_required( VERSION 3.25.0 )
 
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
-set( PROJECT_VERSION_MINOR 0 )   # 次版本
-set( PROJECT_VERSION_PATCH 9 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_MINOR 1 )   # 次版本
+set( PROJECT_VERSION_PATCH 0 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "移入TextSheet" )
+set( PROJECT_VERSION_NOTES "信号处理函数可以用对象方法了" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
 
-project( LeonUtils VERSION ${PROJECT_VERSION} DESCRIPTION ${PROJECT_DESCRIPTION} LANGUAGES CXX )
-
+project( LeonUtils
+	VERSION		${PROJECT_VERSION}
+	DESCRIPTION	${PROJECT_DESCRIPTION}
+	LANGUAGES CXX
+)
 configure_file( Version.hpp.in Version.hpp )
 
 ######## 全局配置 ###############################################################
@@ -33,8 +36,6 @@ if ( HAVE_WALL )
 endif()
 
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
-
-# 线程库基本上每个子项目都会用到,这里统一找了吧
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
 find_package( fmt REQUIRED )
@@ -43,7 +44,7 @@ find_package( fmt REQUIRED )
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
 # 不知道下面这句与上面一句有何区别
 include_directories( "." )	# 这不是本文件的目录！是包含者文件的目录！！！
-include_directories( "/data/projects/leonutils/include" )
+include_directories( "include" )
 
 ######## 主要模块 ###############################################################
 add_library( objCommon OBJECT

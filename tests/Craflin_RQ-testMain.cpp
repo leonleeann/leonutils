@@ -1,4 +1,4 @@
-#include <LeonLog>
+#include <leonlog/LeonLog.hpp>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -73,7 +73,7 @@ void consumer_f( MsgQue_t* pq, Msg_t* pMsg, size_t* pCnt, int myid ) {
 
 int main( int argc, const char* const* const args ) {
 	parseCmdLineOpts( argc, args );
-	StartLogging( string( args[0] ) + ".log", g_logl, 9, 1048576 );
+	StartLog( string( args[0] ) + ".log", g_logl, 9, 1048576 );
 
 	MsgQue_t que( g_que_size );
 	auto t = que.capa();
@@ -130,7 +130,7 @@ int main( int argc, const char* const* const args ) {
 		lg_debg << "核对成功. 发送总数:" << total_sent << ", 接收总数:" << total_recv;
 	else
 		lg_debg << "核对失败! 发送总数:" << total_sent << ", 接收总数:" << total_recv;
-	StopLogging();
+	StopLog();
 };
 
 void ShowUsageAndExit() {

@@ -40,5 +40,5 @@ Name=Clang
 1=/data/projects/leonutils/include
 
 [MakeBuilder]
-Number Of Jobs=8
+Number Of Jobs=4
 Override Number Of Jobs=true

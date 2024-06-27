@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include <functional>
 #include <setjmp.h>
 #include <signal.h>
 #include <string>
@@ -28,9 +29,8 @@ using str_t = std::string;
 */
 
 //====== 类型定义 ===============================================================
-/* Linux 信号API sigaction::sa_sigaction 不可能接受对象方法, 只能是纯函数
-using SigAction_f = std::function<void( int, siginfo_t*, void* )>; */
-using SigAction_f = void ( * )( int, siginfo_t*, void* );
+// using SigAction_f = void ( * )( int, siginfo_t*, void* );
+using SigAction_f = std::function<void( int, siginfo_t*, void* )>;
 using SigAction_t = struct sigaction;
 
 //====== 函数申明 ===============================================================

@@ -33,14 +33,18 @@ namespace leon_utl {
 // 把不同信号处理行为备份到一个 map 中, 方便查找
 using SigActions_t = std::map<int, SigAction_t>;
 
+//------ 全局处理 ---------------------------------------------------------------
 // 各种信号的默认处理器备份
-SigActions_t		s_sa_backups {};
+SigActions_t			s_sa_backups {};
 // 进程信号屏蔽集备份
-sigset_t			s_blocks_bak {};
-
+sigset_t				s_blocks_bak {};
+// 全局信号处理器(任何可调用对象)
+SigAction_f				s_global_act {};
 // 全局信号处理已被本模块接管
-std::atomic_bool	s_taked_over {};
+std::atomic_bool		s_taked_over {};
+//------------------------------------------------------------------------------
 
+//------ 线程处理 ---------------------------------------------------------------
 // 当前线程"崩溃信号"处理已开放
 thread_local bool		tl_taked_over {};
 // 当前线程信号屏蔽集备份
@@ -50,9 +54,18 @@ thread_local sigset_t	tl_blocks_bak {};
 thread_local sigjmp_buf	tl_recovery_point;
 // 崩溃计次
 thread_local int		tl_crashing_count { 0 };
+//------------------------------------------------------------------------------
 
 bool GlobalSigCatching() {
 	return s_taked_over.load();
+};
+
+/* 因为 Linux 信号API sigaction::sa_sigaction 不可能接受对象方法, 只能是纯C函数. 所
+	以我们在此添加了一个"包装函数", 对OS充当"纯C接口的全局信号处理函数", 内部再去调用用户
+	定义的信号处理(可以是任何"可调用对象": 函数、lambda、对象方法、functor、、、).
+*/
+void GlobalAction( int sig_, siginfo_t* info_, void* cust_ ) {
+	s_global_act( sig_, info_, cust_ );
 };
 
 // "崩溃信号"处理函数
@@ -79,16 +92,17 @@ void Takeover( int sig_, SigAction_t& new_, sigset_t& blocks_ ) {
 //	std::cerr << pad_r( strsignal( sig_ ), 28 ) << "设置为:" << new_ << std::endl;
 };
 
-void CatchGlobalSig( SigAction_f def_ ) {
+void CatchGlobalSig( SigAction_f action_ ) {
 	if( s_taked_over.load() )
 		throw bad_usage( "全局信号处理已经设置,不能重复设置!" );
 
+	s_global_act = action_;
 	s_sa_backups.clear();
 	SigAction_t new_act {};
 
 	// 我们不需要知道子进程"暂停/恢复",否则太多了,所以加上 SA_NOCLDSTOP
 	new_act.sa_flags = SA_SIGINFO | SA_NOCLDSTOP;
-	new_act.sa_sigaction = def_;
+	new_act.sa_sigaction = &GlobalAction;
 
 	// 不打算在 def_ 内处理的信号
 	sigset_t blocks {};

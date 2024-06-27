@@ -136,7 +136,8 @@ TEST_F( SigHandling_F, backupAndRestore ) {
 	// 不知为何, sa_flags 高位上总会多个 0x04000000.
 	sa_bak.sa_flags |= 0x04000000;
 	ASSERT_EQ( sa_new.sa_flags, sa_bak.sa_flags | SA_SIGINFO | SA_NOCLDSTOP );
-	ASSERT_EQ( sa_new.sa_sigaction, DefaultAction );
+	/* Signals 模块有一个"接口层", 这里获取的处理函数不可能是我们自定义的了.
+	ASSERT_EQ( sa_new.sa_sigaction, DefaultAction ); */
 	ASSERT_NE( sa_new.sa_sigaction, sa_bak.sa_sigaction );
 
 	// 恢复
