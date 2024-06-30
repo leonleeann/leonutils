@@ -279,6 +279,7 @@ TEST( TestConverts, RoundFloat ) {
 	EXPECT_EQ( format( sf_Input, 0, 4 ), string( "1.2345" ) );
 	EXPECT_EQ( format( df_Input, 0, 5 ), string( "1.23457" ) );
 	EXPECT_EQ( format( df_Input, 0, 6 ), string( "1.234565" ) );
+	EXPECT_EQ( format( 11113.3350001, 11, 2, 4 ), string( "  1'1113.34" ) );
 };
 
 // 超宽全部为"***"

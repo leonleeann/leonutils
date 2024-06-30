@@ -1,153 +1,138 @@
-#include <sstream>
-#include <variant>
-#include <vector>
+#include <iomanip>
+#include <iostream>
 #include <leonutils/Converts.hpp>
 #include <leonutils/TextSheet.hpp>
 #include <leonutils/Unicodes.hpp>
+#include <sstream>
+#include <vector>
 
 namespace leon_utl {
 
 using woss_t = std::wostringstream;
-using U8Names_t = std::vector<str_t>;
 using WsNames_t = std::vector<wstr_t>;
 
-using Data_t = std::variant<int64_t, double, str_t>;
-using RowData_t = std::vector<Data_t>;
+using RowData_t = std::vector<double>;
 using AllData_t = std::vector<RowData_t>;
 
-struct TextSheet_t::Imp_t {
-	// UTF8的行名、列名
-	U8Names_t	_u8_cns;
-	U8Names_t	_u8_rns;
-	// Unicode行名、列名
-	WsNames_t	_ws_cns;
-	WsNames_t	_ws_rns;
+// 单列数据显示规格
+struct ColSpec_t {
+	wstr_t	_n;		// 列名
+	int8_t	_w;		// 列宽
+	int8_t	_p;		// 小数位数
+	int8_t	_g;		// 分组位数
+	char	_s;		// 组分隔符
+};
+// 全部列定义
+using Columns_t = std::vector<ColSpec_t>;
 
-	// 实际填入的数据
-	AllData_t	_all_da;
-	str_t		_myname;
+struct TextSheet_t::Imp_t {
+	// 表格名称
+	const wstr_t	_sheet_name;
+	// 首列(名称列)宽度,自动找
+	int				_name_width { 24 };
+
+	// 所有数据行名称(Unicode)
+	WsNames_t		_row_names;
+
+	// 所有数据列定义(名称、显示规格)
+	Columns_t		_col_specs;
 
 	/* 表头,例如:
 		┌─────────┬─────┬─────┬──────┐
 		│ 抛弃原因 │ 总数 │ 大连 │ 上期 │ */
-	wstr_t		_header;
+	wstr_t			_head_line;
 
 	/* 行分割,例如:
 		├────────┼──────┼─────┼─────┤ */
-	wstr_t		_separa;
+	wstr_t			_sepa_line;
 
 	/* 表底,例如:
 		└────────┴──────┴─────┴─────┘ */
-	wstr_t		_footer;
+	wstr_t			_foot_line;
 
-	// 首列(名称列)宽度,自动找
-	int			_name_w { 24 };
-	// 数据列宽
-	int			_data_w;
-	// 浮点数输出所需小数位数
-	int			_precis;
+	// 实际填入的数据
+	AllData_t		_all_data;
 
 //------------------------------------------------------
 	void	skeleton();
-	str_t	textOf( const Data_t& ) const;
+	str_t	textOf( double, const ColSpec_t& ) const;
 	wstr_t	make() const;
 };
 
 void TextSheet_t::Imp_t::skeleton() {
 //---- 确定首列列宽 ----------------------------------------------
-	// 在行名中找到最大宽度,作为首列宽度
-	_name_w = displ_width( _myname );
-	_ws_rns.clear();
-	for( const auto& n : _u8_rns ) {
-		wstr_t& wrn = _ws_rns.emplace_back( u8_2_ws( n ) );
-		_name_w = std::max( _name_w, displ_width( wrn ) );
-	}
-	_name_w += 2;
+	// 在行名中找到最大宽度,作为首列(名称列)宽度
+	_name_width = displ_width( _sheet_name );
+	for( const auto& row_name : _row_names )
+		_name_width = std::max( _name_width, displ_width( row_name ) );
+	// 前后各留一个空格宽度
+	_name_width += 2;
 	// 把行名都适配到首列列宽,避免运行中重复算
-	for( auto& w_rn : _ws_rns )
-		w_rn = adapt_width( _name_w, w_rn );
+	for( auto& row_name : _row_names )
+		row_name = adapt_width( _name_width, row_name );
 
-//---- 制作每行内容 ----------------------------------------------
+//---- 制作名称列 ------------------------------------------------
 	// 名称列用横线
-	wstr_t nc_line = wstr_t( _name_w, L'─' );
-	// 数据列用横线
-	wstr_t dc_line = wstr_t( _data_w, L'─' );
+	wstr_t nc_line = wstr_t( _name_width, L'─' );
 	wstr_t first_r;
-	_header = L"\n┌" + nc_line;
-	_separa = L"\n├" + nc_line;
-	_footer = L"\n└" + nc_line;
-	first_r = L"\n│" + adapt_centr( _name_w, _myname );
+	_head_line = L"\n┌" + nc_line;
+	_sepa_line = L"\n├" + nc_line;
+	_foot_line = L"\n└" + nc_line;
+	first_r = L"\n│" + adapt_centr( _name_width, _sheet_name );
 
-	// 根据每个数据列名,附加到各个header后面
-	_ws_cns.clear();
-	for( const auto& n : _u8_cns ) {
-		wstr_t& wcn = _ws_cns.emplace_back( u8_2_ws( n ) );
-		_header += L'┬' + dc_line;
-		_separa += L'┼' + dc_line;
-		_footer += L'┴' + dc_line;
-		first_r += L'│' + adapt_centr( _data_w, wcn );
+//---- 制作数据列 ------------------------------------------------
+	for( const auto& col_spec : _col_specs ) {
+		// 数据列用横线
+		wstr_t dc_line = wstr_t( col_spec._w, L'─' );
+		_head_line += L'┬' + dc_line;
+		_sepa_line += L'┼' + dc_line;
+		_foot_line += L'┴' + dc_line;
+		first_r += L'│' + adapt_centr( col_spec._w, col_spec._n );
 	}
 
-//---- 各header收口,组装成大header ----------------------------------------------
-	_header += L'┐';
-	_separa += L'┤';
-	_footer += L'┘';
+//---- 各header收口,组装成大header -------------------------------
+	_head_line += L'┐';
+	_sepa_line += L'┤';
+	_foot_line += L'┘';
 	first_r += L'│';
-	_header += first_r;
+	_head_line += first_r;
 
 //---- 初始化数据 ----------------------------------------------
-	_all_da.clear();
-	for( size_t r = 0; r < _u8_rns.size(); ++r ) {
-		auto& row = _all_da.emplace_back();
-		for( size_t c = 0; c < _u8_cns.size(); ++c ) {
-			Data_t d = int64_t{0};
-			row.push_back( d );
-		}
+	_all_data.clear();
+	for( size_t r = 0; r < _row_names.size(); ++r ) {
+		auto& row = _all_data.emplace_back();
+		for( size_t c = 0; c < _col_specs.size(); ++c )
+			row.emplace_back( int64_t{ 0 } );
 		row.shrink_to_fit();
 	};
-	_all_da.shrink_to_fit();
+	_all_data.shrink_to_fit();
 };
 
-str_t TextSheet_t::Imp_t::textOf( const Data_t& data_ ) const {
+str_t TextSheet_t::Imp_t::textOf( double data_, const ColSpec_t& spec_ ) const {
 
-	int neat_w = _data_w - 2;
-
-	switch( data_.index() ) {
-		case 0:	// int64_t
-			return format( std::get<0>( data_ ), neat_w, 0, 4 );
-
-		case 1:	// double
-			return format( std::get<1>( data_ ), neat_w, _precis, 3, ' ', ',' );
-
-		case 2:	// string
-			return std::get<2>( data_ );
-
-		default:;
-	};
-
-	return {};
+	return format( data_, spec_._w - 2, spec_._p, spec_._g, ' ', spec_._s );
 };
 
 wstr_t TextSheet_t::Imp_t::make() const {
 	woss_t wos;
-	wos << _header;
+	wos << _head_line;
 	int r = 0;
-	for( const auto& rn : _ws_rns ) {
-		wos << _separa << L"\n│" << rn;
-		auto& row = _all_da[r++];
-		for( const auto& data : row )
-			wos << L'│' << adapt_width( _data_w, textOf( data ) );
+	for( const auto& row_name : _row_names ) {
+		wos << _sepa_line << L"\n│" << row_name;
+		auto& row = _all_data[r++];
+		int c = 0;
+		for( const auto& d : row ) {
+			const auto& spec = _col_specs[c++];
+			wos << L'│' << adapt_width( spec._w, textOf( d, spec ) );
+		}
 		wos << L'│';
 	}
-	wos << _footer;
+	wos << _foot_line;
 	return wos.str();
 };
 
-TextSheet_t::TextSheet_t( const str_t& name_, int width_, int prec_ ) {
-	_imp = new Imp_t;
-	_imp->_myname = name_;
-	_imp->_data_w = width_;
-	_imp->_precis = prec_;
+TextSheet_t::TextSheet_t( const str_t& name_ ) {
+	_imp = new Imp_t { u8_2_ws( name_ ) };
 };
 
 TextSheet_t::~TextSheet_t() {
@@ -155,24 +140,23 @@ TextSheet_t::~TextSheet_t() {
 };
 
 void TextSheet_t::clear() {
-	_imp->_u8_cns.clear();
-	_imp->_u8_rns.clear();
-	_imp->_ws_cns.clear();
-	_imp->_ws_rns.clear();
-	_imp->_all_da.clear();
-	_imp->_header.clear();
-	_imp->_separa.clear();
-	_imp->_footer.clear();
+//	_imp->_sheet_name.clear();
+	_imp->_row_names.clear();
+	_imp->_col_specs.clear();
+	_imp->_head_line.clear();
+	_imp->_sepa_line.clear();
+	_imp->_foot_line.clear();
+	_imp->_all_data.clear();
 };
 
-int TextSheet_t::addCol( const str_t& name_ ) {
-	_imp->_u8_cns.push_back( name_ );
-	return _imp->_u8_cns.size();
+int TextSheet_t::addCol( const str_t& n_, int8_t w_, int8_t p_, int8_t g_, char s_ ) {
+	_imp->_col_specs.emplace_back( u8_2_ws( n_ ), w_, p_, g_, s_ );
+	return _imp->_col_specs.size();
 };
 
 int TextSheet_t::addRow( const str_t& name_ ) {
-	_imp->_u8_rns.push_back( name_ );
-	return _imp->_u8_rns.size();
+	_imp->_row_names.push_back( u8_2_ws( name_ ) );
+	return _imp->_row_names.size();
 };
 
 void TextSheet_t::skeleton() {
@@ -180,28 +164,16 @@ void TextSheet_t::skeleton() {
 };
 
 int TextSheet_t::cols() const {
-	return _imp->_u8_cns.size();
+	return _imp->_col_specs.size();
 };
 
 int TextSheet_t::rows() const {
-	return _imp->_u8_rns.size();
+	return _imp->_row_names.size();
 };
 
-template<typename T>
-void TextSheet_t::fill( int r_, int c_, T d_ ) {
-	_imp->_all_da[r_][c_] = d_;
+void TextSheet_t::fill( int r_, int c_, double d_ ) {
+	_imp->_all_data[r_][c_] = d_;
 };
-
-// 特化版
-template<> void TextSheet_t::fill<>( int r_, int c_, float	d_ ) { _imp->_all_da[r_][c_] = static_cast<double>( d_ ); };
-template<> void TextSheet_t::fill<>( int r_, int c_, int	d_ ) { _imp->_all_da[r_][c_] = static_cast<int64_t>( d_ ); };
-// 实例化
-template void TextSheet_t::fill<double>( int, int, double );
-template void TextSheet_t::fill<float>( int, int, float );
-template void TextSheet_t::fill<int64_t>( int, int, int64_t );
-template void TextSheet_t::fill<int>( int, int, int );
-
-void TextSheet_t::fillStr( int r_, int c_, const str_t& s_ ) { _imp->_all_da[r_][c_] = s_; };
 
 wstr_t TextSheet_t::makeWstr() const {
 	return _imp->make();

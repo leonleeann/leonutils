@@ -34,14 +34,4 @@ add_executable( test-craflinrq Craflin_RQ-testMain.cpp )
 target_link_libraries( test-craflinrq leonutl_static Threads::Threads LeonLog )
 install( TARGETS test-craflinrq RUNTIME DESTINATION testing )
 
-#======= TARGET sharq-consumer =================================================
-add_executable( sharq-consumer sharq-consumer.cpp )
-target_link_libraries( sharq-consumer leonutl_static LeonLog )
-install( TARGETS sharq-consumer RUNTIME DESTINATION testing )
-
-#======= TARGET sharq-producer =================================================
-add_executable( sharq-producer sharq-producer.cpp )
-target_link_libraries( sharq-producer leonutl_static LeonLog )
-install( TARGETS sharq-producer RUNTIME DESTINATION testing )
-
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;
