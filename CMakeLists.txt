@@ -38,7 +38,7 @@ endif()
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
-find_package( fmt REQUIRED )
+# find_package( fmt REQUIRED )
 
 # 对任何头文件的搜索都可 以本目录为根开始
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
@@ -97,7 +97,7 @@ FILES
 	include/leonutils/UnionTypes.hpp
 )
 
-target_link_libraries( leonutl_static objCommon fmt::fmt )
+target_link_libraries( leonutl_static objCommon )
 install( TARGETS leonutl_static
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

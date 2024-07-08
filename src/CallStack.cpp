@@ -1,4 +1,3 @@
-#include <fmt/format.h>
 #include <forward_list>
 #include <sstream>
 #include <string>

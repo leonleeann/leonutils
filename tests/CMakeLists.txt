@@ -1,6 +1,9 @@
 cmake_minimum_required( VERSION 3.16.0 )
 
 find_package( GTest REQUIRED )
+add_library( leonlog_dynmic SHARED IMPORTED )
+set_property( TARGET leonlog_dynmic PROPERTY
+	IMPORTED_LOCATION "/usr/local/lib/libLeonLog.so.1.8.6" )
 
 #======= TARGET unit-test ==============
 add_executable( unit-test UnitTestMain.cpp
@@ -31,7 +34,11 @@ install( TARGETS unit-test RUNTIME DESTINATION testing )
 
 #======= TARGET test-craflinrq =================================================
 add_executable( test-craflinrq Craflin_RQ-testMain.cpp )
-target_link_libraries( test-craflinrq leonutl_static Threads::Threads LeonLog )
+target_link_libraries( test-craflinrq
+	leonutl_static
+	leonlog_dynmic
+	Threads::Threads
+)
 install( TARGETS test-craflinrq RUNTIME DESTINATION testing )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;
