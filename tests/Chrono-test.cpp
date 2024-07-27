@@ -13,7 +13,6 @@ using namespace leon_utl;
 using std::is_signed_v;
 using std::is_unsigned_v;
 using std::ratio;
-using std::string;
 
 /***************************************************************************
  * timespec struct
@@ -64,30 +63,30 @@ TEST( TestTimeSpecOp, SubtractEachOther ) {
 TEST( TestTimeSpecOp, AddOneInteger ) {
 	timespec ts1 = { 123, std::numeric_limits<decltype( ts1.tv_nsec )>::max() },
 			 ts2;
-	decltype( ts1.tv_nsec ) remain = ts1.tv_nsec % 1000000000;
+	decltype( ts1.tv_nsec ) remain = ts1.tv_nsec % NS_IN_1_SEC;
 
 	ts2 = ts1 + 1;
-	EXPECT_EQ( ts2.tv_nsec, ( remain + 1 ) % 1000000000 );
+	EXPECT_EQ( ts2.tv_nsec, ( remain + 1 ) % NS_IN_1_SEC );
 	EXPECT_EQ(
 		ts2.tv_sec,
-		ts1.tv_sec + ts1.tv_nsec / 1000000000
-		+ ( remain + 1 ) / 1000000000
+		ts1.tv_sec + ts1.tv_nsec / NS_IN_1_SEC
+		+ ( remain + 1 ) / NS_IN_1_SEC
 	);
 
 	ts2 = ts1 + 1000000001;
-	EXPECT_EQ( ts2.tv_nsec, ( remain + 1000000001 ) % 1000000000 );
+	EXPECT_EQ( ts2.tv_nsec, ( remain + 1000000001 ) % NS_IN_1_SEC );
 	EXPECT_EQ(
 		ts2.tv_sec,
-		ts1.tv_sec + ts1.tv_nsec / 1000000000
-		+ ( remain + 1000000001 ) / 1000000000
+		ts1.tv_sec + ts1.tv_nsec / NS_IN_1_SEC
+		+ ( remain + 1000000001 ) / NS_IN_1_SEC
 	);
 
 	ts2 = ts1 + ( - 1 );
-	EXPECT_EQ( ts2.tv_nsec, ( remain - 1 ) % 1000000000 );
+	EXPECT_EQ( ts2.tv_nsec, ( remain - 1 ) % NS_IN_1_SEC );
 	EXPECT_EQ(
 		ts2.tv_sec,
-		ts1.tv_sec + ts1.tv_nsec / 1000000000
-		+ ( remain - 1 ) / 1000000000
+		ts1.tv_sec + ts1.tv_nsec / NS_IN_1_SEC
+		+ ( remain - 1 ) / NS_IN_1_SEC
 	);
 };
 
@@ -96,15 +95,15 @@ TEST( TestTimeSpecOp, AddOneNegtive ) {
 			 ts2;
 
 	ts2 = ts1 + ( -1 );
-	ts1.tv_sec += ts1.tv_nsec / 1000000000;
-	ts1.tv_nsec = ts1.tv_nsec % 1000000000 - 1;
+	ts1.tv_sec += ts1.tv_nsec / NS_IN_1_SEC;
+	ts1.tv_nsec = ts1.tv_nsec % NS_IN_1_SEC - 1;
 	EXPECT_LT( ts1.tv_nsec, 0 );
 	if( ts1.tv_nsec < 0 ) {
 		--ts1.tv_sec;
-		ts1.tv_nsec += 1000000000;
+		ts1.tv_nsec += NS_IN_1_SEC;
 	}
 	EXPECT_GE( ts1.tv_nsec, 0 );
-	EXPECT_LT( ts1.tv_nsec, 1000000000 );
+	EXPECT_LT( ts1.tv_nsec, NS_IN_1_SEC );
 	EXPECT_EQ( ts1.tv_sec, ts2.tv_sec );
 	EXPECT_EQ( ts1.tv_nsec, ts2.tv_nsec );
 
@@ -119,11 +118,11 @@ TEST( TestTimeSpecOp, AddOneWithSelf ) {
 	timespec ts1 = { 123, std::numeric_limits<decltype( ts1.tv_nsec )>::min() },
 			 ts2 = ts1;
 	ts2 += -1;
-	ts1.tv_sec += ts1.tv_nsec / 1000000000;
-	ts1.tv_nsec = ts1.tv_nsec % 1000000000 - 1;
+	ts1.tv_sec += ts1.tv_nsec / NS_IN_1_SEC;
+	ts1.tv_nsec = ts1.tv_nsec % NS_IN_1_SEC - 1;
 	if( ts1.tv_nsec < 0 ) {
 		--ts1.tv_sec;
-		ts1.tv_nsec += 1000000000;
+		ts1.tv_nsec += NS_IN_1_SEC;
 	}
 	EXPECT_EQ( ts1.tv_sec, ts2.tv_sec );
 	EXPECT_EQ( ts1.tv_nsec, ts2.tv_nsec );
@@ -169,25 +168,33 @@ TEST( TestFormatTimeP, WithPrec ) {
 	system_clock::time_point stpNow
 		= system_clock::from_time_t( mktime( &tm1 ) ) + nanoseconds( 123456789 );
 
-	ASSERT_EQ( format_time( stpNow, 9 ), string( "19/07/29 15:15:59.123456789" ) );
-	ASSERT_EQ( format_time( stpNow, 6 ), string( "19/07/29 15:15:59.123456" ) );
-	ASSERT_EQ( format_time( stpNow, 3 ), string( "19/07/29 15:15:59.123" ) );
-	ASSERT_EQ( format_time( stpNow, size_t( 0 ) ), string( "19/07/29 15:15:59" ) );
+	ASSERT_EQ( format_time( stpNow, 9 ), str_t( "19/07/29 15:15:59.123456789" ) );
+	ASSERT_EQ( format_time( stpNow, 6 ), str_t( "19/07/29 15:15:59.123456" ) );
+	ASSERT_EQ( format_time( stpNow, 3 ), str_t( "19/07/29 15:15:59.123" ) );
+	ASSERT_EQ( format_time( stpNow, size_t( 0 ) ), str_t( "19/07/29 15:15:59" ) );
 	ASSERT_EQ( format_time( stpNow, size_t( 0 ), "%m/%d %H:%M" ),
-			   string( "07/29 15:15" ) );
+			   str_t( "07/29 15:15" ) );
 };
 
-TEST( TestChrono, time2float ) {
-	time_point<system_clock, milliseconds> in_ms { milliseconds{ 12345 } };
+TEST( TestChrono, convertToFloating ) {
+	auto ms_12345 = milliseconds{ 12345 };
+	time_point<system_clock, milliseconds> in_ms { ms_12345 };
+	ASSERT_TRUE( leon_utl::eq( dura2float( ms_12345 ), 12.345 ) );
 	ASSERT_TRUE( leon_utl::eq( time2float( in_ms ), 12.345 ) );
 
-	time_point<system_clock, microseconds> in_us { microseconds{ 12345 } };
+	auto us_12345 = microseconds{ 12345 };
+	time_point<system_clock, microseconds> in_us { us_12345 };
+	ASSERT_TRUE( leon_utl::eq( dura2float( us_12345 ), 0.012345 ) );
 	ASSERT_TRUE( leon_utl::eq( time2float( in_us ), 0.012345 ) );
 
-	time_point<system_clock, nanoseconds> in_ns { nanoseconds{ 12345 } };
+	auto ns_12345 = nanoseconds{ 12345 };
+	time_point<system_clock, nanoseconds> in_ns { ns_12345 };
+	ASSERT_TRUE( leon_utl::eq( dura2float( ns_12345 ), 0.000012345 ) );
 	ASSERT_TRUE( leon_utl::eq( time2float( in_ns ), 0.000012345 ) );
 
-	time_point<steady_clock, seconds> in_s { seconds{ 12345 } };
+	auto ss_12345 = seconds{ 12345 };
+	time_point<steady_clock, seconds> in_s { ss_12345 };
+	ASSERT_TRUE( leon_utl::eq( dura2float( ss_12345 ), 12345.0 ) );
 	ASSERT_TRUE( leon_utl::eq( time2float( in_s ), 12345.0 ) );
 };
 
@@ -278,4 +285,5 @@ TEST( TestFormatDuration, formatDura ) {
 
 	ASSERT_EQ( format_secs( 3599001ms ), "3599.001s" );
 };
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

@@ -2,113 +2,118 @@
 #include "leonutils/ChronoTypes.hpp"
 #include "leonutils/Converts.hpp"
 
+using namespace std::chrono;
+using namespace std::chrono_literals;
+using str_t = std::string;
+using ts_secs_t = decltype( timespec::tv_sec );
+using ts_nsec_t = decltype( timespec::tv_nsec );
+static_assert( sizeof( ts_nsec_t ) == 8 );
+
+constexpr ts_nsec_t NS_IN_1_SEC = 1000 * 1000 * 1000;
+
+//========== 两个timespec时间结构的比较及运算 ======================================
+inline bool operator > ( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ( ts1_.tv_sec  > ts2_.tv_sec ) ||
+			 ( ts1_.tv_sec == ts2_.tv_sec && ts1_.tv_nsec > ts2_.tv_nsec ) );
+};
+inline bool operator < ( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ( ts1_.tv_sec  < ts2_.tv_sec ) ||
+			 ( ts1_.tv_sec == ts2_.tv_sec && ts1_.tv_nsec < ts2_.tv_nsec ) );
+};
+inline bool operator ==( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ts1_.tv_sec == ts2_.tv_sec && ts1_.tv_nsec == ts2_.tv_nsec );
+};
+inline bool operator !=( const timespec& ts1_, const timespec& ts2_ ) {
+	return !( ts1_ == ts2_ );
+};
+inline bool operator <=( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ts1_ == ts2_ || ts1_ < ts2_ );
+};
+inline bool operator >=( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ts1_ == ts2_ || ts1_ > ts2_ );
+};
+
+inline ts_nsec_t operator - ( const timespec& ts1_, const timespec& ts2_ ) {
+	return ( ( ts1_.tv_sec - ts2_.tv_sec ) * NS_IN_1_SEC
+			 + ts1_.tv_nsec - ts2_.tv_nsec );
+};
+
+inline timespec operator + ( const timespec& ts_, ts_nsec_t ns_ ) {
+	timespec result = {
+		ts_.tv_sec + ts_.tv_nsec / NS_IN_1_SEC + ns_ / NS_IN_1_SEC,
+		ts_.tv_nsec % NS_IN_1_SEC,
+	};
+
+	ts_nsec_t sum = ns_ % NS_IN_1_SEC + result.tv_nsec;
+	result.tv_sec += sum / NS_IN_1_SEC;
+	sum = sum % NS_IN_1_SEC;
+
+	// 负值修正
+	result.tv_nsec = ( sum + NS_IN_1_SEC ) % NS_IN_1_SEC;
+	result.tv_sec += ( sum - result.tv_nsec ) / NS_IN_1_SEC;
+	return result;
+};
+
+inline timespec operator - ( const timespec& ts_, ts_nsec_t ns_ ) {
+	return ts_ + ( - ns_ );
+};
+
+inline timespec& operator+=( timespec& ts_, ts_nsec_t ns_ ) {
+	ts_ = ts_ + ns_;
+	return ts_;
+};
+
+inline timespec& operator-=( timespec& ts_, ts_nsec_t ns_ ) {
+	ts_ = ts_ - ns_;
+	return ts_;
+};
+
 namespace leon_utl {
 
 using str_t = std::string;
 using ts_secs_t = decltype( timespec::tv_sec );
 using ts_nsec_t = decltype( timespec::tv_nsec );
 
-//========== 两个timespec时间结构的比较及运算 ======================================
-inline bool operator > ( const timespec& ts1, const timespec& ts2 ) {
-	return ( ( ts1.tv_sec  > ts2.tv_sec ) ||
-			 ( ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec > ts2.tv_nsec ) );
-};
-inline bool operator < ( const timespec& ts1, const timespec& ts2 ) {
-	return ( ( ts1.tv_sec  < ts2.tv_sec ) ||
-			 ( ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec < ts2.tv_nsec ) );
-};
-inline bool operator ==( const timespec& ts1, const timespec& ts2 ) {
-	return ( ts1.tv_sec == ts2.tv_sec && ts1.tv_nsec == ts2.tv_nsec );
-};
-inline bool operator !=( const timespec& ts1, const timespec& ts2 ) {
-	return !( ts1 == ts2 );
-};
-inline bool operator <=( const timespec& ts1, const timespec& ts2 ) {
-	return ( ts1 == ts2 || ts1 < ts2 );
-};
-inline bool operator >=( const timespec& ts1, const timespec& ts2 ) {
-	return ( ts1 == ts2 || ts1 > ts2 );
-};
-
-constexpr ts_nsec_t NS_IN_1_SEC = 1000 * 1000 * 1000;
-
-inline ts_nsec_t operator - ( const timespec& ts1, const timespec& ts2 ) {
-	return ( ( ts1.tv_sec - ts2.tv_sec ) * NS_IN_1_SEC
-			 + ts1.tv_nsec - ts2.tv_nsec );
-};
-
-inline timespec operator + ( const timespec& ts, ts_nsec_t ns ) {
-	timespec tsResult = {
-		ts.tv_sec + ts.tv_nsec / 1000000000 + ns / 1000000000,
-		ts.tv_nsec % 1000000000
-	};
-
-	ts_nsec_t sum = ns % 1000000000 + tsResult.tv_nsec;
-	tsResult.tv_sec += sum / 1000000000;
-	sum = sum % 1000000000;
-
-	// 负值修正
-	tsResult.tv_nsec = ( sum + 1000000000 ) % 1000000000;
-	tsResult.tv_sec += ( sum - tsResult.tv_nsec ) / 1000000000;
-	return tsResult;
-};
-
-inline timespec operator - ( const timespec& ts, ts_nsec_t ns ) {
-	return ts + ( - ns );
-};
-
-inline timespec& operator+=( timespec& ts, ts_nsec_t ns ) {
-	ts = ts + ns;
-	return ts;
-};
-
-inline timespec& operator-=( timespec& ts, ts_nsec_t ns ) {
-	ts = ts - ns;
-	return ts;
-};
-
 //========== 时点运算 ===========================================================
 
 //---------- 时点对齐到整日(按本地时区算) ---------------------------
-inline void floor( tm* local_tm ) {
-	local_tm->tm_hour = local_tm->tm_min = local_tm->tm_sec = 0;
+inline void floor( tm* local_ ) {
+	local_->tm_hour = local_->tm_min = local_->tm_sec = 0;
 	return;
 };
 
-inline time_t floor( time_t local_time ) {
+inline time_t floor( time_t local_ ) {
 	tm tm1 = {};
-	localtime_r( &local_time, &tm1 );
+	localtime_r( &local_, &tm1 );
 	leon_utl::floor( &tm1 );
 	return mktime( &tm1 );
 };
 
-//---------- 返回给定时点在当前时区当日的起始之处(00:00) ----------
+//---------- 返回给定时点在当前时区当日的起始之处(00:00:00) ----------
 template <typename D>
-inline time_point<system_clock, D> floor( const time_point<system_clock, D>& tp ) {
-	/* 不能用 time_point_cast<days>() 函数对齐到86400秒的整倍数!因为除了
-	 * 格林威治时区以外,其它时区的时间从epoch到每日00:00的计数都不是86400秒
-	 * 的整倍数,如果强行floor就不能得到一个每日本地00:00的时点. */
+inline time_point<system_clock, D> floor( const time_point<system_clock, D>& tp_ ) {
+	/* 不能用 time_point_cast<days>() 函数对齐到86400秒的整倍数! 因为除了格林威治
+		时区以外, 其它时区的时间从epoch到每日00:00的计数都不是86400秒的整倍数,如果强
+		行 floor 就不能得到一个每日本地00:00的时点. */
 
 	return time_point_cast<D>(
 			   system_clock::from_time_t(
-				   leon_utl::floor( system_clock::to_time_t( tp ) ) ) );
+				   leon_utl::floor( system_clock::to_time_t( tp_ ) ) ) );
 };
 
 //========== 时点转换 ===========================================================
 //---------- 将时点转成一个自epoch以来已经过的秒数(浮点表达) ----------
 template<typename Clock, typename Rep, std::intmax_t M, std::intmax_t N>
-inline double time2float(
-	std::chrono::time_point<Clock,
-	std::chrono::duration<Rep, std::ratio<M, N> > > tp ) {
-	double result = tp.time_since_epoch().count();
+inline double time2float( time_point<Clock, duration<Rep, std::ratio<M, N>>> tp_ ) {
+	double result = tp_.time_since_epoch().count();
 	return result * M / N;
 };
 
 // 将时期值转为浮点数(代表自epoch以来的秒数)
-template<typename Clock, typename Dura>
-inline double secs_since_epoch( time_point<Clock, Dura> tp ) {
-	auto ns_tp = time_point_cast<nanoseconds>( tp );
-	return ns_tp.time_since_epoch().count() / static_cast<double>( NS_IN_1_SEC );
+template<typename Rep, std::intmax_t M, std::intmax_t N>
+inline double dura2float( duration<Rep, std::ratio<M, N>> d_ ) {
+	double result = d_.count();
+	return result * M / N;
 };
 
 /*------------------------------------------------------------------------------
@@ -120,8 +125,8 @@ struct SsUsNs_t {	// 没有毫秒值, 毫秒值 * 1000 和微秒存在一起
 	// 将时间值分解为 秒数部分(代表自epoch以来的秒数), 微秒部分, 纳秒部分
 	SsUsNs_t( SysTime_t tp_ ) {
 		auto all = tp_.time_since_epoch().count();
-		ss = all / 1000 / 1000 / 1000;
-		all %= 1000 * 1000 * 1000;
+		ss = all / NS_IN_1_SEC;
+		all %= NS_IN_1_SEC;
 		us = all / 1000;
 		ns = all % 1000;
 	};
