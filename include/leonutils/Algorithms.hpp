@@ -220,27 +220,25 @@ inline bool eq( const float f, const double d ) {
 
 //-------- 组合比较 --------
 template<typename T>
-inline bool ge( const T v1, const T v2 ) {
-	return v1 > v2 || eq( v1, v2 );
-};
+inline bool lt( const T v1, const T v2 ) { return v1 < v2 && !eq( v1, v2 ); };
 template<typename T>
-inline bool le( const T v1, const T v2 ) {
-	return v1 < v2 || eq( v1, v2 );
-};
+inline bool gt( const T v1, const T v2 ) { return v1 > v2 && !eq( v1, v2 ); };
 template<typename T>
-inline bool gt( const T v1, const T v2 ) {
-	return v1 > v2 && !eq( v1, v2 );
-};
+inline bool le( const T v1, const T v2 ) { return v1 < v2 || eq( v1, v2 ); };
 template<typename T>
-inline bool lt( const T v1, const T v2 ) {
-	return v1 < v2 && !eq( v1, v2 );
-};
-inline bool gt( double v1, double v2, double epsilon ) {
-	return v1 > v2 + epsilon;
-};
-inline bool lt( double v1, double v2, double epsilon ) {
-	return v1 < v2 - epsilon;
-};
+inline bool ge( const T v1, const T v2 ) { return v1 > v2 || eq( v1, v2 ); };
+
+template<typename T>
+inline bool lt( const T v1, const T v2, const T epsilon ) { return v1 < v2 - epsilon; };
+template<typename T>
+inline bool gt( const T v1, const T v2, const T epsilon ) { return v1 > v2 + epsilon; };
+
+// le/ge 用 gt/lt 的取反, 应该要快于 eq
+template<typename T>
+inline bool le( const T v1, const T v2, const T epsilon ) { return !gt( v1, v2, epsilon ); };
+template<typename T>
+inline bool ge( const T v1, const T v2, const T epsilon ) { return !lt( v1, v2, epsilon ); };
+
 
 // 自动处理"除数为零"的除法
 double safe_div( double num, double deno );
@@ -248,6 +246,6 @@ double safe_div( double num, double deno );
 // 找出小数精确位数
 int decimals( const double );
 
-};  // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

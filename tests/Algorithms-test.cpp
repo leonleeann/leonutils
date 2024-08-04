@@ -251,6 +251,11 @@ TEST( TestAlgorithms, floatGreatLessThan ) {
 	ASSERT_TRUE( le( f2.asF, f1.asF ) );
 	ASSERT_FALSE( lt( f1.asF, f2.asF ) );
 	ASSERT_TRUE( lt( f2.asF, f1.asF ) );
+
+	f1.asF = 3.141592654;
+	f2.asF = f1.asF + 0.4999;
+	ASSERT_FALSE( gt( f2.asF, f1.asF, 0.5F ) );
+	ASSERT_TRUE( gt( f2.asF, f1.asF, 0.25F ) );
 };
 
 TEST( TestAlgorithms, doubleGreatLessThan ) {
@@ -280,6 +285,15 @@ TEST( TestAlgorithms, doubleGreatLessThan ) {
 	ASSERT_TRUE( le( d2.asD, d1.asD ) );
 	ASSERT_FALSE( lt( d1.asD, d2.asD ) );
 	ASSERT_TRUE( lt( d2.asD, d1.asD ) );
+
+	d1.asD = 3.141592654;
+	d2.asD = d1.asD + 0.4999;
+	ASSERT_FALSE( gt( d2.asD, d1.asD, 0.5 ) );
+	ASSERT_TRUE( ge( d2.asD, d1.asD, 0.5 ) );
+	ASSERT_TRUE( le( d2.asD, d1.asD, 0.5 ) );
+
+	ASSERT_TRUE( gt( d2.asD, d1.asD, 0.25 ) );
+	ASSERT_FALSE( le( d2.asD, d1.asD, 0.25 ) );
 };
 
 TEST( TestAlgorithms, extreamFloatValues ) {
