@@ -78,12 +78,12 @@ TEST( TestUnionTypes, U64 ) {
 	ASSERT_EQ( u64.asA[6], '7' );
 	ASSERT_EQ( u64.asA[7], '8' );
 	ASSERT_EQ( u64.view(), "12345678" );
-	ASSERT_EQ( u64.to_str(), "12345678" );
+	ASSERT_EQ( u64.str(), "12345678" );
 
 	u64.b3 = 0;
 	ASSERT_STREQ( u64.asA, "123" );
 	std::string str0 = std::string( "123" ).append( 1, 0 ).append( "5678" );
-	ASSERT_EQ( u64.to_str(), str0 );
+	ASSERT_EQ( u64.str(), str0 );
 	std::string_view sv { str0 };
 	ASSERT_EQ( u64.view(), sv );
 
@@ -198,10 +198,10 @@ TEST( TestUnionTypes, convertFromToString ) {
 	u0.b6 = '6';
 	u0.b7 = '7';
 
-	std::string s0 = u0.to_str();
+	std::string s0 = u0.str();
 	ASSERT_EQ( s0, std::string( "01234567" ) );
 	u0.b3 = '\0';
-	s0 = u0.to_str();
+	s0 = u0.str();
 	std::string s1 = { '0', '1', '2', '\0', '4', '5', '6', '7' };
 	ASSERT_EQ( s0, s1 );
 

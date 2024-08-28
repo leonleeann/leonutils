@@ -47,7 +47,7 @@ union U16_u {
 		return stv_t( asA, sizeof( uint16_t ) );
 	};
 
-	str_t to_str() const {
+	str_t str() const {
 		return str_t( asA, sizeof( uint16_t ) );
 	};
 
@@ -91,7 +91,7 @@ union U32_u {
 		return stv_t( asA, sizeof( uint32_t ) );
 	};
 
-	str_t to_str() const  {
+	str_t str() const  {
 		return str_t( asA, sizeof( uint32_t ) );
 	};
 
@@ -137,7 +137,7 @@ union U64_u {
 		return stv_t( asA, sizeof( uint64_t ) );
 	};
 
-	str_t to_str() const  {
+	str_t str() const  {
 		return str_t( asA, sizeof( uint64_t ) );
 	};
 
