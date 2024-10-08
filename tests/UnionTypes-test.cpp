@@ -82,9 +82,9 @@ TEST( TestUnionTypes, U64 ) {
 
 	u64.b3 = 0;
 	ASSERT_STREQ( u64.asA, "123" );
-	std::string str0 = std::string( "123" ).append( 1, 0 ).append( "5678" );
-	ASSERT_EQ( u64.str(), str0 );
-	std::string_view sv { str0 };
+	str_t str0 = str_t( "123" ).append( 1, 0 ).append( "5678" );
+	ASSERT_EQ( u64.str(), "123" );
+	stv_t sv { str0 };
 	ASSERT_EQ( u64.view(), sv );
 
 	u64 = static_cast<uint64_t>( 0 );
@@ -198,12 +198,13 @@ TEST( TestUnionTypes, convertFromToString ) {
 	u0.b6 = '6';
 	u0.b7 = '7';
 
-	std::string s0 = u0.str();
-	ASSERT_EQ( s0, std::string( "01234567" ) );
+	str_t s0 = u0.str();
+	ASSERT_EQ( s0, str_t( "01234567" ) );
 	u0.b3 = '\0';
 	s0 = u0.str();
-	std::string s1 = { '0', '1', '2', '\0', '4', '5', '6', '7' };
-	ASSERT_EQ( s0, s1 );
+	str_t s1 = { '0', '1', '2', '\0', '4', '5', '6', '7' };
+	ASSERT_EQ( s0, str_t( "012" ) );
+	ASSERT_EQ( u0.view(), stv_t( s1 ) );
 
 	s0 = { 'A', 'B', '\0', 'D', 'E', 'F', 'G', 'H' };
 	u0 = s0;

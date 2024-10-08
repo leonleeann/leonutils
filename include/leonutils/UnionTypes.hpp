@@ -48,6 +48,8 @@ union U16_u {
 	};
 
 	str_t str() const {
+		if( b1 == 0 )
+			return asA;
 		return str_t( asA, sizeof( uint16_t ) );
 	};
 
@@ -92,6 +94,9 @@ union U32_u {
 	};
 
 	str_t str() const  {
+		// 有 Null char, 就可以当作 Null terminated string
+		if( b3 == 0 || b2 == 0 || b1 == 0 )
+			return asA;
 		return str_t( asA, sizeof( uint32_t ) );
 	};
 
@@ -138,6 +143,10 @@ union U64_u {
 	};
 
 	str_t str() const  {
+		// 有 Null char, 就可以当作 Null terminated string
+		if( b7 == 0 || b6 == 0 || b5 == 0 || b4 == 0 ||
+				b3 == 0 || b2 == 0 || b1 == 0 )
+			return asA;
 		return str_t( asA, sizeof( uint64_t ) );
 	};
 
