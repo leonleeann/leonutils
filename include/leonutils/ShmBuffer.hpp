@@ -30,9 +30,10 @@ public:
 
 	void unplug( bool remove_shm_file = false );
 
-	const str_t&	name()	const { return _shm_n; };
-	size_t			bytes()	const { return _bytes; };
-	void*			get()	const { return _shm_p; };
+	const str_t&	name()		const { return _shm_n; };
+	size_t			bytes()		const { return _bytes; };
+	void*			get()		const { return _shm_p; };
+	ssize_t			pageSize()	const { return _1page; };
 
 //==== 内部实现 =================================================================
 private:
@@ -42,6 +43,7 @@ private:
 	str_t	_shm_n {};
 	void*	_shm_p {};
 	size_t	_bytes {};
+	ssize_t	_1page {};	// 单个页面大小(字节)
 };
 
 };	// namespace leon_utl

@@ -34,7 +34,7 @@ parserArgumentsCuda=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-
 parserArgumentsOpenCL=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -cl-std=CL2.0
 
 [CustomDefinesAndIncludes][ProjectPath0][Compiler]
-Name=Clang
+Name=g++12
 
 [CustomDefinesAndIncludes][ProjectPath0][Includes]
 1=/data/projects/leonutils/include

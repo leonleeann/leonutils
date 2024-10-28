@@ -23,12 +23,16 @@ TEST( TestShmBuffer, createdByWriter ) {
 	ASSERT_FALSE( fs::exists( shm_path ) );
 
 	wr_buf.make( UT_SHM_NAME, UT_SHM_SIZE, true );
+	ASSERT_EQ( wr_buf.pageSize(), 4096 );
+	ASSERT_EQ( intptr_t( wr_buf.get() ) % 4096, 0 );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 	ASSERT_EQ( wr_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( wr_buf.bytes(), UT_SHM_SIZE );
 	ASSERT_EQ( reinterpret_cast<uintptr_t>( wr_buf.get() ) % 64, 0 );
 
 	rd_buf.plug( UT_SHM_NAME, false );
+	ASSERT_EQ( rd_buf.pageSize(), 4096 );
+	ASSERT_EQ( intptr_t( rd_buf.get() ) % 4096, 0 );
 	ASSERT_EQ( rd_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( rd_buf.bytes(), UT_SHM_SIZE );
 	ASSERT_EQ( reinterpret_cast<uintptr_t>( rd_buf.get() ) % 64, 0 );

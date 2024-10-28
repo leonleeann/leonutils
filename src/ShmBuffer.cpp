@@ -45,6 +45,8 @@ void* CreateOrPlug( const str_t& n_, size_t b_, bool cr_,
 };
 
 size_t ShmBuffer_t::make( const str_t& n_, size_t b_, bool wr_ ) {
+	_1page = getpagesize();
+
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
 		throw bad_usage( "用于申请shm:\"" + n_ +
 						 "\"的ShmBuffer_t对象已作为\"" + _shm_n + "\"之用!!!" );
@@ -86,6 +88,8 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_, bool wr_ ) {
 };
 
 size_t ShmBuffer_t::plug( const str_t& n_, bool wr_ ) {
+	_1page = getpagesize();
+
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
 		throw bad_usage( "用于申请shm:\"" + n_ +
 						 "\"的ShmBuffer_t对象已作为\"" + _shm_n + "\"之用!!!" );
