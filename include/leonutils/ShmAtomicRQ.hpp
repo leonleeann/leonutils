@@ -93,6 +93,8 @@ public:
 	bool		enque( const T& );
 	bool		deque( T& );
 	void		clear();
+	// fork之后的父子进程都是所有者, 得让一边有办法放弃所有权
+	void		releaseOwnership() { const_cast<bool&>( _ownr ) = false; };
 
 	// 附赠的flag,便于跨进程简单沟通.本对象行为与此完全无关,只是用浪费的shm空间提供个小玩意
 	int64_t		get_flag() const;		// 查看 SHM 上的数值

@@ -1,11 +1,16 @@
-#include <gtest/gtest.h>
+#include <filesystem>
 #include <gmock/gmock.h>
-#include <iostream>
+#include <gtest/gtest.h>
 #include <iomanip>
+#include <iostream>
+#include <sys/mman.h>	// shm_open, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON
 
 #include "leonutils/ShmAtomicRQ.hpp"
 
 namespace leon_utl {
+
+namespace fs = std::filesystem;
+using path_t = fs::path;
 
 struct Rec3B_t {
 	// unsigned char pch3[3];
@@ -15,6 +20,30 @@ struct Rec3B_t {
 };
 using RQ3B_t = ShmAtmRQ_t<Rec3B_t, int32_t>;
 using RQInt_t = ShmAtmRQ_t<int, int32_t>;
+
+// 如果放弃了所有权, 销毁对象时, 不应该删除底层 shm 文件
+TEST( TestShmAtmRQ, Ownership ) {
+	path_t shm_path { "/dev/shm" };
+	shm_path /= "TestShmAtmRQ";
+	shm_unlink( "TestShmAtmRQ" );
+	ASSERT_FALSE( fs::exists( shm_path ) );
+
+	{
+		RQInt_t rq;
+		rq.make( 8, "TestShmAtmRQ" );
+		ASSERT_TRUE( fs::exists( shm_path ) );
+		rq.releaseOwnership();	// 放弃所有权
+	}
+	ASSERT_TRUE( fs::exists( shm_path ) );
+
+	{
+		RQInt_t rq;
+		rq.make( 8, "TestShmAtmRQ" );
+		ASSERT_TRUE( fs::exists( shm_path ) );
+//		rq.releaseOwnership(); 未放弃所有权, 对象销毁时会删除底层文件
+	}
+	ASSERT_FALSE( fs::exists( shm_path ) );
+};
 
 // 自动扩展容量到2的n次方
 TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
