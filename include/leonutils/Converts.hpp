@@ -75,6 +75,13 @@ inline str_t trim( const str_t& src ) {
 	return trim_l( trim_r( src ) );
 };
 
+inline str_t tail( str_t const& src_, size_t len_ ) {
+	auto size = src_.size();
+	if( len_ >= size )
+		return src_;
+	return src_.substr( size - len_ );
+};
+
 inline void copy_str( const char* src_, char* dest_, ssize_t size_ = -1 ) {
 	ssize_t src_len = std::strlen( src_ );
 	if( size_ < 0 )
