@@ -4,11 +4,12 @@
 namespace leon_utl {
 
 /* 多线程程序难于跟踪调试,尤其是高频交易,需要一种机制能够在实盘运行遇到崩溃时输出调用栈
- * Tracer_t 和 tl_call_stack 配合完成这一任务
- * 进入一个函数时,创建一个RAII的 Tracer_t 对象,任何时候离开函数,该对象会自动释放
- * 在 Tracer_t 的构造器内会将函数名加入 tl_call_stack
- * 在析构器内加入退出函数的标记
- */
+
+Tracer_t 和 tl_call_stack 配合完成这一任务:
+	进入一个函数时, 创建一个RAII的 Tracer_t 对象, 任何时候离开函数, 该对象会自动释放;
+	在 Tracer_t 的构造器内会将函数名加入 tl_call_stack;
+	在析构器内加入退出函数的标记;
+*/
 class Tracer_t {
 public:
 	static void ClearCallStack();

@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <iostream>
 #include <sys/mman.h>	// shm_open, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON
-#include <unistd.h>		// syscall, ftruncate, open, close
+#include <unistd.h>		// syscall, ftruncate, open, close, getpagesize
 
 #include "leonutils/Exceptions.hpp"
 #include "leonutils/ShmBuffer.hpp"

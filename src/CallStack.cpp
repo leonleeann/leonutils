@@ -1,44 +1,51 @@
-#include <forward_list>
-#include <sstream>
-#include <string>
+#include <array>
+#include <ostream>
 
 #include "leonutils/CallStack.hpp"
 
 namespace leon_utl {
 
 using str_t = std::string;
-using oss_t = std::ostringstream;
 
-thread_local std::forward_list<const char*> tl_call_stack;
+constexpr int		STACK_CAPA = 64;
+constexpr int		STACK_MASK = 63;
 
-Tracer_t::Tracer_t( const char* point_ ): _name( point_ ) {
-	tl_call_stack.emplace_front( point_ );
+thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
+
+/*
+	0.2.0 改用定长数组实现:
+		如果栈满了, 就移动 s_btm 一格, 因为实际使用中并不需要保留全部调用信息, 只需最近
+		的 N 个.
+*/
+
+thread_local int	s_top {};
+thread_local int	s_btm {};
+
+Tracer_t::Tracer_t( const char* fn_ ): _name( fn_ ) {
+	tl_call_stack[ ++s_top & STACK_MASK ] = fn_;
+
+	int new_btm = s_top - STACK_MASK;
+	s_btm = std::max( s_btm, new_btm );
 };
 
 Tracer_t::~Tracer_t() {
-	auto top = tl_call_stack.front();
-	if( top == _name )
-		tl_call_stack.pop_front();
+	if( s_top <= 0 || tl_call_stack[ s_top & STACK_MASK ] != _name )
+		return;
 
-/* 析构器里面不应抛异常!
-	else
-		throw std::runtime_error(
-			fmt::format( "怎么可能退出\"{}\"时看到的栈顶函数\"{}\"不一致?", _name, top ) );
-*/
+	--s_top;
+	s_btm = std::min( s_btm, s_top );
 };
 
 void Tracer_t::ClearCallStack() {
-	tl_call_stack.clear();
+	s_btm = s_top = 0;
 };
 
 void Tracer_t::PrintCallStack( std::ostream& os_ ) {
-	tl_call_stack.reverse();
-
 	str_t tabs;
-	for( auto& fn : tl_call_stack )
-		os_ << ( tabs += '\t' ) << fn << "()\n";
 
-	tl_call_stack.clear();
+	int i = s_btm + 1;
+	for( ; i <= s_top; ++i )
+		os_ << ( tabs += '\t' ) << tl_call_stack[ i & STACK_MASK ] << "()\n";
 };
 
 }; //namespace leon_utl
