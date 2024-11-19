@@ -39,6 +39,12 @@ TEST( TestShmBuffer, createdByWriter ) {
 	// 不是同一次映射,应该不相等
 	ASSERT_NE( rd_buf.get(), wr_buf.get() );
 
+	// 双方对接后, 故意删除底层shm文件,不能影响功能
+	ASSERT_EQ( wr_buf.osFile(), shm_path );
+	ASSERT_EQ( rd_buf.osFile(), shm_path );
+	wr_buf.delOsFile();
+	ASSERT_FALSE( fs::exists( shm_path ) );
+
 	size_t* wr = reinterpret_cast<size_t*>( wr_buf.get() );
 	size_t* rd = reinterpret_cast<size_t*>( rd_buf.get() );
 	for( size_t j = 0; j < UT_SHM_SIZE / sizeof( size_t ); ++j ) {
@@ -53,9 +59,9 @@ TEST( TestShmBuffer, createdByWriter ) {
 
 	ASSERT_DEATH( rd[0] = 12345, "" );
 	rd_buf.unplug( false );
-	ASSERT_TRUE( fs::exists( shm_path ) );
+//	ASSERT_TRUE( fs::exists( shm_path ) );
 	wr_buf.unplug( true );
-	ASSERT_FALSE( fs::exists( shm_path ) );
+//	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
 TEST( TestShmBuffer, createdByReader ) {
@@ -76,6 +82,12 @@ TEST( TestShmBuffer, createdByReader ) {
 	ASSERT_EQ( wr_buf.name(), UT_SHM_NAME );
 	ASSERT_EQ( wr_buf.bytes(), UT_SHM_SIZE );
 
+	// 双方对接后, 故意删除底层shm文件,不能影响功能
+	ASSERT_EQ( wr_buf.osFile(), shm_path );
+	ASSERT_EQ( rd_buf.osFile(), shm_path );
+	wr_buf.delOsFile();
+	ASSERT_FALSE( fs::exists( shm_path ) );
+
 	size_t* wr = reinterpret_cast<size_t*>( wr_buf.get() );
 	size_t* rd = reinterpret_cast<size_t*>( rd_buf.get() );
 	for( size_t j = 0; j < UT_SHM_SIZE / sizeof( size_t ); ++j ) {
@@ -90,9 +102,9 @@ TEST( TestShmBuffer, createdByReader ) {
 
 	ASSERT_DEATH( rd[0] = 12345, "" );
 	rd_buf.unplug( false );
-	ASSERT_TRUE( fs::exists( shm_path ) );
+//	ASSERT_TRUE( fs::exists( shm_path ) );
 	wr_buf.unplug( true );
-	ASSERT_FALSE( fs::exists( shm_path ) );
+//	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
 /* 越界访问内存只是UB,不是必然导致崩溃,所以没法测.

@@ -31,6 +31,7 @@ TEST( TestShmAtmRQ, Ownership ) {
 	{
 		RQInt_t rq;
 		rq.make( 8, "TestShmAtmRQ" );
+		ASSERT_EQ( rq.osFile(), shm_path );
 		ASSERT_TRUE( fs::exists( shm_path ) );
 		rq.releaseOwnership();	// 放弃所有权
 	}
@@ -42,6 +43,24 @@ TEST( TestShmAtmRQ, Ownership ) {
 		ASSERT_TRUE( fs::exists( shm_path ) );
 //		rq.releaseOwnership(); 未放弃所有权, 对象销毁时会删除底层文件
 	}
+	ASSERT_FALSE( fs::exists( shm_path ) );
+};
+
+// 使用者可以提前删除底层 shm 文件
+TEST( TestShmAtmRQ, removeOsShmFile ) {
+	path_t shm_path { "/dev/shm" };
+	shm_path /= "TestShmAtmRQ";
+	shm_unlink( "TestShmAtmRQ" );
+	ASSERT_FALSE( fs::exists( shm_path ) );
+
+	RQInt_t rq;
+	rq.make( 8, "TestShmAtmRQ" );
+	ASSERT_EQ( rq.osFile(), shm_path );
+	ASSERT_TRUE( fs::exists( shm_path ) );
+
+	// 调用删除
+	rq.delOsFile();
+
 	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 

@@ -35,6 +35,10 @@ public:
 	void*			get()		const { return _shm_p; };
 	ssize_t			pageSize()	const { return _1page; };
 
+	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
+	str_t			osFile()	const { return "/dev/shm/" + _shm_n; };
+	void			delOsFile()	const;
+
 //==== 内部实现 =================================================================
 private:
 	//---- 内部例程 ---------------------------------------------

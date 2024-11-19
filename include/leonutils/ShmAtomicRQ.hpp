@@ -70,13 +70,17 @@ public:
 	ShmAtmRQ_t& operator=( ShmAtmRQ_t&& ) = delete;
 	ShmAtmRQ_t& operator=( const ShmAtmRQ_t& ) = delete;
 	explicit ShmAtmRQ_t() = default;
+	~ShmAtmRQ_t();
 
 	// 作为"拥有者"创建本对象,删除重建底层SHM,并且设定容量、初始化公共部分
 	void make( SIZE_TYPE capacity, const str_t& name );
 
 	// 作为"访问者"创建本对象,只是对接底层SHM,并根据公共部分设定自身规格
 	void plug( const str_t& name );
-	~ShmAtmRQ_t();
+
+	// 所有生产者、消费者都对接好之后,可以调用本函数删除对应的底层OS文件,以免/dev/shm下文件太多
+	str_t	osFile() const { return _buff.osFile(); };
+	void delOsFile() const { _buff.delOsFile(); };
 
 	const str_t& name() const { return _buff.name(); };
 	SIZE_TYPE	capa() const { return _capa; };

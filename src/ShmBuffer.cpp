@@ -127,25 +127,32 @@ void ShmBuffer_t::unplug( bool rm_ ) {
 	if( _shm_p == nullptr )
 		throw bad_usage( "重复释放shm!!!" );
 
-	path_t shm_path { "/dev/shm/" + _shm_n };
-	// std::cerr << shm_path << "munmap前:" << ( exists( shm_path ) ? "存在" : "不存在" );
-
 	if( munmap( _shm_p, _bytes ) != 0 )
 		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
 				  << "\",shm_name:" << _shm_n;
-	// std::cerr << shm_path << ":munmap后:" << ( exists( shm_path ) ? "存在" : "不存在" );
 
-	if( rm_ ) {
-		if( ! fs::exists( shm_path ) )
-			std::cerr << "准备删除:" << shm_path << "时,它已经不存在了.";
-		else if( shm_unlink( _shm_n.c_str() ) != 0 )
-			std::cerr << "shm_unlink错误:\"" << std::strerror( errno )
-					  << "\",shm_name:" << _shm_n;
-	}
+	if( rm_ )
+		delOsFile();
 
 	_shm_n.clear();
 	_shm_p = nullptr;
 	_bytes = 0;
+};
+
+void ShmBuffer_t::delOsFile() const {
+	if( _shm_n.empty() )
+		return;
+
+	path_t shm_path { "/dev/shm/" + _shm_n };
+
+	if( ! fs::exists( shm_path ) ) {
+//		std::cerr << "准备删除:\"" << shm_path << "\"时,它已经不存在了.";
+		return;
+	}
+
+	if( shm_unlink( _shm_n.c_str() ) != 0 )
+		std::cerr << "shm_unlink错误:\"" << std::strerror( errno )
+				  << "\",shm_name:" << _shm_n;
 };
 
 };	// namespace leon_utl

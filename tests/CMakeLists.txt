@@ -41,4 +41,13 @@ target_link_libraries( test-craflinrq
 )
 install( TARGETS test-craflinrq RUNTIME DESTINATION testing )
 
+#======= TARGET test-unlink-shm ================================================
+# 此两个 app 专门测试 shm 是否能够提前删除底层文件, 而共享内存依旧保持可用于 IPC
+add_executable( unlink-consumer unlink-consumer.cpp )
+add_executable( unlink-producer unlink-producer.cpp )
+target_link_libraries( unlink-consumer leonutl_static )
+target_link_libraries( unlink-producer leonutl_static )
+install( TARGETS unlink-consumer RUNTIME DESTINATION testing )
+install( TARGETS unlink-producer RUNTIME DESTINATION testing )
+
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;
