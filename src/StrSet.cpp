@@ -33,14 +33,14 @@ str_t set2str( const StrSet_t& set_ ) {
 	return oss.str();
 };
 
-StrSet_t union_of( const StrSet_t& s1_, const StrSet_t& s2_ ) {
+StrSet_t union_set( const StrSet_t& s1_, const StrSet_t& s2_ ) {
 	StrSet_t result;
 	std::set_union( s1_.cbegin(), s1_.cend(), s2_.cbegin(), s2_.cend(),
 					std::inserter( result, result.begin() ) );
 	return result;
 };
 
-StrSet_t differ_of( const StrSet_t& s1_, const StrSet_t& s2_ ) {
+StrSet_t diffr_set( const StrSet_t& s1_, const StrSet_t& s2_ ) {
 	StrSet_t result;
 	std::set_difference( s1_.cbegin(), s1_.cend(), s2_.cbegin(), s2_.cend(),
 						 std::inserter( result, result.begin() ) );
@@ -56,7 +56,7 @@ StrSet_t intersect( const StrSet_t& s1_, const StrSet_t& s2_ ) {
 
 }; //namespace leon_utl
 
-std::ostream& operator<<( std::ostream& os_, const std::set<std::string>& s_ ) {
+std::ostream& operator<<( std::ostream& os_, const leon_utl::StrSet_t& s_ ) {
 	os_ << '{';
 	for( const auto& str : s_ )
 		os_ << str << ',';
