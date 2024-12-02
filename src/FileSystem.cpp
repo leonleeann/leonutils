@@ -4,10 +4,8 @@
 #include "leonutils/FileSystem.hpp"
 #include "leonutils/Converts.hpp"
 
-namespace fs = std::filesystem;
-using str_t = std::string;
-using std::ifstream;
-using std::ofstream;
+using ifs_t = std::ifstream;
+using ofs_t = std::ofstream;
 
 namespace leon_utl {
 
@@ -31,7 +29,7 @@ path_t lock_dir() {
 };
 
 str_t read_file( const char* f_path ) {
-	ifstream ifs { f_path, std::ios_base::in | std::ios_base::ate };
+	ifs_t ifs { f_path, std::ios_base::in | std::ios_base::ate };
 	if( ! ifs.is_open() )
 		return "";
 
@@ -51,7 +49,7 @@ str_t read_file( const char* f_path ) {
 };
 
 bool writ_file( const char* f_path, const str_t& body ) {
-	ofstream ofs { f_path, std::ios_base::out | std::ios_base::trunc };
+	ofs_t ofs { f_path, std::ios_base::out | std::ios_base::trunc };
 	ofs.imbue( std::locale( "zh_CN.UTF-8" ) );
 	ofs.clear();
 

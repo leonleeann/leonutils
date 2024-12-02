@@ -1,8 +1,8 @@
 #pragma once
 
-namespace leon_utl {
-
 using str_t = std::string;
+
+namespace leon_utl {
 
 /*******************************************************************************
  * 一个 SharedBuffer 封装一块共享内存,将申请、释放等琐碎操作集中起来.

@@ -5,11 +5,9 @@
 #include "leonutils/Algorithms.hpp"
 #include "leonutils/Statistics.hpp"
 
-using std::vector;
-
 namespace leon_utl {
 
-double average( const vector<double>& samps_ ) {
+double average( const NumbVect_t& samps_ ) {
 	if( samps_.empty() )
 		return 0.0;
 
@@ -20,7 +18,7 @@ double average( const vector<double>& samps_ ) {
 	return total / samps_.size();
 };
 
-double r_square( const vector<double>& samps_, double avg_ ) {
+double r_square( const NumbVect_t& samps_, double avg_ ) {
 	auto cnt = samps_.size();
 	if( cnt <= 1 )
 		return 1.0;
@@ -43,13 +41,13 @@ double r_square( const vector<double>& samps_, double avg_ ) {
 	return gt( std_sum, 0.0 ) ? 1 - dif_sum / std_sum : 1.0;
 };
 
-Statistic_t::Statistic_t( vector<double>& samps_ ) {
+Statistic_t::Statistic_t( NumbVect_t& samps_ ) {
 	if( operator()( samps_ ) )
 		return;
 	sum = max = min = med = avg = std = cnt = 0;
 };
 
-bool Statistic_t::operator()( vector<double>& samps_ ) {
+bool Statistic_t::operator()( NumbVect_t& samps_ ) {
 	// 空集的结果是"未定义",不用初始化变量
 	if( samps_.empty() )
 		return false;

@@ -7,10 +7,6 @@
 
 namespace leon_utl {
 
-using str_t = std::string;
-using ai32_t = std::atomic_int32_t;
-using ai64_t = std::atomic_int64_t;
-
 // 统一容量(下标)类型,改的时候就改此一处.能用"有符号"就不用"无符号"
 // using SIZE_TYPE = int32_t;
 // using ATOM_SIZE = ai32_t;

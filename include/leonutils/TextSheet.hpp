@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
 
-namespace leon_utl {
-
 using str_t = std::string;
 using wstr_t = std::wstring;
+
+namespace leon_utl {
 
 // 将数据制作成字符串表格,可供终端文本输出
 class TextSheet_t {

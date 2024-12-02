@@ -4,10 +4,10 @@
 #include <iosfwd>
 #include <string>
 
-namespace leon_utl {
-
 using oss_t = std::ostringstream;
 using str_t = std::string;
+
+namespace leon_utl {
 
 inline bool is_alpha( char c ) {
 	return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' );

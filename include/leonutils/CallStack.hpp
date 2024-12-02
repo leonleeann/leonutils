@@ -1,6 +1,8 @@
 #pragma once
 #include <iosfwd>
 
+using ost_t = std::ostream;
+
 namespace leon_utl {
 
 /* 多线程程序难于跟踪调试,尤其是高频交易,需要一种机制能够在实盘运行遇到崩溃时输出调用栈
@@ -13,7 +15,7 @@ Tracer_t 和 tl_call_stack 配合完成这一任务:
 class Tracer_t {
 public:
 	static void ClearCallStack();
-	static void PrintCallStack( std::ostream& );
+	static void PrintCallStack( ost_t& );
 
 	explicit Tracer_t( const char* trace_point_name );
 	~Tracer_t();

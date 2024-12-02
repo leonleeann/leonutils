@@ -1,6 +1,10 @@
 #pragma once
 #include <atomic>
 
+using abool_t = std::atomic_bool;
+using ai32_t = std::atomic_int32_t;
+using ai64_t = std::atomic_int64_t;
+
 namespace leon_utl {
 
 inline constexpr std::memory_order mo_relaxed = std::memory_order::relaxed;

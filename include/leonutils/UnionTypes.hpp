@@ -7,10 +7,10 @@
 // #pragma GCC diagnostic push
 // #pragma GCC diagnostic ignored "-Warray-bounds"
 
-namespace leon_utl {
-
 using str_t = std::string;
 using stv_t = std::string_view;
+
+namespace leon_utl {
 
 union U16_u {
 	U16_u() = default;

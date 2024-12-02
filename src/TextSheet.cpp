@@ -6,13 +6,16 @@
 #include <sstream>
 #include <vector>
 
+template<typename T, typename A = std::allocator<T> >
+using vct_t = std::vector<T, A>;
+
 namespace leon_utl {
 
 using woss_t = std::wostringstream;
-using WsNames_t = std::vector<wstr_t>;
+using WsNames_t = vct_t<wstr_t>;
 
-using RowData_t = std::vector<double>;
-using AllData_t = std::vector<RowData_t>;
+using RowData_t = vct_t<double>;
+using AllData_t = vct_t<RowData_t>;
 
 // 单列数据显示规格
 struct ColSpec_t {
@@ -23,7 +26,7 @@ struct ColSpec_t {
 	char	_s;		// 组分隔符
 };
 // 全部列定义
-using Columns_t = std::vector<ColSpec_t>;
+using Columns_t = vct_t<ColSpec_t>;
 
 struct TextSheet_t::Imp_t {
 	// 表格名称

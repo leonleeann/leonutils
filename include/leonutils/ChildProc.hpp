@@ -3,9 +3,12 @@
 #include <string>
 #include <sys/types.h>
 
-namespace leon_utl {
-
+template<typename K, typename V, typename C = std::less<K>,
+		 typename A = std::allocator<std::pair<const K, V> > >
+using map_t = std::map<K, V, C, A>;
 using str_t = std::string;
+
+namespace leon_utl {
 
 /* 为了测试某些模块是否: 在正确的时机, 以正确的参数, fork() + execv() 了正确的执行文件,
 	只好在此类 syscall 之前加一层, 以便在单元测试时能够截获对这些函数的调用.
@@ -19,7 +22,7 @@ using str_t = std::string;
 */
 
 // 使用map而非vector来保存参数,是为了排除参数顺序的干扰,便于测试时对照整个容器
-using ChildArgs_t = std::map<str_t, str_t>;
+using ChildArgs_t = map_t<str_t, str_t>;
 
 // 创建子进程, 并执行指定的可执行文件
 pid_t	ForkExecv( const str_t& bin_path, const ChildArgs_t& );

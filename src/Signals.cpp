@@ -10,6 +10,10 @@
 #include "leonutils/Converts.hpp"
 #include "leonutils/Signals.hpp"
 
+template<typename K, typename V, typename C = std::less<K>,
+		 typename A = std::allocator<std::pair<const K, V> > >
+using map_t = std::map<K, V, C, A>;
+
 std::bitset<32> SigMask( sigset_t set_ ) {
 	std::bitset<32> mask {};
 	for( int i = 0; i < 32; ++i )
@@ -31,7 +35,7 @@ std::ostream& operator<<( std::ostream& os_, const leon_utl::SigAction_t& sa_ ) 
 namespace leon_utl {
 
 // 把不同信号处理行为备份到一个 map 中, 方便查找
-using SigActions_t = std::map<int, SigAction_t>;
+using SigActions_t = map_t<int, SigAction_t>;
 
 //------ 全局处理 ---------------------------------------------------------------
 // 各种信号的默认处理器备份

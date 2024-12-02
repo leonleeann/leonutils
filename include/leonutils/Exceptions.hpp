@@ -2,9 +2,9 @@
 #include <stdexcept>
 #include <string>
 
-namespace leon_utl {
-
 using str_t = std::string;
+
+namespace leon_utl {
 
 // 错误地使用
 class bad_usage: public std::logic_error {

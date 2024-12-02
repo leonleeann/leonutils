@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 2 )   # 次版本
-set( PROJECT_VERSION_PATCH 2 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 3 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "统一集合操作为函数模板" )
+set( PROJECT_VERSION_NOTES "str_t等STL公共别名统一放所有namespace之外" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -54,10 +54,10 @@ add_library( objCommon OBJECT
 	src/Chrono.cpp
 	src/Converts.cpp
 	src/FileSystem.cpp
+	src/SetOps.cpp
 	src/ShmBuffer.cpp
 	src/Signals.cpp
 	src/Statistics.cpp
-	src/StrSet.cpp
 	src/TextSheet.cpp
 	src/Unicodes.cpp
 )
@@ -87,11 +87,11 @@ FILES
 	include/leonutils/FileSystem.hpp
 	include/leonutils/MemoryOrder.hpp
 	include/leonutils/RingQueue.hpp
+	include/leonutils/SetOps.hpp
 	include/leonutils/ShmAtomicRQ.hpp
 	include/leonutils/ShmBuffer.hpp
 	include/leonutils/Signals.hpp
 	include/leonutils/Statistics.hpp
-	include/leonutils/StrSet.hpp
 	include/leonutils/TextSheet.hpp
 	include/leonutils/Unicodes.hpp
 	include/leonutils/UnionTypes.hpp

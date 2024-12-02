@@ -5,8 +5,10 @@
 
 #include "SHMRQ.hpp"
 
-using std::string;
-using Ptr2Bool_t = std::map<void*, bool>;
+template<typename K, typename V, typename C = std::less<K>,
+		 typename A = std::allocator<std::pair<const K, V> > >
+using map_t = std::map<K, V, C, A>;
+using Ptr2Bool_t = map_t<void*, bool>;
 
 namespace leon_utl {
 

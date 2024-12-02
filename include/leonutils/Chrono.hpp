@@ -4,14 +4,10 @@
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
-
-namespace leon_utl {
-using ts_secs_t = decltype( timespec::tv_sec );
 using ts_nsec_t = decltype( timespec::tv_nsec );
+using ts_secs_t = decltype( timespec::tv_sec );
 static_assert( sizeof( ts_nsec_t ) == 8 );
 constexpr ts_nsec_t NS_IN_1_SEC = 1000 * 1000 * 1000;
-}; // namespace leon_utl
-using namespace leon_utl;
 
 //========== 两个timespec时间结构的比较及运算 ======================================
 inline bool operator > ( const timespec& ts1_, const timespec& ts2_ ) {
@@ -71,7 +67,6 @@ inline timespec& operator-=( timespec& ts_, ts_nsec_t ns_ ) {
 };
 
 namespace leon_utl {
-using str_t = std::string;
 
 //========== 时点运算 ===========================================================
 

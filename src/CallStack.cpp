@@ -3,9 +3,9 @@
 
 #include "leonutils/CallStack.hpp"
 
-namespace leon_utl {
-
 using str_t = std::string;
+
+namespace leon_utl {
 
 constexpr int		STACK_CAPA = 64;
 constexpr int		STACK_MASK = 63;

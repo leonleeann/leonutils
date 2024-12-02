@@ -5,9 +5,9 @@
 #include <signal.h>
 #include <string>
 
-namespace leon_utl {
-
 using str_t = std::string;
+
+namespace leon_utl {
 
 /*
  * 名词定义:

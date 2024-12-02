@@ -1,11 +1,11 @@
 #pragma once
 #include <filesystem>
 
-namespace leon_utl {
-
 namespace fs = std::filesystem;
 using path_t = fs::path;
 using str_t = std::string;
+
+namespace leon_utl {
 
 // 创建并锁定临时目录
 extern path_t	lock_dir();

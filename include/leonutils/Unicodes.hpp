@@ -1,10 +1,10 @@
 #pragma once
 #include <string>
 
-namespace leon_utl {
-
 using str_t = std::string;
 using wstr_t = std::wstring;
+
+namespace leon_utl {
 
 // 制表符-细横线	"─":0x2500
 static constexpr wchar_t TAB_HOR_LINE = 0x2500;
@@ -46,15 +46,15 @@ wstr_t	u8_2_ws( const char* utf8_str );
 wstr_t	u8_2_ws( const str_t& utf8_str );
 
 // 在一个wstring_t中计数汉字个数
-int chinese_chars( const wstr_t& );
+int		chinese_chars( const wstr_t& );
 
 // 在一个UTF8串中计数汉字个数
-int chinese_chars( const char* utf8_str );
-int chinese_chars( const str_t& utf8_str );
+int		chinese_chars( const char* utf8_str );
+int		chinese_chars( const str_t& utf8_str );
 
 // 按照"字母数字占1个位宽,汉字占2个位宽"的原则,计算一段文本的显示宽度
-int	displ_width( const str_t& utf8_str );
-int	displ_width( const wstr_t& ws_str );
+int		displ_width( const str_t& utf8_str );
+int		displ_width( const wstr_t& ws_str );
 
 // 按照"字母数字占1个位宽,汉字占2个位宽"的原则,将一段文本串适配到期望显示宽度的wstring_t.不足加空格
 wstr_t	adapt_width( int expect_width, const str_t& utf8_text );

@@ -4,9 +4,9 @@
 
 #include "leonutils/Chrono.hpp"
 
-namespace leon_utl {
-
 using oss_t = std::ostringstream;
+
+namespace leon_utl {
 
 // ts_secs_t & ts_nsec_t 都是有符号的64位整数,才能继续玩儿!
 // static_assert( ts_nsec_t( -1 ) < ts_secs_t( 0 ) );

@@ -8,9 +8,8 @@
 
 using namespace leon_utl;
 using std::numeric_limits;
-using std::vector;
 
-vector<double> RANDS_1D {
+NumbVect_t RANDS_1D {
 	0.581640, 0.673824, 0.871751, 0.231745, 0.237298, 0.514532, 0.145223, 0.704888,
 	0.984218, 0.685163, 0.739075, 0.210370, 0.558321, 0.867142, 0.184602, 0.363319,
 	0.798100, 0.893294, 0.840979, 0.575848, 0.606993, 0.918926, 0.937460, 0.626330,
@@ -64,8 +63,8 @@ NumPairs_t RANDS_2D {
 };
 
 TEST( TestStatistics, statNormally ) {
-	std::vector<double> samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0, 0 };
-	Statistic_t result { samples };
+	NumbVect_t	samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0, 0 };
+	Statistic_t	result { samples };
 
 	ASSERT_TRUE( eq( result.sum, 10019.89159 ) );
 	ASSERT_TRUE( eq( result.avg, 1252.48644875 ) );
@@ -76,8 +75,8 @@ TEST( TestStatistics, statNormally ) {
 };
 
 TEST( TestStatistics, statOddsNumber ) {
-	std::vector<double> samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0 };
-	Statistic_t result {};
+	NumbVect_t	samples = { 3, 5.5, 9, 1.25, 9999.0, 3.14159, -1.0 };
+	Statistic_t	result {};
 
 	ASSERT_TRUE( result( samples ) );
 	ASSERT_TRUE( eq( result.sum, 10019.89159 ) );
@@ -112,7 +111,7 @@ TEST( TestStatistics, statOddsNumber ) {
 
 TEST( TestStatistics, CoeOfDeterm ) {
 	// 序列必须倒序
-	vector<double> samples = { 4, 3, 2, 1 };
+	NumbVect_t samples = { 4, 3, 2, 1 };
 	ASSERT_TRUE( eq( r_square( samples, 2.5 ), 1.0 ) );
 
 	samples = { 25, 16, 9, 4, 1, };
