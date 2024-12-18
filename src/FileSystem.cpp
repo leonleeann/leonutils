@@ -1,31 +1,44 @@
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 
 #include "leonutils/FileSystem.hpp"
 #include "leonutils/Converts.hpp"
 
+namespace fs = std::filesystem;
+using path_t = fs::path;
 using ifs_t = std::ifstream;
 using ofs_t = std::ofstream;
 
 namespace leon_utl {
 
-// 请求OS创建一个临时目录
-path_t make_dir() {
+str_t new_tmp_dir() {
 
-	path_t tmp_path = fs::temp_directory_path() / "CTP.XXXXXX";
+	path_t tmp_dir = fs::temp_directory_path() / "CTP.XXXXXX";
 	char buffer[ 256 ];
-	copy_str( tmp_path, buffer, sizeof( buffer ) );
+	copy_str( tmp_dir, buffer, sizeof( buffer ) );
 
-	if( !mkdtemp( buffer ) ) {
-		str_t tmpDir( "临时目录:\"" );
-		tmpDir.append( buffer );
-		tmpDir.append( "\"创建失败!" );
-		throw std::runtime_error( tmpDir );
+	if( ! mkdtemp( buffer ) ) {
+		str_t tmp_dir( "临时目录:\"" );
+		tmp_dir.append( buffer );
+		tmp_dir.append( "\"创建失败!" );
+		throw std::runtime_error( tmp_dir );
 	}
 
-	tmp_path = path_t( buffer );
+//	tmp_dir = path_t( buffer );
 //	current_path( tmp_path ); 这样容易导致退出时清不掉临时目录
-	return tmp_path;
+	return buffer;
+};
+
+void del_tmp_dir( const str_t& path_ ) {
+
+	path_t p1 = path_;
+	path_t p2 = ( path_.back() == '/' )
+				? path_.substr( 0, path_.size() - 1 )
+				: path_ + '/';
+
+	fs::remove_all( p1 );
+	fs::remove_all( p2 );
 };
 
 str_t read_file( const char* f_path ) {
