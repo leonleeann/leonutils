@@ -24,6 +24,7 @@ struct ColSpec_t {
 	int8_t	_p;		// 小数位数
 	int8_t	_g;		// 分组位数
 	char	_s;		// 组分隔符
+	bool	_v;		// 要否显示
 };
 // 全部列定义
 using Columns_t = vct_t<ColSpec_t>;
@@ -84,14 +85,15 @@ void TextSheet_t::Imp_t::skeleton() {
 	first_r = L"\n│" + adapt_centr( _name_width, _sheet_name );
 
 //---- 制作数据列 ------------------------------------------------
-	for( const auto& col_spec : _col_specs ) {
-		// 数据列用横线
-		wstr_t dc_line = wstr_t( col_spec._w, L'─' );
-		_head_line += L'┬' + dc_line;
-		_sepa_line += L'┼' + dc_line;
-		_foot_line += L'┴' + dc_line;
-		first_r += L'│' + adapt_centr( col_spec._w, col_spec._n );
-	}
+	for( const auto& col_spec : _col_specs )
+		if( col_spec._v ) {
+			// 数据列用横线
+			wstr_t dc_line = wstr_t( col_spec._w, L'─' );
+			_head_line += L'┬' + dc_line;
+			_sepa_line += L'┼' + dc_line;
+			_foot_line += L'┴' + dc_line;
+			first_r += L'│' + adapt_centr( col_spec._w, col_spec._n );
+		}
 
 //---- 各header收口,组装成大header -------------------------------
 	_head_line += L'┐';
@@ -126,7 +128,8 @@ wstr_t TextSheet_t::Imp_t::make() const {
 		int c = 0;
 		for( const auto& d : row ) {
 			const auto& spec = _col_specs[c++];
-			wos << L'│' << adapt_width( spec._w, textOf( d, spec ) );
+			if( spec._v )
+				wos << L'│' << adapt_width( spec._w, textOf( d, spec ) );
 		}
 		wos << L'│';
 	}
@@ -152,8 +155,9 @@ void TextSheet_t::clear() {
 	_imp->_all_data.clear();
 };
 
-int TextSheet_t::addCol( const str_t& n_, int8_t w_, int8_t p_, int8_t g_, char s_ ) {
-	_imp->_col_specs.emplace_back( u8_2_ws( n_ ), w_, p_, g_, s_ );
+int TextSheet_t::addCol( const str_t& n_, int8_t w_, int8_t p_,
+						 int8_t g_, char s_, bool v_ ) {
+	_imp->_col_specs.emplace_back( u8_2_ws( n_ ), w_, p_, g_, s_, v_ );
 	return _imp->_col_specs.size();
 };
 
