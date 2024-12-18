@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 2 )   # 次版本
-set( PROJECT_VERSION_PATCH 4 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 5 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "TextSheet可隐藏某列" )
+set( PROJECT_VERSION_NOTES "创建临时目录但是不要chdir" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )

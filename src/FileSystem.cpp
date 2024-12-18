@@ -9,8 +9,8 @@ using ofs_t = std::ofstream;
 
 namespace leon_utl {
 
-// 请求OS创建一个临时目录, 进入并锁定它
-path_t lock_dir() {
+// 请求OS创建一个临时目录
+path_t make_dir() {
 
 	path_t tmp_path = fs::temp_directory_path() / "CTP.XXXXXX";
 	char buffer[ 256 ];
@@ -24,7 +24,7 @@ path_t lock_dir() {
 	}
 
 	tmp_path = path_t( buffer );
-	current_path( tmp_path );
+//	current_path( tmp_path ); 这样容易导致退出时清不掉临时目录
 	return tmp_path;
 };
 
