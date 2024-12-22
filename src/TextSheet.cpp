@@ -29,6 +29,14 @@ struct ColSpec_t {
 // 全部列定义
 using Columns_t = vct_t<ColSpec_t>;
 
+// 单行规格
+struct RowSpec_t {
+	wstr_t	_n;		// 行名
+	bool	_v;		// 要否显示
+};
+// 全部行定义
+using RowSpecs_t = vct_t<RowSpec_t>;
+
 struct TextSheet_t::Imp_t {
 	// 表格名称
 	const wstr_t	_sheet_name;
@@ -36,7 +44,7 @@ struct TextSheet_t::Imp_t {
 	int				_name_width { 24 };
 
 	// 所有数据行名称(Unicode)
-	WsNames_t		_row_names;
+	RowSpecs_t		_row_specs;
 
 	// 所有数据列定义(名称、显示规格)
 	Columns_t		_col_specs;
@@ -67,13 +75,16 @@ void TextSheet_t::Imp_t::skeleton() {
 //---- 确定首列列宽 ----------------------------------------------
 	// 在行名中找到最大宽度,作为首列(名称列)宽度
 	_name_width = displ_width( _sheet_name );
-	for( const auto& row_name : _row_names )
-		_name_width = std::max( _name_width, displ_width( row_name ) );
+	for( const auto& row : _row_specs )
+		if( row._v )
+			_name_width = std::max( _name_width, displ_width( row._n ) );
+
 	// 前后各留一个空格宽度
 	_name_width += 2;
 	// 把行名都适配到首列列宽,避免运行中重复算
-	for( auto& row_name : _row_names )
-		row_name = adapt_width( _name_width, row_name );
+	for( auto& row : _row_specs )
+		if( row._v )
+			row._n = adapt_width( _name_width, row._n );
 
 //---- 制作名称列 ------------------------------------------------
 	// 名称列用横线
@@ -104,7 +115,7 @@ void TextSheet_t::Imp_t::skeleton() {
 
 //---- 初始化数据 ----------------------------------------------
 	_all_data.clear();
-	for( size_t r = 0; r < _row_names.size(); ++r ) {
+	for( size_t r = 0; r < _row_specs.size(); ++r ) {
 		auto& row = _all_data.emplace_back();
 		for( size_t c = 0; c < _col_specs.size(); ++c )
 			row.emplace_back( int64_t{ 0 } );
@@ -121,18 +132,23 @@ str_t TextSheet_t::Imp_t::textOf( double data_, const ColSpec_t& spec_ ) const {
 wstr_t TextSheet_t::Imp_t::make() const {
 	woss_t wos;
 	wos << _head_line;
+
 	int r = 0;
-	for( const auto& row_name : _row_names ) {
-		wos << _sepa_line << L"\n│" << row_name;
-		auto& row = _all_data[r++];
+	for( const auto& rs : _row_specs ) {
+		auto& rd = _all_data[r++];
+		if( ! rs._v )
+			continue;
+
+		wos << _sepa_line << L"\n│" << rs._n;
 		int c = 0;
-		for( const auto& d : row ) {
-			const auto& spec = _col_specs[c++];
-			if( spec._v )
-				wos << L'│' << adapt_width( spec._w, textOf( d, spec ) );
+		for( const auto& d : rd ) {
+			const auto& cs = _col_specs[c++];
+			if( cs._v )
+				wos << L'│' << adapt_width( cs._w, textOf( d, cs ) );
 		}
 		wos << L'│';
 	}
+
 	wos << _foot_line;
 	return wos.str();
 };
@@ -147,7 +163,7 @@ TextSheet_t::~TextSheet_t() {
 
 void TextSheet_t::clear() {
 //	_imp->_sheet_name.clear();
-	_imp->_row_names.clear();
+	_imp->_row_specs.clear();
 	_imp->_col_specs.clear();
 	_imp->_head_line.clear();
 	_imp->_sepa_line.clear();
@@ -161,9 +177,9 @@ int TextSheet_t::addCol( const str_t& n_, int8_t w_, int8_t p_,
 	return _imp->_col_specs.size();
 };
 
-int TextSheet_t::addRow( const str_t& name_ ) {
-	_imp->_row_names.push_back( u8_2_ws( name_ ) );
-	return _imp->_row_names.size();
+int TextSheet_t::addRow( const str_t& name_, bool v_ ) {
+	_imp->_row_specs.emplace_back( u8_2_ws( name_ ), v_ );
+	return _imp->_row_specs.size();
 };
 
 void TextSheet_t::skeleton() {
@@ -175,7 +191,7 @@ int TextSheet_t::cols() const {
 };
 
 int TextSheet_t::rows() const {
-	return _imp->_row_names.size();
+	return _imp->_row_specs.size();
 };
 
 void TextSheet_t::fill( int r_, int c_, double d_ ) {

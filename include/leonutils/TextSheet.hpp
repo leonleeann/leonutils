@@ -23,11 +23,11 @@ public:
 					int8_t			group = 0,		// 数字分组
 					char			sep_chr = ',',	// 分组字符
 					// 可设置某列不显示出来, 避免使用时到处判断
-					bool			visibal = true
+					bool			visible = true
 			   );
 
 	// 3.添加新行,返回总行数(可以做多次)
-	int		addRow( const str_t& row_name );
+	int		addRow( const str_t& row_name, bool visible = true );
 
 	// 4.重新生成表头常量(完成初始化)
 	void	skeleton();
