@@ -35,7 +35,8 @@ void assign( set_t<K, C, SA>& keys_, const map_t<K, V, C, MA>& map_ ) {
 template <typename K, typename V, typename C, typename A>
 set_t<K, C> keys( const map_t<K, V, C, A>& map_ ) {
 	set_t<K, C> keys;
-	assign( keys, map_ );
+	for( auto&[k, v] : map_ )
+		keys.insert( k );
 	return keys;
 };
 
@@ -55,7 +56,7 @@ set_t<K, C, A> union_set( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ )
 					std::inserter( result, result.begin() ) );
 	return result;
 };
-
+/*
 template <typename K, typename C, typename A>
 set_t<K, C, A> operator +( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ ) {
 	set_t<K, C, A> result;
@@ -85,6 +86,7 @@ set_t<K, C, SA>& operator+=( set_t<K, C, SA>& s0_, const map_t<K, V, C, MA>& s1_
 		s0_.insert( k );
 	return s0_;
 };
+*/
 
 //==== 求差集 ===================================================================
 template <typename K, typename C, typename A>
@@ -94,7 +96,7 @@ set_t<K, C, A> diffr_set( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ )
 						 std::inserter( result, result.begin() ) );
 	return result;
 };
-
+/*
 template <typename K, typename C, typename A>
 set_t<K, C, A> operator -( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ ) {
 	set_t<K, C, A> result;
@@ -157,6 +159,7 @@ map_t<K, V, C, MA>& operator-=( map_t<K, V, C, MA>& s0_, const set_t<K, C, SA>& 
 		s0_.erase( k );
 	return s0_;
 };
+*/
 
 //==== 求交集 ===================================================================
 template <typename K, typename C, typename A>
@@ -166,7 +169,7 @@ set_t<K, C, A> intersect( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ )
 						   std::inserter( result, result.begin() ) );
 	return result;
 };
-
+/*
 template <typename K, typename C, typename A>
 set_t<K, C, A> operator *( const set_t<K, C, A>& s0_, const set_t<K, C, A>& s1_ ) {
 	set_t<K, C, A> result;
@@ -201,6 +204,7 @@ map_t<K, V, C, MA> operator *( const map_t<K, V, C, MA>& s0_, const set_t<K, C, 
 			result[k] = v;
 	return result;
 };
+*/
 
 }; //namespace leon_utl
 
