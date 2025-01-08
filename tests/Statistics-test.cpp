@@ -9,6 +9,22 @@
 using namespace leon_utl;
 using std::numeric_limits;
 
+// 试验另一种方法计算标准差(一轮迭代)
+double StdDev( const NumbVect_t& nums_ ) {
+	if( nums_.size() <= 1 )
+		return 0;
+
+	double all_sum {}, all_sqr {}, all_2ab {};
+	for( auto& n : nums_ ) {
+		all_sum += n;
+		all_sqr += n * n;
+		all_2ab -= n * 2;
+	};
+	double cnt = nums_.size();
+	double avg = all_sum / cnt;
+	return sqrt( ( all_sqr + all_2ab * avg + avg * avg * cnt ) / ( cnt - 1 ) );
+};
+
 NumbVect_t RANDS_1D {
 	0.581640, 0.673824, 0.871751, 0.231745, 0.237298, 0.514532, 0.145223, 0.704888,
 	0.984218, 0.685163, 0.739075, 0.210370, 0.558321, 0.867142, 0.184602, 0.363319,
@@ -72,6 +88,7 @@ TEST( TestStatistics, statNormally ) {
 	ASSERT_TRUE( eq( result.max, 9999.0 ) );
 	ASSERT_TRUE( eq( result.min, -1.0 ) );
 	ASSERT_TRUE( eq( result.std, 3534.12658936645 ) );
+	ASSERT_DOUBLE_EQ( result.std, StdDev( samples ) );
 };
 
 TEST( TestStatistics, statOddsNumber ) {
@@ -85,6 +102,7 @@ TEST( TestStatistics, statOddsNumber ) {
 	ASSERT_TRUE( eq( result.max, 9999 ) );
 	ASSERT_TRUE( eq( result.min, -1 ) );
 	ASSERT_TRUE( eq( result.std, 3777.95204127486 ) );
+	ASSERT_DOUBLE_EQ( result.std, StdDev( samples ) );
 
 	samples.clear();
 	ASSERT_FALSE( result( samples ) );
@@ -97,6 +115,7 @@ TEST( TestStatistics, statOddsNumber ) {
 	ASSERT_TRUE( eq( result.max, 0.0 ) );
 	ASSERT_TRUE( eq( result.min, 0.0 ) );
 	ASSERT_TRUE( eq( result.std, 0.0 ) );
+	ASSERT_DOUBLE_EQ( result.std, StdDev( samples ) );
 
 	samples[0] = 123.456;
 	ASSERT_TRUE( result( samples ) );
@@ -107,6 +126,7 @@ TEST( TestStatistics, statOddsNumber ) {
 	ASSERT_TRUE( eq( result.max, 123.456 ) );
 	ASSERT_TRUE( eq( result.min, 123.456 ) );
 	ASSERT_TRUE( eq( result.std, 0.0 ) );
+	ASSERT_DOUBLE_EQ( result.std, StdDev( samples ) );
 };
 
 TEST( TestStatistics, CoeOfDeterm ) {

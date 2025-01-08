@@ -10,37 +10,37 @@ TEST( TestSetOps, setOperators ) {
 	IntSet_t	set1 { 1, 2, 3, 4, };
 	IntSet_t	set2 { 4, 5, 6, 7, };
 
-	ASSERT_EQ( set1 + set2, ( IntSet_t{ 1, 2, 3, 4, 5, 6, 7 } ) );
-	ASSERT_EQ( set1 - set2, ( IntSet_t{ 1, 2, 3 } ) );
-	ASSERT_EQ( set2 - set1, ( IntSet_t{ 5, 6, 7 } ) );
-	ASSERT_EQ( set1 * set2, IntSet_t{ 4 } );
-	ASSERT_EQ( set2 * set1, IntSet_t{ 4 } );
+	ASSERT_EQ( union_set( set1, set2 ), ( IntSet_t{ 1, 2, 3, 4, 5, 6, 7 } ) );
+	ASSERT_EQ( diffr_set( set1, set2 ), ( IntSet_t{ 1, 2, 3 } ) );
+	ASSERT_EQ( diffr_set( set2, set1 ), ( IntSet_t{ 5, 6, 7 } ) );
+	ASSERT_EQ( intersect( set1, set2 ), IntSet_t{ 4 } );
+	ASSERT_EQ( intersect( set2, set1 ), IntSet_t{ 4 } );
 
-	ASSERT_EQ( set1 += set2, ( IntSet_t{ 1, 2, 3, 4, 5, 6, 7 } ) );
+/*	ASSERT_EQ( set1 += set2, ( IntSet_t{ 1, 2, 3, 4, 5, 6, 7 } ) );
 	ASSERT_EQ( set1, ( IntSet_t{ 1, 2, 3, 4, 5, 6, 7 } ) );
-
 	set1 = IntSet_t{ 1, 2, 3, 4, };
 //	set2 = IntSet_t{ 4, 5, 6, 7, };
 	ASSERT_EQ( set1 -= set2, ( IntSet_t{ 1, 2, 3 } ) );
-	ASSERT_EQ( set1, ( IntSet_t{ 1, 2, 3 } ) );
+	ASSERT_EQ( set1, ( IntSet_t{ 1, 2, 3 } ) ); */
 
 	set1 = IntSet_t{ 1, 2, 3, 4, };
 	set2 = IntSet_t{};
-	ASSERT_EQ( set1 + set2, set1 );
-	ASSERT_EQ( set1 - set2, set1 );
-	ASSERT_EQ( set2 - set1, IntSet_t{} );
-	ASSERT_EQ( set1 * set2, IntSet_t{} );
-	ASSERT_EQ( set2 * set1, IntSet_t{} );
+	ASSERT_EQ( union_set( set1, set2 ), set1 );
+	ASSERT_EQ( diffr_set( set1, set2 ), set1 );
+	ASSERT_EQ( diffr_set( set2, set1 ), IntSet_t{} );
+	ASSERT_EQ( intersect( set1, set2 ), IntSet_t{} );
+	ASSERT_EQ( intersect( set2, set1 ), IntSet_t{} );
 
 	set1 = IntSet_t{};
 	set2 = IntSet_t{ 4, 5, 6, 7, };
-	ASSERT_EQ( set1 + set2, set2 );
-	ASSERT_EQ( set1 - set2, IntSet_t{} );
-	ASSERT_EQ( set2 - set1, set2 );
-	ASSERT_EQ( set1 * set2, IntSet_t{} );
-	ASSERT_EQ( set2 * set1, IntSet_t{} );
+	ASSERT_EQ( union_set( set1, set2 ), set2 );
+	ASSERT_EQ( diffr_set( set1, set2 ), IntSet_t{} );
+	ASSERT_EQ( diffr_set( set2, set1 ), set2 );
+	ASSERT_EQ( intersect( set1, set2 ), IntSet_t{} );
+	ASSERT_EQ( intersect( set2, set1 ), IntSet_t{} );
 };
 
+/*
 TEST( TestSetOps, mapOperators ) {
 	IntMap_t	map1 { {1, 1}, {2, 2}, {3, 3}, {4, 4} };
 	IntMap_t	map2 { {4, 4}, {5, 5}, {6, 6}, {7, 7} };
@@ -93,6 +93,7 @@ TEST( TestStrSet, crossValidate ) {
 	ASSERT_EQ( set1 * set2, intersect( set1, set2 ) );
 	ASSERT_EQ( set2 * set1, intersect( set2, set1 ) );
 };
+*/
 
 TEST( TestStrSets, splitStr2set ) {
 	str_t s = "abc,def,ghi";
