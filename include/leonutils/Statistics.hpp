@@ -1,12 +1,47 @@
 #pragma once
+#include <cmath>		// abs, ceil, floor, isnan, log, log10, log2, pow, round, sqrt
+#include <limits>
 #include <vector>
 
 template<typename T, typename A = std::allocator<T> >
 using vct_t = std::vector<T, A>;
+using NumbVect_t = vct_t<double>;
 
 namespace leon_utl {
 
-using NumbVect_t = vct_t<double>;
+// "增量式"统计, 不能保留全部样本时使用, 每次更新时积累中间变量, 最后算出标准差
+struct IncStat_t {
+	int64_t		_max { std::numeric_limits<int64_t>::lowest() };
+	int64_t		_min { std::numeric_limits<int64_t>::max() };
+	int64_t		_cnt {};
+	double		_sum {};
+	double		_sqr {};	// 所有样本的平方之和, 用于增量式(不保留样本)计算标准差
+
+	void update( int64_t d_ ) {
+		_max = std::max( _max, d_ );
+		_min = std::min( _min, d_ );
+		++_cnt;
+		double f_d = static_cast<double>( d_ );
+		_sum += f_d;
+		_sqr += f_d * f_d;
+	};
+
+	double avg() const {
+		if( _cnt == 0 )
+			return 0.0;
+		else
+			return _sum / _cnt;
+	};
+
+	double std() const {
+		if( _cnt <= 1 )
+			return 0.0;
+
+		double a = avg();
+		return std::sqrt( ( _sqr - 2. * _sum * a + a * a * _cnt )
+						  / ( _cnt - 1 ) );
+	};
+};
 
 double average( const NumbVect_t& );
 
