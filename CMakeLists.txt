@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 0 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 1 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "增加增量式统计结构" )
+set( PROJECT_VERSION_NOTES "增加HugePage" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -54,6 +54,7 @@ add_library( objCommon OBJECT
 	src/Chrono.cpp
 	src/Converts.cpp
 	src/FileSystem.cpp
+	src/HugePage.cpp
 	src/SetOps.cpp
 	src/ShmBuffer.cpp
 	src/Signals.cpp
@@ -72,6 +73,7 @@ set_target_properties( leonutl_static PROPERTIES
 	SUFFIX					".a.${PROJECT_VERSION}"
 #	ARCHIVE_OUTPUT_NAME_RELEASE  "ARCHIVE_OUTPUT_NAME_.${PROJECT_VERSION}"
 #	LIBRARY_OUTPUT_NAME_RELEASE  "LIBRARY_OUTPUT_NAME_.${PROJECT_VERSION}"
+	ENABLE_EXPORTS	TRUE	# CMake 3.4 之后必须显示指定, 确保策略需要调用的函数存在
 )
 target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include"
 FILES
@@ -85,6 +87,7 @@ FILES
 	include/leonutils/CraflinRQ.tpp
 	include/leonutils/Exceptions.hpp
 	include/leonutils/FileSystem.hpp
+	include/leonutils/HugePage.hpp
 	include/leonutils/MemoryOrder.hpp
 	include/leonutils/RingQueue.hpp
 	include/leonutils/SetOps.hpp
@@ -96,6 +99,13 @@ FILES
 	include/leonutils/Unicodes.hpp
 	include/leonutils/UnionTypes.hpp
 )
+
+#[[
+add_library( hugetlbfs_static STATIC IMPORTED )
+set_property( TARGET hugetlbfs_static PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.a" )
+add_library( hugetlbfs_dynmic SHARED IMPORTED )
+set_property( TARGET hugetlbfs_dynmic PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.so" )
+]]
 
 target_link_libraries( leonutl_static objCommon )
 install( TARGETS leonutl_static
