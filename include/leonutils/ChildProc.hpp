@@ -24,6 +24,9 @@ namespace leon_utl {
 // 使用map而非vector来保存参数,是为了排除参数顺序的干扰,便于测试时对照整个容器
 using ChildArgs_t = map_t<str_t, str_t>;
 
+// 只是创建子进程
+pid_t	ForkOnly();
+
 // 创建子进程, 并执行指定的可执行文件
 pid_t	ForkExecv( const str_t& bin_path, const ChildArgs_t& );
 

@@ -1,7 +1,5 @@
 #pragma once
 
-using str_t = std::string;
-
 namespace leon_utl {
 
 class HugePage_t {

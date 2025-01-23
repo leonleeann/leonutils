@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 1 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 2 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "增加HugePage" )
+set( PROJECT_VERSION_NOTES "增加ForkOnly" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )

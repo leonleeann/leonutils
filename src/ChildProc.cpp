@@ -8,6 +8,10 @@
 
 namespace leon_utl {
 
+pid_t ForkOnly() {
+	return fork();
+};
+
 pid_t ForkExecv( const str_t& bin_, const ChildArgs_t& args_ ) {
 	/* 进到本函数时,日志系统应该是关闭的. 为了让 主、 子 进程输出互不干扰,
 		本函数内不用 LeonLog. 而且, 子进程日志输出到 stderr

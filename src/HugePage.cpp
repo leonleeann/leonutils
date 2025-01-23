@@ -1,6 +1,6 @@
 #include <cerrno>		// errno
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
-#include <hugetlbfs.h>
+// #include <hugetlbfs.h> 还没弄懂怎么链接 libhugetlbfs
 #include <iostream>
 #include <sys/mman.h>	// shm_open, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON
 
