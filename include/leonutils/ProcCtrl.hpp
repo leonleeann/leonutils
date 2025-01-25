@@ -22,19 +22,27 @@ namespace leon_utl {
 */
 
 // 使用map而非vector来保存参数,是为了排除参数顺序的干扰,便于测试时对照整个容器
-using ChildArgs_t = map_t<str_t, str_t>;
+using CliArgs_t = map_t<str_t, str_t>;
 
-// 只是创建子进程
-pid_t	ForkOnly();
+class ProcCtrl_t {
+public:
+	static ProcCtrl_t* CurImp();
 
-// 创建子进程, 并执行指定的可执行文件
-pid_t	ForkExecv( const str_t& bin_path, const ChildArgs_t& );
+	// 任何抽象类的析构器都必须是虚函数!
+	virtual ~ProcCtrl_t() = default;
 
-// 给某进程发信号
-void	SignlProc( pid_t, int );
+	// 只创建子进程(就是系统调用 fork)
+	virtual pid_t	forkOnly() = 0;
 
-// 获知某个子进程已死, 并为其收尸(waitpid(-1))
-pid_t	AnyExited();
+	// 创建子进程, 并执行指定的可执行文件
+	virtual pid_t	forkExec( const str_t& bin_path, const CliArgs_t& ) = 0;
+
+	// 给某进程发信号
+	virtual void	sendSign( pid_t, int ) = 0;
+
+	// 获知某个子进程已死, 并为其收尸(waitpid(-1))
+	virtual pid_t	waitExit() = 0;
+};
 
 };	// namespace leon_utl
 

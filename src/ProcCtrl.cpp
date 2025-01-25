@@ -4,24 +4,38 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "leonutils/ChildProc.hpp"
+#include "leonutils/ProcCtrl.hpp"
 
 namespace leon_utl {
 
-pid_t ForkOnly() {
+struct ProcCtrlImp_t: public ProcCtrl_t {
+	pid_t	forkOnly() override;
+	pid_t	forkExec( const str_t& bin_path, const CliArgs_t& ) override;
+	void	sendSign( pid_t, int ) override;
+	pid_t	waitExit() override;
+};
+
+static ProcCtrlImp_t s_proc_ctl;
+
+ProcCtrl_t* ProcCtrl_t::CurImp() {
+	return &s_proc_ctl;
+};
+
+pid_t ProcCtrlImp_t::forkOnly() {
 	return fork();
 };
 
-pid_t ForkExecv( const str_t& bin_, const ChildArgs_t& args_ ) {
+pid_t ProcCtrlImp_t::forkExec( const str_t& bin_, const CliArgs_t& args_ ) {
 	/* 进到本函数时,日志系统应该是关闭的. 为了让 主、 子 进程输出互不干扰,
 		本函数内不用 LeonLog. 而且, 子进程日志输出到 stderr
-	 */
+	*/
 
 	pid_t child = fork();
 	if( child < 0 ) {
 		std::cerr << "fork失败.无法继续!" << std::endl;
 		exit( EXIT_FAILURE );
 	}
+
 	if( child != 0 )
 		// 这是父进程
 		return child;
@@ -53,11 +67,11 @@ pid_t ForkExecv( const str_t& bin_, const ChildArgs_t& args_ ) {
 	exit( EXIT_FAILURE );
 };
 
-void SignlProc( pid_t pid_, int sig_ ) {
+void ProcCtrlImp_t::sendSign( pid_t pid_, int sig_ ) {
 	kill( pid_, sig_ );
 };
 
-pid_t AnyExited() {
+pid_t ProcCtrlImp_t::waitExit() {
 	return waitpid( -1, NULL, WNOHANG );
 };
 

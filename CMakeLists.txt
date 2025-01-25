@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 2 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 3 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "增加ForkOnly" )
+set( PROJECT_VERSION_NOTES "子进程控制做成抽象类，便于测试" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -50,11 +50,11 @@ include_directories( "include" )
 add_library( objCommon OBJECT
 	src/Algorithms.cpp
 	src/CallStack.cpp
-	src/ChildProc.cpp
 	src/Chrono.cpp
 	src/Converts.cpp
 	src/FileSystem.cpp
 	src/HugePage.cpp
+	src/ProcCtrl.cpp
 	src/SetOps.cpp
 	src/ShmBuffer.cpp
 	src/Signals.cpp
@@ -79,7 +79,6 @@ target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include"
 FILES
 	include/leonutils/Algorithms.hpp
 	include/leonutils/CallStack.hpp
-	include/leonutils/ChildProc.hpp
 	include/leonutils/Chrono.hpp
 	include/leonutils/ChronoTypes.hpp
 	include/leonutils/Converts.hpp
@@ -89,6 +88,7 @@ FILES
 	include/leonutils/FileSystem.hpp
 	include/leonutils/HugePage.hpp
 	include/leonutils/MemoryOrder.hpp
+	include/leonutils/ProcCtrl.hpp
 	include/leonutils/RingQueue.hpp
 	include/leonutils/SetOps.hpp
 	include/leonutils/ShmAtomicRQ.hpp
