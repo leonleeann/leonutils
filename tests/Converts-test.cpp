@@ -118,14 +118,14 @@ TEST( TestConverts, ResultFromIntHasNoFrac ) {
 	uint64_t       u64Input = 123;
 	string         strExpect = "123";
 
-	EXPECT_EQ( format<int>( uc8Input ), strExpect );
-	EXPECT_EQ( format<int>( chrInput ), strExpect );
-	EXPECT_EQ( format<int>( i08Input ), strExpect );
-	EXPECT_EQ( format( i16Input ), strExpect );
-	EXPECT_EQ( format( i32Input ), strExpect );
-	EXPECT_EQ( format( i64Input ), strExpect );
-	EXPECT_EQ( format( u32Input ), strExpect );
-	EXPECT_EQ( format( u64Input ), strExpect );
+	EXPECT_EQ( fmt<int>( uc8Input ), strExpect );
+	EXPECT_EQ( fmt<int>( chrInput ), strExpect );
+	EXPECT_EQ( fmt<int>( i08Input ), strExpect );
+	EXPECT_EQ( fmt( i16Input ), strExpect );
+	EXPECT_EQ( fmt( i32Input ), strExpect );
+	EXPECT_EQ( fmt( i64Input ), strExpect );
+	EXPECT_EQ( fmt( u32Input ), strExpect );
+	EXPECT_EQ( fmt( u64Input ), strExpect );
 };
 
 // 负整数, 全默认参数, 是否正确?
@@ -137,11 +137,11 @@ TEST( TestConverts, ResultFromNegInt ) {
 	int64_t        i64Input = -123;
 	string         strExpect = "-123";
 
-	EXPECT_EQ( format<int>( chrInput, 0 ), strExpect );
-	EXPECT_EQ( format<int>( i08Input, 0 ), strExpect );
-	EXPECT_EQ( format( i16Input, 0 ), strExpect );
-	EXPECT_EQ( format( i32Input, 0 ), strExpect );
-	EXPECT_EQ( format( i64Input, 0 ), strExpect );
+	EXPECT_EQ( fmt<int>( chrInput, 0 ), strExpect );
+	EXPECT_EQ( fmt<int>( i08Input, 0 ), strExpect );
+	EXPECT_EQ( fmt( i16Input, 0 ), strExpect );
+	EXPECT_EQ( fmt( i32Input, 0 ), strExpect );
+	EXPECT_EQ( fmt( i64Input, 0 ), strExpect );
 };
 
 // 正整数, 指定宽度
@@ -156,14 +156,14 @@ TEST( TestConverts, IntWithWidth ) {
 	uint64_t       u64Input = 123;
 	string         strExpect = "  123";
 
-	EXPECT_EQ( format<int>( uc8Input, 5 ), strExpect );
-	EXPECT_EQ( format<int>( chrInput, 5 ), strExpect );
-	EXPECT_EQ( format<int>( i08Input, 5 ), strExpect );
-	EXPECT_EQ( format( i16Input, 5 ), strExpect );
-	EXPECT_EQ( format( i32Input, 5 ), strExpect );
-	EXPECT_EQ( format( i64Input, 5 ), strExpect );
-	EXPECT_EQ( format( u32Input, 5 ), strExpect );
-	EXPECT_EQ( format( u64Input, 5 ), strExpect );
+	EXPECT_EQ( fmt<int>( uc8Input, 5 ), strExpect );
+	EXPECT_EQ( fmt<int>( chrInput, 5 ), strExpect );
+	EXPECT_EQ( fmt<int>( i08Input, 5 ), strExpect );
+	EXPECT_EQ( fmt( i16Input, 5 ), strExpect );
+	EXPECT_EQ( fmt( i32Input, 5 ), strExpect );
+	EXPECT_EQ( fmt( i64Input, 5 ), strExpect );
+	EXPECT_EQ( fmt( u32Input, 5 ), strExpect );
+	EXPECT_EQ( fmt( u64Input, 5 ), strExpect );
 };
 
 // 正整数, 指定宽度, 指定填充
@@ -178,14 +178,14 @@ TEST( TestConverts, IntWithWidthFill ) {
 	uint64_t       u64Input = 123;
 	string         strExpect = "000123";
 
-	EXPECT_EQ( format<int>( uc8Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format<int>( chrInput, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format<int>( i08Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format( i16Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format( i32Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format( i64Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format( u32Input, 6, 0, 0, '0' ), strExpect );
-	EXPECT_EQ( format( u64Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt<int>( uc8Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt<int>( chrInput, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt<int>( i08Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt( i16Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt( i32Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt( i64Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt( u32Input, 6, 0, 0, '0' ), strExpect );
+	EXPECT_EQ( fmt( u64Input, 6, 0, 0, '0' ), strExpect );
 };
 
 // 正整数, 指定宽度, 指定分租, 指定填充
@@ -197,11 +197,11 @@ TEST( TestConverts, IntWithWidthGroupFill ) {
 	uint64_t       u64Input = 1234;
 	string         strExpect = "001'234";
 
-	EXPECT_EQ( format( i16Input, 7, 0, 3, '0' ), strExpect );
-	EXPECT_EQ( format( i32Input, 7, 0, 3, '0' ), strExpect );
-	EXPECT_EQ( format( i64Input, 7, 0, 3, '0' ), strExpect );
-	EXPECT_EQ( format( u32Input, 7, 0, 3, '0' ), strExpect );
-	EXPECT_EQ( format( u64Input, 7, 0, 3, '0' ), strExpect );
+	EXPECT_EQ( fmt( i16Input, 7, 0, 3, '0' ), strExpect );
+	EXPECT_EQ( fmt( i32Input, 7, 0, 3, '0' ), strExpect );
+	EXPECT_EQ( fmt( i64Input, 7, 0, 3, '0' ), strExpect );
+	EXPECT_EQ( fmt( u32Input, 7, 0, 3, '0' ), strExpect );
+	EXPECT_EQ( fmt( u64Input, 7, 0, 3, '0' ), strExpect );
 };
 
 // 浮点数默认精度会带3位小数
@@ -210,8 +210,8 @@ TEST( TestConverts, DefaultFloatHas3Frac ) {
 	double dfInput = 123.0;
 	string strExpect = "123.000";
 
-	EXPECT_EQ( format( sfInput ), strExpect );
-	EXPECT_EQ( format( dfInput ), strExpect );
+	EXPECT_EQ( fmt( sfInput ), strExpect );
+	EXPECT_EQ( fmt( dfInput ), strExpect );
 };
 
 // 浮点数指定4位精度
@@ -220,8 +220,8 @@ TEST( TestConverts, FloatWith4Frac ) {
 	double   df_Input = 123;
 	string   strExpect = "123.0000";
 
-	EXPECT_EQ( format( sf_Input, 0, 4 ), strExpect );
-	EXPECT_EQ( format( df_Input, 0, 4 ), strExpect );
+	EXPECT_EQ( fmt( sf_Input, 0, 4 ), strExpect );
+	EXPECT_EQ( fmt( df_Input, 0, 4 ), strExpect );
 };
 
 // 浮点数, 宽15位, 精度3位, 分组4位, 填'0'
@@ -229,9 +229,9 @@ TEST( TestConverts, FloatWidth15Frac3Group4Fill0 ) {
 	float    sf_Input = 123456.789;
 	double   df_Input = 123456789.2345;
 
-	EXPECT_EQ( format( sf_Input, 15, 3, 4, '0' ),
+	EXPECT_EQ( fmt( sf_Input, 15, 3, 4, '0' ),
 			   string( "000012'3456.789" ) );
-	EXPECT_EQ( format( df_Input, 15, 3, 4, '0' ),
+	EXPECT_EQ( fmt( df_Input, 15, 3, 4, '0' ),
 			   string( "1'2345'6789.235" ) );
 };
 
@@ -248,25 +248,25 @@ TEST( TestConverts, VarysTypeWithSeparaterChar ) {
 	float    sf_Input = 123456.789;
 	double   df_Input = 123456789.2345;
 
-	EXPECT_EQ( format<int>( i08Input, 10, 2, 4, '0', ',' ),
+	EXPECT_EQ( fmt<int>( i08Input, 10, 2, 4, '0', ',' ),
 			   string( "0000000127" ) );
-	EXPECT_EQ( format<int>( ui8Input, 10, 2, 4, '0', ',' ),
+	EXPECT_EQ( fmt<int>( ui8Input, 10, 2, 4, '0', ',' ),
 			   string( "0000000255" ) );
-	EXPECT_EQ( format( i16Input, 10, 2, 4, '0', ',' ),
+	EXPECT_EQ( fmt( i16Input, 10, 2, 4, '0', ',' ),
 			   string( "00003,2767" ) );
-	EXPECT_EQ( format( i32Input, 15, 2, 4, '0', '\'' ),
+	EXPECT_EQ( fmt( i32Input, 15, 2, 4, '0', '\'' ),
 			   string( "00021'4748'3647" ) );
-	EXPECT_EQ( format( i64Input, 25, 2, 4, '0', '\'' ),
+	EXPECT_EQ( fmt( i64Input, 25, 2, 4, '0', '\'' ),
 			   string( "00922'3372'0368'5477'5807" ) );
-	EXPECT_EQ( format( u16Input, 10, 2, 4, ' ', '\'' ),
+	EXPECT_EQ( fmt( u16Input, 10, 2, 4, ' ', '\'' ),
 			   string( "    6'5535" ) );
-	EXPECT_EQ( format( u32Input, 15, 2, 4, '0', '\'' ),
+	EXPECT_EQ( fmt( u32Input, 15, 2, 4, '0', '\'' ),
 			   string( "00042'9496'7295" ) );
-	EXPECT_EQ( format( u64Input, 24, 3, 4, '0', '|' ),
+	EXPECT_EQ( fmt( u64Input, 24, 3, 4, '0', '|' ),
 			   string( "1844|6744|0737|0955|1615" ) );
-	EXPECT_EQ( format( sf_Input, 15, 3, 4, '0', '`' ),
+	EXPECT_EQ( fmt( sf_Input, 15, 3, 4, '0', '`' ),
 			   string( "000012`3456.789" ) );
-	EXPECT_EQ( format( df_Input, 18, 3, 4, '0', '"' ),
+	EXPECT_EQ( fmt( df_Input, 18, 3, 4, '0', '"' ),
 			   string( "0001\"2345\"6789.235" ) );
 };
 
@@ -275,11 +275,11 @@ TEST( TestConverts, RoundFloat ) {
 	float    sf_Input = 1.23451;
 	double   df_Input = 1.2345654321;
 
-	EXPECT_EQ( format( sf_Input, 0, 3 ), string( "1.235" ) );
-	EXPECT_EQ( format( sf_Input, 0, 4 ), string( "1.2345" ) );
-	EXPECT_EQ( format( df_Input, 0, 5 ), string( "1.23457" ) );
-	EXPECT_EQ( format( df_Input, 0, 6 ), string( "1.234565" ) );
-	EXPECT_EQ( format( 11113.3350001, 11, 2, 4 ), string( "  1'1113.34" ) );
+	EXPECT_EQ( fmt( sf_Input, 0, 3 ), string( "1.235" ) );
+	EXPECT_EQ( fmt( sf_Input, 0, 4 ), string( "1.2345" ) );
+	EXPECT_EQ( fmt( df_Input, 0, 5 ), string( "1.23457" ) );
+	EXPECT_EQ( fmt( df_Input, 0, 6 ), string( "1.234565" ) );
+	EXPECT_EQ( fmt( 11113.3350001, 11, 2, 4 ), string( "  1'1113.34" ) );
 };
 
 // 超宽全部为"***"
@@ -289,9 +289,9 @@ TEST( TestConverts, OverWide ) {
 	double   df_Input = 12345;
 	string   strExpect = "**********";
 
-	EXPECT_EQ( format( i32Input, 10, 4, 4, '0' ), strExpect );
-	EXPECT_EQ( format( sf_Input, 10, 4, 4, '0' ), strExpect );
-	EXPECT_EQ( format( df_Input, 10, 4, 4, '0' ), strExpect );
+	EXPECT_EQ( fmt( i32Input, 10, 4, 4, '0' ), strExpect );
+	EXPECT_EQ( fmt( sf_Input, 10, 4, 4, '0' ), strExpect );
+	EXPECT_EQ( fmt( df_Input, 10, 4, 4, '0' ), strExpect );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

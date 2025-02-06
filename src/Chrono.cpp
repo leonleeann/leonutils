@@ -49,7 +49,7 @@ str_t format_time( const time_point<C, D> tp_, size_t prec_, const char* fmt_ ) 
 		// 只能是截断,不能是四舍五入或者任何收入！因为前面的结果已经定了，不能进位了
 		nanoseconds::rep ns = duration_cast<nanoseconds>( tp_ - tp1 ).count()
 							  / std::pow( 10., 9 - prec_ );
-		result += '.' + leon_utl::format( ns, prec_, 0, 0, '0' );
+		result += '.' + fmt( ns, prec_, 0, 0, '0' );
 	}
 	return result;
 };
@@ -84,7 +84,7 @@ str_t format_dura( const duration<R, P> dura_ ) {
 template <typename R, typename P>
 str_t format_secs( const duration<R, P> dura_ ) {
 	double ms = duration_cast<milliseconds>( dura_ ).count();
-	return leon_utl::format( ms / 1000, 0, 3 ) + "s";
+	return fmt( ms / 1000, 0, 3 ) + "s";
 };
 
 SysTime_t make_time( int y_, int mo_, int d_,

@@ -246,7 +246,7 @@ str_t SigSet2Str( const sigset_t ss_ ) {
 	for( int j = 1; j < SIGRTMIN; ++j )
 		if( sigismember( &ss_, j ) )
 //			oss << fmt::format( "\n{:02d}:{},", j, strsignal( j ) );
-			oss << '\n' << format( j, 2, 0 ) << ':' << strsignal( j );
+			oss << '\n' << fmt( j, 2, 0 ) << ':' << strsignal( j );
 	oss << "\n}";
 
 	return oss.str();

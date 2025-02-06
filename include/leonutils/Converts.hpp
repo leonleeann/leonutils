@@ -159,12 +159,12 @@ inline const char* parse_all( T& i, const char* s ) {
 str_t ptr2hex( const void* ptr );
 
 template<typename T>
-str_t format( const T	value,		//源数值
-			  size_t	width = 0,	//结果宽度(含填充及分隔符)
-			  size_t	preci = 3,	//精度(小数位数)
-			  size_t	group = 0,	//分组位数(隔几位分一下)
-			  char	pad_c = ' ',	//左边填充字符
-			  char	sep_c = '\'' );	//分组分隔符
+str_t fmt( const T	value,		//源数值
+		   size_t	width = 0,	//结果宽度(含填充及分隔符)
+		   size_t	preci = 3,	//精度(小数位数)
+		   size_t	group = 0,	//分组位数(隔几位分一下)
+		   char	pad_c = ' ',	//左边填充字符
+		   char	sep_c = '\'' );	//分组分隔符
 
 }; //namespace leon_utl
 

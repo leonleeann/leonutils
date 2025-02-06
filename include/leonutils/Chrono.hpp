@@ -52,7 +52,7 @@ inline timespec operator + ( const timespec& ts_, ts_nsec_t ns_ ) {
 	return result;
 };
 
-inline timespec operator - ( const timespec& ts_, ts_nsec_t ns_ ) {
+inline timespec operator- ( const timespec& ts_, ts_nsec_t ns_ ) {
 	return ts_ + ( - ns_ );
 };
 

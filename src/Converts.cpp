@@ -55,7 +55,7 @@ struct CustomGrouper_t : std::numpunct<char> {
 thread_local CustomGrouper_t tl_grouper( '\0', '\'', 1 );
 
 template<typename T>
-str_t format( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
+str_t fmt( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
 
 	// 浮点数的特殊值
 	if( std::is_floating_point_v<T> ) {
@@ -94,16 +94,16 @@ str_t format( const T v_, size_t w_, size_t p_, size_t g_, char f_, char s_ ) {
 };
 
 // 显式地实例化一下,以免链接时找不到
-template str_t format<int8_t>( const int8_t, size_t, size_t, size_t, char, char );
-template str_t format<uint8_t>( const uint8_t, size_t, size_t, size_t, char, char );
-template str_t format<int16_t>( const int16_t, size_t, size_t, size_t, char, char );
-template str_t format<uint16_t>( const uint16_t, size_t, size_t, size_t, char, char );
-template str_t format<int32_t>( const int32_t, size_t, size_t, size_t, char, char );
-template str_t format<uint32_t>( const uint32_t, size_t, size_t, size_t, char, char );
-template str_t format<int64_t>( const int64_t, size_t, size_t, size_t, char, char );
-template str_t format<uint64_t>( const uint64_t, size_t, size_t, size_t, char, char );
-template str_t format<float>( const float, size_t, size_t, size_t, char, char );
-template str_t format<double>( const double, size_t, size_t, size_t, char, char );
+template str_t fmt<int8_t>( const int8_t, size_t, size_t, size_t, char, char );
+template str_t fmt<uint8_t>( const uint8_t, size_t, size_t, size_t, char, char );
+template str_t fmt<int16_t>( const int16_t, size_t, size_t, size_t, char, char );
+template str_t fmt<uint16_t>( const uint16_t, size_t, size_t, size_t, char, char );
+template str_t fmt<int32_t>( const int32_t, size_t, size_t, size_t, char, char );
+template str_t fmt<uint32_t>( const uint32_t, size_t, size_t, size_t, char, char );
+template str_t fmt<int64_t>( const int64_t, size_t, size_t, size_t, char, char );
+template str_t fmt<uint64_t>( const uint64_t, size_t, size_t, size_t, char, char );
+template str_t fmt<float>( const float, size_t, size_t, size_t, char, char );
+template str_t fmt<double>( const double, size_t, size_t, size_t, char, char );
 
 }; //namespace leon_utl
 

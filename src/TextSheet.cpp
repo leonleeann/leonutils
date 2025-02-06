@@ -126,7 +126,7 @@ void TextSheet_t::Imp_t::skeleton() {
 
 str_t TextSheet_t::Imp_t::textOf( double data_, const ColSpec_t& spec_ ) const {
 
-	return format( data_, spec_._w - 2, spec_._p, spec_._g, ' ', spec_._s );
+	return fmt( data_, spec_._w - 2, spec_._p, spec_._g, ' ', spec_._s );
 };
 
 wstr_t TextSheet_t::Imp_t::make() const {
