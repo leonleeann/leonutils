@@ -13,9 +13,9 @@ public:
 	~HugePage_t();
 
 	//---- 公开例程 ---------------------------------------------
-	size_t	make( size_t bytes );
+	ssize_t	make( ssize_t bytes );
 	void	release();
-	size_t	bytes()		const { return _bytes; };
+	ssize_t	bytes()		const { return _bytes; };
 	void*	get()		const { return _shm_p; };
 	ssize_t	pageSize()	const { return _1page; };
 
@@ -25,7 +25,7 @@ private:
 
 	//---- 内部变量 ---------------------------------------------
 	void*	_shm_p {};
-	size_t	_bytes {};
+	ssize_t	_bytes {};
 	ssize_t	_1page {};
 };
 

@@ -1,4 +1,5 @@
 #include <cerrno>		// errno
+#include <cmath>		// abs, ceil, floor, isnan, log, log10, log2, pow, round, sqrt
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 // #include <hugetlbfs.h> 还没弄懂怎么链接 libhugetlbfs
 #include <iostream>
@@ -14,13 +15,19 @@ HugePage_t::~HugePage_t() {
 		release();
 };
 
-size_t HugePage_t::make( size_t b_ ) {
+constexpr uintptr_t HUGE_PAGE_SIZE = 2048 * 1024;
+
+ssize_t HugePage_t::make( ssize_t b_ ) {
 	/*	_1page = gethugepagesize(); 还没弄懂怎么链接 libhugetlbfs
 		std::cerr << "HugePage Size:" << _1page; */
-	_1page = 2048 * 1024;
+	_1page = HUGE_PAGE_SIZE;
 
 	if( _shm_p != nullptr || _bytes != 0 )
 		throw bad_usage( "重复申请的HugePage!!!" );
+
+	b_ = std::ceil( static_cast<double>( b_ ) / _1page );
+	b_ *= _1page;
+
 	/*
 		a. m_mask: 操作共享内存的权限 (PROT_READ | PROT_WRITE)
 		b. map_flags:
@@ -32,7 +39,6 @@ size_t HugePage_t::make( size_t b_ ) {
 	_shm_p = mmap( NULL, b_, m_mask, map_flags, -1, 0 );
 	if( _shm_p == MAP_FAILED )
 		throw std::runtime_error( "mmap错误:" + str_t( std::strerror( errno ) ) );
-	constexpr uintptr_t HUGE_PAGE_SIZE = 2048 * 1024;
 	if( reinterpret_cast<uintptr_t>( _shm_p ) % HUGE_PAGE_SIZE != 0 )
 		std::cerr << "HugePage居然不对齐2M边界:"
 				  << reinterpret_cast<uintptr_t>( _shm_p );
