@@ -16,7 +16,7 @@ namespace leon_utl {
  * 3.当队列为空时执行出队操作, 或者当队列已满时执行入队操作, 结果都是未定义(尽管
  *    有断言检查, 但那只在调试期有作用)。
  */
-template <typename Payload_t>
+template <typename T, typename SizeType>
 class RingQue_t {
 public:
 //======== 类(static)接口 =======================================================
@@ -30,63 +30,67 @@ public:
 #if( __GNUC__ >= 10 )
 // gcc-10 之后要用这个
 	static constexpr size_t MOST_ELEMENTS =
-		std::bit_floor( MAX_MEM_USAGE / sizeof( Payload_t ) );
+		std::bit_floor( MAX_MEM_USAGE / sizeof( T ) );
 #else
 // gcc-9 要用这个
 	static constexpr size_t MOST_ELEMENTS =
-		std::floor2( MAX_MEM_USAGE / sizeof( Payload_t ) );
+		std::floor2( MAX_MEM_USAGE / sizeof( T ) );
 #endif
 
 //======== 对象接口 =============================================================
 	// 只能显式构造
-	explicit RingQue_t( size_t capa_hint ) {
+	explicit RingQue_t( SizeType capa_ ) {
+		size_t c = capa_;
 		// 容量要对齐为2的n次幂,因回绕指针不再用" % _capa", 改用" & _mask"
 #if( __GNUC__ >= 10 )
 // gcc-10 之后要用这个
-		capa_hint = std::min( MOST_ELEMENTS, std::bit_ceil( capa_hint ) );
+		c = std::min( MOST_ELEMENTS, std::bit_ceil( c ) );
 #else
 // gcc-9 要用这个
-		capa_hint = std::min( MOST_ELEMENTS, std::ceil2( capa_hint ) );
+		c = std::min( MOST_ELEMENTS, std::ceil2( c ) );
 #endif
+		if( c > std::numeric_limits<SizeType>::max() )
+			throw "期望容量已超过SizeType所能表示的最大值!";
 
-		_buff = std::make_unique<Payload_t[]>( capa_hint );
+		_buff = std::make_unique<T[]>( c );
 		_base = _buff.get();
-		_mask = capa_hint - 1;
+		_mask = c - 1;
 	};
 
-	size_t	capa() const { return _mask + 1; };
-	void	clear() { _head = _tail = 0; };
-	bool	empty() const { return _tail <= _head; };
-	bool	fully() const { return _tail - _head > _mask; };
-	size_t	size() const { return _tail - _head; };
+	SizeType	capa() const { return _mask + 1; };
+	void		clear() { _head = _tail = 0; };
+	bool		empty() const { return _tail <= _head; };
+	bool		full() const { return _tail - _head > _mask; };
+	SizeType	size() const { return _tail - _head; };
 
 	// 队首元素的引用(下一个出队位置)
-	const Payload_t&	head() const { return _base[_head & _mask]; };
+	const T&	head() const { return _base[_head & _mask]; };
 	// 队尾元素的引用(下一个入队位置)
-	Payload_t&			tail() const { return _base[_tail & _mask]; };
+	T&			tail() const { return _base[_tail & _mask]; };
 
 	// 入队, _tail 增一
 	void	enque() { ++_tail; };
 	// 复制入队
-	// void	enque( const Payload_t& pl ) { _base[_tail++ & _mask] = pl; };
+	// void	enque( const T& pl ) { _base[_tail++ & _mask] = pl; };
 	// 复制/移动入队
 	template<typename U>
-	void	enque( U&& pl ) { _base[_tail++ & _mask] = std::forward<U>( pl ); };
+	void	enque( U&& pl_ ) { _base[_tail++ & _mask] = std::forward<U>( pl_ ); };
 
 	// 出队, _head 增一
-	Payload_t&&	deque() { return std::move( _base[_head++ & _mask] ); };
-	void	deque( Payload_t& pl ) { pl = std::move( _base[_head++ & _mask] ); };
+	T&&		deque() { return std::move( _base[_head++ & _mask] ); };
+	void	deque( T& pl_ ) { pl_ = std::move( _base[_head++ & _mask] ); };
 
 	// 作废队尾记录, _tail 减一
 	void	rtail() { --_tail; };
 
 //======== 内部实现 =============================================================
 private:
-	std::unique_ptr<Payload_t[]>	_buff {};
-	Payload_t*	_base {};
-	size_t		_mask {};
-	size_t		_head {};
-	size_t		_tail {};
+	std::unique_ptr<T[]>	_buff {};
+	T*			_base {};
+	SizeType	_mask {};
+	SizeType	_head {};
+	SizeType	_tail {};
 };
 
 };  //namespace leon_utl
+// kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

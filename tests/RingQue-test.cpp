@@ -13,7 +13,7 @@ struct Rec3B_t {
 	bool b1;
 	bool b2;
 };
-using RQ3B_t = RingQue_t<Rec3B_t>;
+using RQ3B_t = RingQue_t<Rec3B_t, int>;
 
 // 自动扩展容量到2的n次方
 TEST( TestRingQue, AutoExtToPowerOf2 ) {
@@ -34,7 +34,7 @@ TEST( TestRingQue, AutoExtToPowerOf2 ) {
 	*/
 };
 
-using RQInt_t = RingQue_t<int>;
+using RQInt_t = RingQue_t<int, size_t>;
 
 /* 注释原因: 并非本测试不该有,只因分配一块大内存实在太慢,影响日常检查.需测试时可临时恢复
 // 占用内存不超1G bytes
@@ -56,31 +56,31 @@ TEST( TestRingQue, emptyOrFully ) {
 	RQInt_t rq( 4 );
 
 	EXPECT_TRUE( rq.empty() );
-	EXPECT_FALSE( rq.fully() );
+	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 0 );
 
 	// 添加 1 个元素不会满
 	rq.enque();
 	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.fully() );
+	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 1 );
 
 	// 添加 2 个元素不会满
 	rq.enque();
 	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.fully() );
+	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 2 );
 
 	// 添加 3 个元素不会满
 	rq.enque();
 	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.fully() );
+	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 3 );
 
 	// 添加 4 个元素就满了
 	rq.enque();
 	EXPECT_FALSE( rq.empty() );
-	EXPECT_TRUE( rq.fully() );
+	EXPECT_TRUE( rq.full() );
 	EXPECT_EQ( rq.size(), 4 );
 };
 
@@ -91,12 +91,12 @@ TEST( TestRingQue, CanRecoverFromFull ) {
 	rq.enque();
 	rq.enque();
 	rq.enque();
-	EXPECT_TRUE( rq.fully() );
+	EXPECT_TRUE( rq.full() );
 	EXPECT_EQ( rq.size(), 4 );
 
 	rq.deque();
 	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.fully() );
+	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 3 );
 };
 
@@ -168,7 +168,7 @@ int LiveWatch_t::move_conss { 0 };
 int LiveWatch_t::copy_conss { 0 };
 int LiveWatch_t::move_asgns { 0 };
 int LiveWatch_t::copy_asgns { 0 };
-using RQWatches_t = RingQue_t<LiveWatch_t>;
+using RQWatches_t = RingQue_t<LiveWatch_t, int>;
 
 TEST( TestRingQue, copyIn ) {
 	RQWatches_t rq( 4 );

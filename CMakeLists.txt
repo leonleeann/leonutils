@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 5 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 6 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "HugePage尺寸对齐到2M整倍数" )
+set( PROJECT_VERSION_NOTES "RingQue_t容量参数化" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
