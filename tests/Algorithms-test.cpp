@@ -299,7 +299,18 @@ TEST( TestAlgorithms, doubleGreatLessThan ) {
 TEST( TestAlgorithms, extreamFloatValues ) {
 	float nan1 = std::numeric_limits<float>::quiet_NaN();
 	float inf1 = std::numeric_limits<float>::infinity();
+	float neg_inf = - std::numeric_limits<float>::infinity();
 	float max1 = std::numeric_limits<float>::max();
+	// 正无穷 加一点点, 还相等吗?
+	ASSERT_TRUE( eq( inf1 + 1, inf1 ) );
+	ASSERT_TRUE( eq( neg_inf - 1, neg_inf ) );
+	ASSERT_FALSE( eq( neg_inf, inf1 ) );
+	U32_u u32;
+	u32.asF = neg_inf;
+	std::cout << "inf::asF" << u32.asU << std::endl;
+	u32.asF = neg_inf - 1;
+	std::cout << "inf-1::asF" << u32.asU << std::endl;
+
 	ASSERT_FALSE( nan1 > inf1 );
 	ASSERT_FALSE( nan1 < inf1 );
 	ASSERT_TRUE( inf1 > max1 );

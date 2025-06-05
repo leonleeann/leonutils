@@ -7,6 +7,7 @@
 #include "leonutils/Statistics.hpp"
 
 using namespace leon_utl;
+using namespace testing;
 using std::numeric_limits;
 
 // 试验另一种方法计算标准差(一轮迭代)
@@ -109,6 +110,19 @@ TEST( TestDbCtpQtCfg, incrementallyStdDev ) {
 	ASSERT_DOUBLE_EQ( refer.sum, inc_stat._sum );
 	ASSERT_DOUBLE_EQ( refer.avg, inc_stat.avg() );
 	ASSERT_DOUBLE_EQ( refer.std, inc_stat.std() );
+};
+
+TEST( TestStatistics, statMedian ) {
+	NumbVect_t	samples = { 0, 1, 2, 3, };
+	Statistic_t	result { samples };
+
+	ASSERT_TRUE( eq( result.sum, 6.0 ) );
+	ASSERT_TRUE( eq( result.avg, 1.5 ) );
+	ASSERT_TRUE( eq( result.med, 1.5 ) );
+	ASSERT_TRUE( eq( result.max, 3.0 ) );
+	ASSERT_TRUE( eq( result.min, 0.0 ) );
+	double med = StdDev( samples );
+	ASSERT_TRUE( eq( result.std, med ) );
 };
 
 TEST( TestStatistics, statNormally ) {
