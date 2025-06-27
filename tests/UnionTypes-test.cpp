@@ -1,11 +1,14 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <limits>
+#include <sstream>
 
 // #include "leonutils/Algorithms.hpp"
 #include "leonutils/UnionTypes.hpp"
 
 using namespace leon_utl;
+using ost_t = std::ostream;
+using oss_t = std::ostringstream;
 
 TEST( TestUnionTypes, U16 ) {
 	ASSERT_EQ( sizeof( U16_u ), 2 );
@@ -244,6 +247,17 @@ TEST( TestUnionTypes, RawConvert ) {
 	ASSERT_EQ( RawI64U( std::numeric_limits<int64_t>::max() ),     uint64_t( 0x7fffffffffffffff ) );
 
 //	ASSERT_TRUE( leon_utl::eq( RawU64D( 0x407b4999999999abUL ), 436.6 ) );
+};
+
+ost_t& operator<<( ost_t& os_, U64_u u_ ) {
+	return os_ << u_.view();
+};
+
+TEST( TestUnionTypes, outputAsStrView ) {
+	U64_u u64 { "UStrView" };
+	oss_t oss;
+	oss << u64;
+	ASSERT_EQ( oss.str(), u64.str() );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

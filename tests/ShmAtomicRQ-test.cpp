@@ -21,6 +21,18 @@ struct Rec3B_t {
 using RQ3B_t = ShmAtmRQ_t<Rec3B_t, int32_t>;
 using RQInt_t = ShmAtmRQ_t<int, int32_t>;
 
+// 1.看看每个 Node_t 是否都从64字节边界开始; 2.每个 Node_t 大小
+TEST( TestShmAtmRQ, AlignTo64 ) {
+	RQ3B_t rq;
+	rq.make( 8, "TestShmAtmRQ_AlignTo64" );
+	rq.enque( Rec3B_t{} );
+	rq.enque( Rec3B_t{} );
+//	static_assert( sizeof( RQ3B_t::Node_t ) == 64 );
+
+	ASSERT_EQ( reinterpret_cast<uint64_t>( rq._head_addr() ) % 64, 0 );
+	ASSERT_EQ( reinterpret_cast<uint64_t>( rq._tail_addr() ) % 64, 0 );
+};
+
 // 如果放弃了所有权, 销毁对象时, 不应该删除底层 shm 文件
 TEST( TestShmAtmRQ, Ownership ) {
 	path_t shm_path { "/dev/shm" };

@@ -28,20 +28,23 @@ namespace leon_utl {
 */
 template<typename T, typename SIZE_TYPE>
 class ShmAtmRQ_t final {
+	friend struct TestShmAtmRQ;
+
 	static_assert( std::is_standard_layout_v<T> );
 	// static_assert( std::is_trivially_copyable_v<T> );
 
 	using ATOM_SIZE = std::atomic<SIZE_TYPE>;
 
 	// 内部结构定义
-	struct Node_t {
-		alignas( 64 )
+	struct alignas( 64 ) Node_t {
 		ATOM_SIZE	h_tag;
 		ATOM_SIZE	t_tag;
 		T			goods;
-		// 把本结构强行撑大到64字节,刚好一个 cache line,试试性能
+		/* 把本结构强行撑大到64字节,刚好一个 cache line,试试性能
 		char _unuse[ 64 - sizeof( h_tag ) - sizeof( t_tag ) - sizeof( goods ) ];
+		*/
 	};
+	static_assert( sizeof( Node_t ) == 64 );
 
 //====== 类接口 =================================================================
 public:
@@ -82,7 +85,10 @@ public:
 	SIZE_TYPE	capa() const { return _capa; };
 
 	// 为了方便测试,把这几个属性也暴露出来
-	SIZE_TYPE	mask() const { return _mask; };
+	uintptr_t	_base_addr() const { return reinterpret_cast<uintptr_t>( _base ); };
+	uintptr_t	_head_addr() const { return reinterpret_cast<uintptr_t>( _base + _meta->_head.load() ); };
+	uintptr_t	_tail_addr() const { return reinterpret_cast<uintptr_t>( _base + _meta->_tail.load() ); };
+	SIZE_TYPE	_ring_mask() const { return _mask; };
 	SIZE_TYPE	head() const;
 	SIZE_TYPE	tail() const;
 	SIZE_TYPE	size() const;
