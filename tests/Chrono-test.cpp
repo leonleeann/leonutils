@@ -168,11 +168,11 @@ TEST( TestFormatTimeP, WithPrec ) {
 	system_clock::time_point stpNow
 		= system_clock::from_time_t( mktime( &tm1 ) ) + nanoseconds( 123456789 );
 
-	ASSERT_EQ( format_time( stpNow, 9 ), str_t( "19/07/29 15:15:59.123456789" ) );
-	ASSERT_EQ( format_time( stpNow, 6 ), str_t( "19/07/29 15:15:59.123456" ) );
-	ASSERT_EQ( format_time( stpNow, 3 ), str_t( "19/07/29 15:15:59.123" ) );
-	ASSERT_EQ( format_time( stpNow, size_t( 0 ) ), str_t( "19/07/29 15:15:59" ) );
-	ASSERT_EQ( format_time( stpNow, size_t( 0 ), "%m/%d %H:%M" ),
+	ASSERT_EQ( fmt( stpNow, 9 ), str_t( "19/07/29 15:15:59.123456789" ) );
+	ASSERT_EQ( fmt( stpNow, 6 ), str_t( "19/07/29 15:15:59.123456" ) );
+	ASSERT_EQ( fmt( stpNow, 3 ), str_t( "19/07/29 15:15:59.123" ) );
+	ASSERT_EQ( fmt( stpNow, size_t( 0 ) ), str_t( "19/07/29 15:15:59" ) );
+	ASSERT_EQ( fmt( stpNow, size_t( 0 ), "%m/%d %H:%M" ),
 			   str_t( "07/29 15:15" ) );
 };
 
@@ -246,7 +246,7 @@ TEST( TestChrono, parseDate ) {
 TEST( TestFormatTimeP, WithFormat ) {
 	system_clock::time_point tp {};
 	// 注意时差! UTC 的 epoch 用咱的时区格式化出来就是: "1970-01-01 08:00:00"
-	ASSERT_EQ( format_time( tp ), "1970-01-01 08:00:00" );
+	ASSERT_EQ( fmt( tp ), "1970-01-01 08:00:00" );
 
 	tm tm1 = {};
 	tm1.tm_gmtoff  = 3600 * 8;
@@ -258,32 +258,32 @@ TEST( TestFormatTimeP, WithFormat ) {
 	tm1.tm_sec     = 59;
 	tp = system_clock::from_time_t( mktime( &tm1 ) ) + nanoseconds( 123456789 );
 
-	ASSERT_EQ( format_time( tp ), "2019-07-29 15:15:59" );
-	ASSERT_EQ( format_time( tp, DATE_FORMAT ), "20190729" );
-	ASSERT_EQ( format_time( tp, TIME_FORMAT ), "15:15:59" );
-	ASSERT_EQ( format_time( tp, "%Y-%m-%d %H:%M:%S" ), "2019-07-29 15:15:59" );
-	ASSERT_EQ( format_time( tp, 9, "%Y-%m-%d %H:%M:%S" ), "2019-07-29 15:15:59.123456789" );
+	ASSERT_EQ( fmt( tp ), "2019-07-29 15:15:59" );
+	ASSERT_EQ( fmt( tp, DATE_FORMAT ), "20190729" );
+	ASSERT_EQ( fmt( tp, TIME_FORMAT ), "15:15:59" );
+	ASSERT_EQ( fmt( tp, "%Y-%m-%d %H:%M:%S" ), "2019-07-29 15:15:59" );
+	ASSERT_EQ( fmt( tp, 9, "%Y-%m-%d %H:%M:%S" ), "2019-07-29 15:15:59.123456789" );
 };
 
 TEST( TestMakeSysTime, makeSysTime ) {
 	auto stp1 = make_time( 2019, 7, 29, 23, 59, 59, 123, 456, 789 );
-	ASSERT_EQ( format_time( stp1, 9 ), "19/07/29 23:59:59.123456789" );
+	ASSERT_EQ( fmt( stp1, 9 ), "19/07/29 23:59:59.123456789" );
 };
 
 TEST( TestMakeUSTime, makeUSTime ) {
 	auto stp1 = make_time( 2019, 7, 29, 23, 59, 59, 123, 456 );
-	ASSERT_EQ( format_time( stp1, 6 ), "19/07/29 23:59:59.123456" );
-	ASSERT_EQ( format_time( stp1, 9 ), "19/07/29 23:59:59.123456000" );
+	ASSERT_EQ( fmt( stp1, 6 ), "19/07/29 23:59:59.123456" );
+	ASSERT_EQ( fmt( stp1, 9 ), "19/07/29 23:59:59.123456000" );
 };
 
 TEST( TestFormatDuration, formatDura ) {
-	ASSERT_EQ( format_dura( 86401s ), "1D 0H 0M 1S" );
-	ASSERT_EQ( format_dura( 86399s ), "23H 59M 59S" );
-	ASSERT_EQ( format_dura( 3601s ), "1H 0M 1S" );
-	ASSERT_EQ( format_dura( 3600s ), "1H 0M 0S" );
-	ASSERT_EQ( format_dura( 3599s ), "59M 59S" );
+	ASSERT_EQ( fmt_dura( 86401s ), "1D 0H 0M 1S" );
+	ASSERT_EQ( fmt_dura( 86399s ), "23H 59M 59S" );
+	ASSERT_EQ( fmt_dura( 3601s ), "1H 0M 1S" );
+	ASSERT_EQ( fmt_dura( 3600s ), "1H 0M 0S" );
+	ASSERT_EQ( fmt_dura( 3599s ), "59M 59S" );
 
-	ASSERT_EQ( format_secs( 3599001ms ), "3599.001s" );
+	ASSERT_EQ( fmt_secs( 3599001ms ), "3599.001s" );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

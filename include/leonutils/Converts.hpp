@@ -140,11 +140,24 @@ inline str_t to_upper( const str_t& src ) {
 str_t rm_special( const char* source );
 
 template <typename T>
-inline constexpr const char* parse_int( T& i, const char* s, size_t n ) {
-	i = 0;
-	while( s != nullptr && is_digit( *s ) && n-- > 0 )
-		i = i * 10 + ( *s++ - '0' );
-	return s;
+inline constexpr const char* parse_int( T& result_, const char* s_, size_t n_ ) {
+
+	result_ = 0;
+
+	if( s_ == nullptr )
+		return s_;
+
+	for( ; n_ > 0; --n_, ++s_ ) {
+		char c = *s_;
+		if( ! is_digit( c ) )
+			break;
+		result_ = result_ * 10 + ( c - '0' );
+	}
+
+	/* 这个版本要出 warnning
+	while( s_ != nullptr && is_digit( *s_ ) && n_-- > 0 )
+		result_ = result_ * 10 + ( *s_++ - '0' ); */
+	return s_;
 };
 
 template <typename T>

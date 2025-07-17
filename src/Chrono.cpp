@@ -19,31 +19,31 @@ static_assert( sizeof( timespec::tv_nsec ) == 8, "timespec::tv_nsec not a 64 bit
 thread_local const std::time_put<char>& tl_time_formater
 	= std::use_facet<std::time_put<char>>( std::locale( "C" ) );
 
-str_t format_time( const tm& tm_, const char* fmt_ ) {
+str_t fmt_tm( const tm& tm_, const char* fmt_ ) {
 	oss_t oss;
 	tl_time_formater.put( oss, oss, ' ', &tm_, fmt_, fmt_ + std::strlen( fmt_ ) );
 	return oss.str();
 };
 
-str_t format_time( const std::time_t time_, const char* fmt_ ) {
+str_t fmt_tmt( const std::time_t time_, const char* fmt_ ) {
 	tm tm1;
 	localtime_r( &time_, &tm1 );
-	return format_time( tm1, fmt_ );
+	return fmt_tm( tm1, fmt_ );
 };
 
 template <typename C, typename D>
-str_t format_time( const time_point<C, D> tp_, const char* fmt_ ) {
-	return format_time( C::to_time_t( std::chrono::floor<seconds>( tp_ ) ), fmt_ );
+str_t fmt( const time_point<C, D> tp_, const char* fmt_ ) {
+	return fmt_tmt( C::to_time_t( std::chrono::floor<seconds>( tp_ ) ), fmt_ );
 };
 
 template <typename C, typename D>
-str_t format_time( const time_point<C, D> tp_, size_t prec_, const char* fmt_ ) {
+str_t fmt( const time_point<C, D> tp_, size_t prec_, const char* fmt_ ) {
 	// 精度最多9位,也即纳秒
 	if( prec_ > 9 )
 		prec_ = 9;
 
 	auto tp1 = std::chrono::floor<seconds>( tp_ );
-	str_t result = format_time( tp1, fmt_ );
+	str_t result = fmt( tp1, fmt_ );
 
 	if( prec_ > 0 ) {
 		// 只能是截断,不能是四舍五入或者任何收入！因为前面的结果已经定了，不能进位了
@@ -55,12 +55,12 @@ str_t format_time( const time_point<C, D> tp_, size_t prec_, const char* fmt_ ) 
 };
 
 template <typename C, typename D>
-str_t format_date( const time_point<C, D> tp_ ) {
-	return format_time( tp_, DATE_FORMAT );
+str_t fmt_date( const time_point<C, D> tp_ ) {
+	return fmt( tp_, DATE_FORMAT );
 };
 
 template <typename R, typename P>
-str_t format_dura( const duration<R, P> dura_ ) {
+str_t fmt_dura( const duration<R, P> dura_ ) {
 	auto ss = duration_cast<seconds>( dura_ ).count();
 	auto dd = ss / 86400;
 	ss %= 86400;
@@ -82,7 +82,7 @@ str_t format_dura( const duration<R, P> dura_ ) {
 };
 
 template <typename R, typename P>
-str_t format_secs( const duration<R, P> dura_ ) {
+str_t fmt_secs( const duration<R, P> dura_ ) {
 	double ms = duration_cast<milliseconds>( dura_ ).count();
 	return fmt( ms / 1000, 0, 3 ) + "s";
 };
@@ -110,44 +110,44 @@ void delay( MonDura_t for_, MonTime_t from_ ) {
 
 bool valid_date( const str_t& str_ ) {
 // 把字符串转成日期，再转回来，如果一致就是有效的日期
-	return format_date( parse_date( str_.c_str() ) ) == str_;
+	return fmt_date( parse_date( str_.c_str() ) ) == str_;
 };
 
 // 显式地实例化一下,以免链接时找不到
-template str_t format_time( const time_point<system_clock, hours>, const char* );
-template str_t format_time( const time_point<system_clock, minutes>, const char* );
-template str_t format_time( const time_point<system_clock, seconds>, const char* );
-template str_t format_time( const time_point<system_clock, milliseconds>, const char* );
-template str_t format_time( const time_point<system_clock, microseconds>, const char* );
-template str_t format_time( const time_point<system_clock, nanoseconds>, const char* );
+template str_t fmt( const time_point<system_clock, hours>, const char* );
+template str_t fmt( const time_point<system_clock, minutes>, const char* );
+template str_t fmt( const time_point<system_clock, seconds>, const char* );
+template str_t fmt( const time_point<system_clock, milliseconds>, const char* );
+template str_t fmt( const time_point<system_clock, microseconds>, const char* );
+template str_t fmt( const time_point<system_clock, nanoseconds>, const char* );
 
-template str_t format_time( const time_point<system_clock, hours>, size_t, const char* );
-template str_t format_time( const time_point<system_clock, minutes>, size_t, const char* );
-template str_t format_time( const time_point<system_clock, seconds>, size_t, const char* );
-template str_t format_time( const time_point<system_clock, milliseconds>, size_t, const char* );
-template str_t format_time( const time_point<system_clock, microseconds>, size_t, const char* );
-template str_t format_time( const time_point<system_clock, nanoseconds>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, hours>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, minutes>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, seconds>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, milliseconds>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, microseconds>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, nanoseconds>, size_t, const char* );
 
-template str_t format_date( const time_point<system_clock, hours> );
-template str_t format_date( const time_point<system_clock, minutes> );
-template str_t format_date( const time_point<system_clock, seconds> );
-template str_t format_date( const time_point<system_clock, milliseconds> );
-template str_t format_date( const time_point<system_clock, microseconds> );
-template str_t format_date( const time_point<system_clock, nanoseconds> );
+template str_t fmt_date( const time_point<system_clock, hours> );
+template str_t fmt_date( const time_point<system_clock, minutes> );
+template str_t fmt_date( const time_point<system_clock, seconds> );
+template str_t fmt_date( const time_point<system_clock, milliseconds> );
+template str_t fmt_date( const time_point<system_clock, microseconds> );
+template str_t fmt_date( const time_point<system_clock, nanoseconds> );
 
-template str_t format_dura( const hours );
-template str_t format_dura( const minutes );
-template str_t format_dura( const seconds );
-template str_t format_dura( const milliseconds );
-template str_t format_dura( const microseconds );
-template str_t format_dura( const nanoseconds );
+template str_t fmt_dura( const hours );
+template str_t fmt_dura( const minutes );
+template str_t fmt_dura( const seconds );
+template str_t fmt_dura( const milliseconds );
+template str_t fmt_dura( const microseconds );
+template str_t fmt_dura( const nanoseconds );
 
-template str_t format_secs( const hours );
-template str_t format_secs( const minutes );
-template str_t format_secs( const seconds );
-template str_t format_secs( const milliseconds );
-template str_t format_secs( const microseconds );
-template str_t format_secs( const nanoseconds );
+template str_t fmt_secs( const hours );
+template str_t fmt_secs( const minutes );
+template str_t fmt_secs( const seconds );
+template str_t fmt_secs( const milliseconds );
+template str_t fmt_secs( const microseconds );
+template str_t fmt_secs( const nanoseconds );
 
 // template seconds make_time<seconds>( int, int, int, int, int, int, int, int, int );
 

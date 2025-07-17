@@ -220,26 +220,26 @@ static const char* const NEAT_FORMAT = "%y/%m/%d %H:%M:%S";
 extern thread_local const std::time_put<char>& tl_time_formater;
 
 // 格式化 tm
-str_t format_time( const tm&, const char* fmt = FULL_FORMAT );
+str_t fmt_tm( const tm&, const char* fmt = FULL_FORMAT );
 // 格式化 time_t
-str_t format_time( const std::time_t, const char* fmt = FULL_FORMAT );
+str_t fmt_tmt( const std::time_t, const char* fmt = FULL_FORMAT );
 // 格式化 time_point, 指定格式
 template <typename C, typename D>
-str_t format_time( const time_point<C, D>, const char* fmt = FULL_FORMAT );
+str_t fmt( const time_point<C, D>, const char* fmt = FULL_FORMAT );
 
 // 格式化 time_point, 指定精度
 template <typename C, typename D>
-str_t format_time( const time_point<C, D>, size_t precision,
-				   const char* fmt = NEAT_FORMAT );
+str_t fmt( const time_point<C, D>, size_t precision,
+		   const char* fmt = NEAT_FORMAT );
 
 template <typename C, typename D>
-str_t format_date( const time_point<C, D> );
+str_t fmt_date( const time_point<C, D> );
 
 template <typename R, typename P>
-str_t format_dura( const duration<R, P> );
+str_t fmt_dura( const duration<R, P> );
 
 template <typename R, typename P>
-str_t format_secs( const duration<R, P> );
+str_t fmt_secs( const duration<R, P> );
 
 //========== 构造日期时间值 ======================================================
 SysTime_t make_time( int y, int mon, int d,

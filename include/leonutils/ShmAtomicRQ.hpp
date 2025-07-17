@@ -37,9 +37,9 @@ class ShmAtmRQ_t final {
 
 	// 内部结构定义
 	struct alignas( 64 ) Node_t {
+		T			goods;
 		ATOM_SIZE	h_tag;
 		ATOM_SIZE	t_tag;
-		T			goods;
 		/* 把本结构强行撑大到64字节,刚好一个 cache line,试试性能
 		char _unuse[ 64 - sizeof( h_tag ) - sizeof( t_tag ) - sizeof( goods ) ];
 		*/
