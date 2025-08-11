@@ -192,6 +192,15 @@ inline bool eq( const T1 v1, const T2 v2 ) {
 };
 
 template<>
+inline bool eq( const int16_t i, const uint16_t u ) {
+	return ( i >= 0 ) && static_cast<uint16_t>( i ) == u;
+};
+template<>
+inline bool eq( const uint16_t u, const int16_t i ) {
+	return eq<int16_t, uint16_t>( i, u );
+};
+
+template<>
 inline bool eq( const int32_t i, const uint32_t u ) {
 	return ( i >= 0 ) && static_cast<uint32_t>( i ) == u;
 };
@@ -216,6 +225,17 @@ inline bool eq( const double d, const float f ) {
 template<>
 inline bool eq( const float f, const double d ) {
 	return eq<float>( static_cast<float>( d ), f );
+};
+
+//-------- 不相等 ----------
+template<typename T1, typename T2>
+inline bool ne( const T1 v1, const T2 v2 ) {
+	return ! eq( v1, v2 );
+};
+
+template<typename T>
+inline bool ne( const T v1, const T v2, const T e ) {
+	return ! eq( v1, v2, e );
 };
 
 //-------- 组合比较 --------

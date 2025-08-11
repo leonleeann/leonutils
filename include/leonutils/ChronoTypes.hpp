@@ -3,7 +3,9 @@
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
-// using ratio = std::ratio;
+using ms = std::chrono::milliseconds;
+using us = std::chrono::microseconds;
+using ns = std::chrono::nanoseconds;
 
 namespace leon_utl {
 
