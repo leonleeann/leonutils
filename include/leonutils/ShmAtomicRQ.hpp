@@ -92,6 +92,7 @@ public:
 	SIZE_TYPE	head() const;
 	SIZE_TYPE	tail() const;
 	SIZE_TYPE	size() const;
+	int64_t		err_cnt() const { return _errs.load( mo_acquire ); };
 	bool		full() const;
 	bool		empty() const;
 
@@ -118,6 +119,7 @@ private:
 	SIZE_TYPE const	_capa {};	// 和_meta内部属性相同,复制到外面简化编码
 	SIZE_TYPE const	_mask {};	// 和_meta内部属性相同,复制到外面简化编码
 	ShmBuffer_t		_buff {};
+	ai64_t			_errs {};	// 本对象操作(出入队)失败计数, 成功一次会清除
 	bool const		_ownr {};	// 为true就是拥有者,否则就是访问者
 };
 
@@ -280,11 +282,13 @@ bool ShmAtmRQ_t<T, SIZE_TYPE>::enque( const T& g_ ) {
 			try_cnt = 0;
 		}
 		if( ++try_cnt > 3 ) {
+			++_errs;
 //			lg_erro << _buff.name() << "入队失败,已抛弃!";
 			return false;
 		}
 	}
 
+	_errs.store( 0, mo_relaxed );
 	cur_nod->goods = g_;
 	cur_nod->h_tag.store( cur_idx, mo_release );
 	return true;
@@ -310,11 +314,13 @@ bool ShmAtmRQ_t<T, SIZE_TYPE>::deque( T& g_ ) {
 			break;
 
 		if( ++try_cnt > 3 ) {
+			++_errs;
 			// lg_erro << _buff.name() << "出队失败!";
 			return false;
 		}
 	}
 
+	_errs.store( 0, mo_relaxed );
 	g_ = cur_nod->goods;
 	cur_nod->t_tag.store( cur_idx + _capa, mo_release );
 	return true;

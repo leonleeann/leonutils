@@ -99,14 +99,14 @@ TEST( TestAlgorithms, signFunction ) {
 
 TEST( TestAlgorithms, int32Equality ) {
 	int i32 = 2147483647, i2 = 2147483647;
-	ASSERT_TRUE( eq( i32, i2 ) );
+	ASSERT_TRUE( eq( i32, i2 ) );	ASSERT_FALSE( ne( i32, i2 ) );
 	--i2;
-	ASSERT_FALSE( eq( i32, i2 ) );
+	ASSERT_FALSE( eq( i32, i2 ) );	ASSERT_TRUE( ne( i32, i2 ) );
 
 	i32 = std::numeric_limits<int32_t>::max();
 	uint32_t u32 = i32;
-	ASSERT_TRUE( eq( i32, u32 ) );
-	ASSERT_TRUE( eq( u32, i32 ) );
+	ASSERT_TRUE( eq( i32, u32 ) );	ASSERT_FALSE( ne( i32, u32 ) );
+	ASSERT_TRUE( eq( u32, i32 ) );	ASSERT_FALSE( ne( u32, i32 ) );
 	ASSERT_TRUE( strict_max( i32 ) );
 	ASSERT_FALSE( strict_max( u32 ) );
 };
@@ -114,73 +114,73 @@ TEST( TestAlgorithms, int32Equality ) {
 TEST( TestAlgorithms, int64Equality ) {
 	int64_t  i64 = std::numeric_limits<int64_t>::max();
 	uint64_t u64 = i64;
-	ASSERT_TRUE( eq( i64, u64 ) );
-	ASSERT_TRUE( eq( u64, i64 ) );
+	ASSERT_TRUE( eq( i64, u64 ) );	ASSERT_FALSE( ne( i64, u64 ) );
+	ASSERT_TRUE( eq( u64, i64 ) );	ASSERT_FALSE( ne( u64, i64 ) );
 	ASSERT_TRUE( strict_max( i64 ) );
 	ASSERT_FALSE( strict_max( u64 ) );
 };
 
 TEST( TestAlgorithms, floatEquality ) {
 	float f1 = 1000000.0f, f2 = 1000000.1f;
-	ASSERT_TRUE( eq( f1, f2 ) );
+	ASSERT_TRUE( eq( f1, f2 ) );	ASSERT_FALSE( ne( f1, f2 ) );
 	f2 = 1000001.0f;
-	ASSERT_FALSE( eq( f1, f2 ) );
+	ASSERT_FALSE( eq( f1, f2 ) );	ASSERT_TRUE( ne( f1, f2 ) );
 	f1 = 0.0f;
-	ASSERT_FALSE( eq( f1, f2 ) );
+	ASSERT_FALSE( eq( f1, f2 ) );	ASSERT_TRUE( ne( f1, f2 ) );
 	f2 = 0.0f;
-	ASSERT_TRUE( eq( f1, f2 ) );
+	ASSERT_TRUE( eq( f1, f2 ) );	ASSERT_FALSE( ne( f1, f2 ) );
 
 	f2 = f1 = std::numeric_limits<float>::quiet_NaN();
-	ASSERT_TRUE( eq( f1, f2 ) );
+	ASSERT_TRUE( eq( f1, f2 ) );	ASSERT_FALSE( ne( f1, f2 ) );
 
 	f1 = std::numeric_limits<float>::infinity();
 	f2 = 1000001.0f;
-	ASSERT_FALSE( eq( f1, f2 ) );
+	ASSERT_FALSE( eq( f1, f2 ) );	ASSERT_TRUE( ne( f1, f2 ) );
 	f2 = f1;
-	ASSERT_TRUE( eq( f1, f2 ) );
-	ASSERT_TRUE( eq( f2, f1 ) );
+	ASSERT_TRUE( eq( f1, f2 ) );	ASSERT_FALSE( ne( f1, f2 ) );
+	ASSERT_TRUE( eq( f2, f1 ) );	ASSERT_FALSE( ne( f2, f1 ) );
 
 	U32_u f2uT;
 	f2uT.asF = std::numeric_limits<float>::max();
 	ASSERT_TRUE( strict_max( f2uT.asF ) );
 	ASSERT_FALSE( strict_max( f1 ) );
-	ASSERT_FALSE( eq( f1, f2uT.asF ) );
-	ASSERT_FALSE( eq( f2uT.asF, f1 ) );
+	ASSERT_FALSE( eq( f1, f2uT.asF ) );	ASSERT_TRUE( ne( f1, f2uT.asF ) );
+	ASSERT_FALSE( eq( f2uT.asF, f1 ) );	ASSERT_TRUE( ne( f2uT.asF, f1 ) );
 	f1 = f2uT.asF;
 	ASSERT_TRUE( f1 == f2uT.asF );
-	ASSERT_TRUE( eq( f1, f2uT.asF ) );
-	ASSERT_TRUE( eq( f2uT.asF, f1 ) );
+	ASSERT_TRUE( eq( f1, f2uT.asF ) );	ASSERT_FALSE( ne( f1, f2uT.asF ) );
+	ASSERT_TRUE( eq( f2uT.asF, f1 ) );	ASSERT_FALSE( ne( f2uT.asF, f1 ) );
 	--f2uT.asU;
 	ASSERT_FALSE( strict_max( f2uT.asF ) );
 	ASSERT_FALSE( f1 == f2uT.asF );
-	ASSERT_TRUE( eq( f1, f2uT.asF ) );
-	ASSERT_TRUE( eq( f2uT.asF, f1 ) );
+	ASSERT_TRUE( eq( f1, f2uT.asF ) );	ASSERT_FALSE( ne( f1, f2uT.asF ) );
+	ASSERT_TRUE( eq( f2uT.asF, f1 ) );	ASSERT_FALSE( ne( f2uT.asF, f1 ) );
 };
 
 TEST( TestAlgorithms, floatEqualWithEpsilon ) {
 	float f1 = 100.0f, f2 = 100.1f;
-	ASSERT_TRUE( eq( f1, f2, 1.0f ) );
-	ASSERT_FALSE( eq( f1, f2, 0.09f ) );
+	ASSERT_TRUE( eq( f1, f2, 1.0f ) );		ASSERT_FALSE( ne( f1, f2, 1.0f ) );
+	ASSERT_FALSE( eq( f1, f2, 0.09f ) );	ASSERT_TRUE( ne( f1, f2, 0.09f ) );
 	f2 = f1 = std::numeric_limits<float>::quiet_NaN();
-	ASSERT_TRUE( eq( f1, f2 ) );
+	ASSERT_TRUE( eq( f1, f2 ) );			ASSERT_FALSE( ne( f1, f2 ) );
 
 	f2 = f1 = std::numeric_limits<float>::infinity();
-	ASSERT_TRUE( eq( f1, f2, 10000.f ) );
+	ASSERT_TRUE( eq( f1, f2, 10000.f ) );	ASSERT_FALSE( ne( f1, f2, 10000.f ) );
 	f2 = - std::numeric_limits<float>::infinity();
-	ASSERT_FALSE( eq( f1, f2, 10000.f ) );
+	ASSERT_FALSE( eq( f1, f2, 10000.f ) );	ASSERT_TRUE( ne( f1, f2, 10000.f ) );
 };
 
 TEST( TestAlgorithms, doubleEqualWithEpsilon ) {
 	double d1 = 100.0f, d2 = 100.1;
-	ASSERT_TRUE( eq( d1, d2, 1.0 ) );
-	ASSERT_FALSE( eq( d1, d2, 0.09 ) );
+	ASSERT_TRUE( eq( d1, d2, 1.0 ) );		ASSERT_FALSE( ne( d1, d2, 1.0 ) );
+	ASSERT_FALSE( eq( d1, d2, 0.09 ) );		ASSERT_TRUE( ne( d1, d2, 0.09 ) );
 	d2 = d1 = std::numeric_limits<double>::quiet_NaN();
-	ASSERT_TRUE( eq( d1, d2 ) );
+	ASSERT_TRUE( eq( d1, d2 ) );			ASSERT_FALSE( ne( d1, d2 ) );
 
 	d2 = d1 = std::numeric_limits<double>::infinity();
-	ASSERT_TRUE( eq( d1, d2, 10000. ) );
+	ASSERT_TRUE( eq( d1, d2, 10000. ) );	ASSERT_FALSE( ne( d1, d2, 10000. ) );
 	d2 = - std::numeric_limits<double>::infinity();
-	ASSERT_FALSE( eq( d1, d2, 10000. ) );
+	ASSERT_FALSE( eq( d1, d2, 10000. ) );	ASSERT_TRUE( ne( d1, d2, 10000. ) );
 };
 
 TEST( TestAlgorithms, doulbeEquality ) {
@@ -188,40 +188,40 @@ TEST( TestAlgorithms, doulbeEquality ) {
 	/* U64_u u2 = d1; ++u2.asU; d2 = u2.asD;
 	lg_fatl << "d1:" << format( d1, 0, 30 )
 	          << ", d2:" << format( d2, 0, 30 );*/
-	ASSERT_TRUE( eq( d1, d2 ) );
+	ASSERT_TRUE( eq( d1, d2 ) );	ASSERT_FALSE( ne( d1, d2 ) );
 	d2 = 1234567890.2;
-	ASSERT_FALSE( eq( d1, d2 ) );
+	ASSERT_FALSE( eq( d1, d2 ) );	ASSERT_TRUE( ne( d1, d2 ) );
 	d1 = 0.0;
-	ASSERT_FALSE( eq( d1, d2 ) );
+	ASSERT_FALSE( eq( d1, d2 ) );	ASSERT_TRUE( ne( d1, d2 ) );
 	d2 = 0.0;
-	ASSERT_TRUE( eq( d1, d2 ) );
+	ASSERT_TRUE( eq( d1, d2 ) );	ASSERT_FALSE( ne( d1, d2 ) );
 
 	d2 = d1 = std::numeric_limits<double>::quiet_NaN();
-	ASSERT_TRUE( eq( d1, d2 ) );
+	ASSERT_TRUE( eq( d1, d2 ) );	ASSERT_FALSE( ne( d1, d2 ) );
 
 	d1 = std::numeric_limits<double>::infinity();
 	d2 = 1000001.0f;
-	ASSERT_FALSE( eq( d1, d2 ) );
-	ASSERT_FALSE( eq( d2, d1 ) );
+	ASSERT_FALSE( eq( d1, d2 ) );	ASSERT_TRUE( ne( d1, d2 ) );
+	ASSERT_FALSE( eq( d2, d1 ) );	ASSERT_TRUE( ne( d2, d1 ) );
 	d2 = d1;
-	ASSERT_TRUE( eq( d1, d2 ) );
-	ASSERT_TRUE( eq( d2, d1 ) );
+	ASSERT_TRUE( eq( d1, d2 ) );	ASSERT_FALSE( ne( d1, d2 ) );
+	ASSERT_TRUE( eq( d2, d1 ) );	ASSERT_FALSE( ne( d2, d1 ) );
 
 	U64_u d2uT;
 	d2uT.asD = std::numeric_limits<double>::max();
 	ASSERT_TRUE( strict_max( d2uT.asD ) );
 	ASSERT_FALSE( strict_max( d1 ) );
-	ASSERT_FALSE( eq( d1, d2uT.asD ) );
-	ASSERT_FALSE( eq( d2uT.asD, d1 ) );
+	ASSERT_FALSE( eq( d1, d2uT.asD ) );	ASSERT_TRUE( ne( d1, d2uT.asD ) );
+	ASSERT_FALSE( eq( d2uT.asD, d1 ) );	ASSERT_TRUE( ne( d2uT.asD, d1 ) );
 	d1 = d2uT.asD = std::numeric_limits<double>::max();
 	ASSERT_TRUE( d1 == d2uT.asD );
-	ASSERT_TRUE( eq( d1, d2uT.asD ) );
-	ASSERT_TRUE( eq( d2uT.asD, d1 ) );
+	ASSERT_TRUE( eq( d1, d2uT.asD ) );	ASSERT_FALSE( ne( d1, d2uT.asD ) );
+	ASSERT_TRUE( eq( d2uT.asD, d1 ) );	ASSERT_FALSE( ne( d2uT.asD, d1 ) );
 	--d2uT.asU;
 	ASSERT_FALSE( strict_max( d2uT.asD ) );
 	ASSERT_FALSE( d1 == d2uT.asD );
-	ASSERT_TRUE( eq( d1, d2uT.asD ) );
-	ASSERT_TRUE( eq( d2uT.asD, d1 ) );
+	ASSERT_TRUE( eq( d1, d2uT.asD ) );	ASSERT_FALSE( ne( d1, d2uT.asD ) );
+	ASSERT_TRUE( eq( d2uT.asD, d1 ) );	ASSERT_FALSE( ne( d2uT.asD, d1 ) );
 };
 
 TEST( TestAlgorithms, floatGreatLessThan ) {
@@ -302,9 +302,9 @@ TEST( TestAlgorithms, extreamFloatValues ) {
 	float neg_inf = - std::numeric_limits<float>::infinity();
 	float max1 = std::numeric_limits<float>::max();
 	// 正无穷 加一点点, 还相等吗?
-	ASSERT_TRUE( eq( inf1 + 1, inf1 ) );
-	ASSERT_TRUE( eq( neg_inf - 1, neg_inf ) );
-	ASSERT_FALSE( eq( neg_inf, inf1 ) );
+	ASSERT_TRUE( eq( inf1 + 1, inf1 ) );		ASSERT_FALSE( ne( inf1 + 1, inf1 ) );
+	ASSERT_TRUE( eq( neg_inf - 1, neg_inf ) );	ASSERT_FALSE( ne( neg_inf - 1, neg_inf ) );
+	ASSERT_FALSE( eq( neg_inf, inf1 ) );		ASSERT_TRUE( ne( neg_inf, inf1 ) );
 	U32_u u32;
 	u32.asF = neg_inf;
 	std::cout << "inf::asF" << u32.asU << std::endl;
@@ -317,12 +317,12 @@ TEST( TestAlgorithms, extreamFloatValues ) {
 	ASSERT_FALSE( nan1 > max1 );
 	ASSERT_FALSE( nan1 < max1 );
 
-	ASSERT_FALSE( eq( nan1, inf1 ) );
-	ASSERT_FALSE( eq( nan1, max1 ) );
-	ASSERT_FALSE( eq( inf1, nan1 ) );
-	ASSERT_FALSE( eq( inf1, max1 ) );
-	ASSERT_FALSE( eq( max1, inf1 ) );
-	ASSERT_FALSE( eq( max1, nan1 ) );
+	ASSERT_FALSE( eq( nan1, inf1 ) );	ASSERT_TRUE( ne( nan1, inf1 ) );
+	ASSERT_FALSE( eq( nan1, max1 ) );	ASSERT_TRUE( ne( nan1, max1 ) );
+	ASSERT_FALSE( eq( inf1, nan1 ) );	ASSERT_TRUE( ne( inf1, nan1 ) );
+	ASSERT_FALSE( eq( inf1, max1 ) );	ASSERT_TRUE( ne( inf1, max1 ) );
+	ASSERT_FALSE( eq( max1, inf1 ) );	ASSERT_TRUE( ne( max1, inf1 ) );
+	ASSERT_FALSE( eq( max1, nan1 ) );	ASSERT_TRUE( ne( max1, nan1 ) );
 
 	ASSERT_FALSE( gt( nan1, inf1 ) );
 	ASSERT_FALSE( gt( nan1, max1 ) );
@@ -363,12 +363,12 @@ TEST( TestAlgorithms, extreamDoubleValues ) {
 	ASSERT_FALSE( nan1 > max1 );
 	ASSERT_FALSE( nan1 < max1 );
 
-	ASSERT_FALSE( eq( nan1, inf1 ) );
-	ASSERT_FALSE( eq( nan1, max1 ) );
-	ASSERT_FALSE( eq( inf1, nan1 ) );
-	ASSERT_FALSE( eq( inf1, max1 ) );
-	ASSERT_FALSE( eq( max1, inf1 ) );
-	ASSERT_FALSE( eq( max1, nan1 ) );
+	ASSERT_FALSE( eq( nan1, inf1 ) );	ASSERT_TRUE( ne( nan1, inf1 ) );
+	ASSERT_FALSE( eq( nan1, max1 ) );	ASSERT_TRUE( ne( nan1, max1 ) );
+	ASSERT_FALSE( eq( inf1, nan1 ) );	ASSERT_TRUE( ne( inf1, nan1 ) );
+	ASSERT_FALSE( eq( inf1, max1 ) );	ASSERT_TRUE( ne( inf1, max1 ) );
+	ASSERT_FALSE( eq( max1, inf1 ) );	ASSERT_TRUE( ne( max1, inf1 ) );
+	ASSERT_FALSE( eq( max1, nan1 ) );	ASSERT_TRUE( ne( max1, nan1 ) );
 
 	ASSERT_FALSE( gt( nan1, inf1 ) );
 	ASSERT_FALSE( gt( nan1, max1 ) );

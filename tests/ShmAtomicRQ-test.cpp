@@ -140,12 +140,18 @@ TEST( TestShmAtmRQ, CanRecoverFromFull ) {
 	rq.enque( 444 );
 	EXPECT_TRUE( rq.full() );
 	EXPECT_EQ( rq.size(), 4 );
+	EXPECT_FALSE( rq.enque( 555 ) );
+	EXPECT_EQ( rq.err_cnt(), 1 );
 
 	int tmp;
 	rq.deque( tmp );
+	EXPECT_EQ( rq.err_cnt(), 0 );
 	EXPECT_FALSE( rq.empty() );
 	EXPECT_FALSE( rq.full() );
 	EXPECT_EQ( rq.size(), 3 );
+
+	EXPECT_TRUE( rq.enque( 666 ) );
+	EXPECT_EQ( rq.err_cnt(), 0 );
 };
 
 // 出入队数据核对
