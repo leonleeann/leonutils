@@ -50,9 +50,14 @@ target_link_libraries( shm-producer leonutl_static )
 install( TARGETS shm-consumer RUNTIME DESTINATION testing )
 install( TARGETS shm-producer RUNTIME DESTINATION testing )
 还没弄懂怎么链接 libhugetlbfs
-]]
+
 add_executable( try-hugepage try-hugepage.cpp )
 target_link_libraries( try-hugepage leonutl_static )
 install( TARGETS try-hugepage RUNTIME DESTINATION testing )
+]]
+
+add_executable( try-swap try-swapout.cpp )
+target_link_libraries( try-swap leonutl_static )
+install( TARGETS try-swap RUNTIME DESTINATION testing )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;

@@ -155,6 +155,35 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n;
 };
 
+ssize_t ShmBuffer_t::swapout() {
+
+	// 首页是不换出的
+	uintptr_t	swap_head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page;
+
+	ssize_t		swap_size = _bytes - _1page;
+	if( swap_size < 0 ) {
+		std::cerr << "shm_swapout错误:换出尺寸怎么会是负数:" << swap_size << "呢?!"
+				  << std::endl;
+		return 0;
+	}
+
+	// 对齐为 page_size(4096) 的整倍数
+	swap_size /= _1page;
+	// 不够1页就算了
+	if( swap_size < 1 )
+		return 0;
+	swap_size *= _1page;
+
+	if( madvise( reinterpret_cast<void*>( swap_head ), swap_size, MADV_PAGEOUT ) != 0 ) {
+		auto e = errno;
+		std::cerr << "shm_swapout错误:\"" << std::strerror( e )
+				  << "\",shm_name:" << _shm_n << std::endl;
+		return 0;
+	}
+
+	return swap_size;
+};
+
 };	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
