@@ -1,4 +1,3 @@
-#include <array>
 #include <ostream>
 
 #include "leonutils/CallStack.hpp"
@@ -6,9 +5,6 @@
 using str_t = std::string;
 
 namespace leon_utl {
-
-constexpr int		STACK_CAPA = 64;
-constexpr int		STACK_MASK = 63;
 
 thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
 

@@ -32,14 +32,18 @@ int main() {
 	std::cout << "将要换出到交换内存..." << std::endl;
 	beg_tp = steady_clock::now();
 
-	count = buf.swapout();
+	auto swap_size = buf.swapout();
 
 	elapse = steady_clock::now() - beg_tp;
 	std::cout << "换出完成,耗时:" << elapse.count()
-			  << "ns. 共:" << count << "bytes.\n请观察df/top/free输出变化."
+			  << "ns. 共:" << swap_size << "bytes.\n请观察df/top/free输出变化."
 			  << std::endl;
 
 	std::this_thread::sleep_for( 30s );
+
+	for( int64_t j = 0; j < count; ++j )
+		if( base[j] != j )
+			std::cerr << "重访数据出错!!!" << std::endl;
 
 	return EXIT_SUCCESS;
 };

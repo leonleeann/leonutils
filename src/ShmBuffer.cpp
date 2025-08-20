@@ -155,7 +155,7 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n;
 };
 
-ssize_t ShmBuffer_t::swapout() {
+ssize_t ShmBuffer_t::swapout() const {
 
 	// 首页是不换出的
 	uintptr_t	swap_head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page;

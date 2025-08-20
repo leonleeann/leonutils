@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <iosfwd>
 
 using ost_t = std::ostream;
@@ -29,6 +30,11 @@ private:
 #else
 #define TRACE_POINT {}
 #endif
+
+// 0.3.13 运行发现动态加载的模块(*.so)未能正确入栈, 试试把 tl_call_stack 暴露成 extern
+constexpr int		STACK_CAPA = 64;
+constexpr int		STACK_MASK = 63;
+extern thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
 
 }; //namespace leon_utl
 
