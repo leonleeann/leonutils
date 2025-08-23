@@ -39,7 +39,7 @@ int main() {
 			  << "ns. 共:" << swap_size << "bytes.\n请观察df/top/free输出变化."
 			  << std::endl;
 
-	std::this_thread::sleep_for( 30s );
+	std::this_thread::sleep_for( 10s );
 
 	for( int64_t j = 0; j < count; ++j )
 		if( base[j] != j )

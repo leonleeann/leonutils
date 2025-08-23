@@ -25,11 +25,15 @@ private:
 	const char* _name;
 };
 
+#define TRACE_POINT Tracer_t _tracer { __func__ }
+
+/*
 #if defined DEBUG || defined APP_ROLE_IS_TD
 #define TRACE_POINT Tracer_t _tracer { __func__ }
 #else
 #define TRACE_POINT {}
 #endif
+*/
 
 // 0.3.13 运行发现动态加载的模块(*.so)未能正确入栈, 试试把 tl_call_stack 暴露成 extern
 constexpr int		STACK_CAPA = 64;

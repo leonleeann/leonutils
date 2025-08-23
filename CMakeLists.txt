@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 13 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 14 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "CallStack不能支持动态加载的模块(*.so)" )
+set( PROJECT_VERSION_NOTES "CallStack总是添加" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
