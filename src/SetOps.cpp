@@ -22,14 +22,36 @@ StrSet_t split2set( const str_t& src_, char d_ ) {
 	return tokens;
 };
 
-str_t set2str( const StrSet_t& set_ ) {
+IntSet_t split2int( const str_t& src_, char d_ ) {
+
+	IntSet_t	int_set;
+	auto		str_set = split2set( src_, d_ );
+
+	for( const auto& int_str : str_set )
+		int_set.insert( atoi( int_str.c_str() ) );
+
+	return int_set;
+};
+
+template <typename K, typename C, typename SA>
+str_t to_str( const set_t<K, C, SA>& set_, char d_ ) {
+
 	oss_t oss;
-	oss << '{';
-	for( const auto& s0 : set_ )
-		oss << s0 << ',';
-	oss << '}';
+	bool first = true;
+
+	for( const auto& k : set_ ) {
+		if( !first )
+			oss << d_;
+		first = false;
+
+		oss << k;
+	}
+
 	return oss.str();
 };
+
+template str_t to_str( const IntSet_t&, char );
+template str_t to_str( const StrSet_t&, char );
 
 }; //namespace leon_utl
 

@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 15 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 16 )   # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "forkExec采用定长数组传递CLI参数避免超界" )
+set( PROJECT_VERSION_NOTES "增加CPU绑核API" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -52,6 +52,7 @@ add_library( objCommon OBJECT
 	src/CallStack.cpp
 	src/Chrono.cpp
 	src/Converts.cpp
+	src/CpuAffinity.cpp
 	src/FileSystem.cpp
 	src/HugePage.cpp
 	src/ProcCtrl.cpp
@@ -82,6 +83,7 @@ FILES
 	include/leonutils/Chrono.hpp
 	include/leonutils/ChronoTypes.hpp
 	include/leonutils/Converts.hpp
+	include/leonutils/CpuAffinity.hpp
 	include/leonutils/CraflinRQ.hpp
 	include/leonutils/CraflinRQ.tpp
 	include/leonutils/Exceptions.hpp

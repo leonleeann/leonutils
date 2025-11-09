@@ -60,4 +60,8 @@ add_executable( try-swap try-swapout.cpp )
 target_link_libraries( try-swap leonutl_static )
 install( TARGETS try-swap RUNTIME DESTINATION testing )
 
+add_executable( cpu-set cpu-affinity.cpp )
+target_link_libraries( cpu-set leonutl_static )
+install( TARGETS cpu-set RUNTIME DESTINATION testing )
+
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;

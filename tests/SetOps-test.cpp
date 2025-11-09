@@ -136,36 +136,49 @@ TEST( TestStrSets, splitStr2set ) {
 	std::remove( s.begin(), s.end(), ' ' );
 };
 
+TEST( TestIntSets, splitStr2IntSet ) {
+	str_t s = "789,123,456,";
+	IntSet_t ints = split2int( s, ',' );
+	ASSERT_TRUE( ints.contains( 123 ) );
+	ASSERT_TRUE( ints.contains( 456 ) );
+	ASSERT_TRUE( ints.contains( 789 ) );
+	ASSERT_FALSE( ints.contains( 0 ) );
+	ASSERT_FALSE( ints.contains( -1 ) );
+
+	s = to_str( ints, ':' );
+	ASSERT_EQ( s, "123:456:789" );
+};
+
 TEST( TestStrSets, set2str ) {
 	StrSet_t tokens {};
-	ASSERT_EQ( set2str( tokens ), "{}" );
+	ASSERT_EQ( to_str( tokens, ',' ), "" );
 
 	tokens.insert( "abc" );
 	tokens.insert( "def" );
 	tokens.insert( "ghi" );
-	ASSERT_EQ( set2str( tokens ), "{abc,def,ghi,}" );
+	ASSERT_EQ( to_str( tokens, ',' ), "abc,def,ghi" );
 
 	tokens.erase( "ghi" );
-	ASSERT_EQ( set2str( tokens ), "{abc,def,}" );
+	ASSERT_EQ( to_str( tokens, ',' ), "abc,def" );
 
 	tokens.clear();
-	ASSERT_EQ( set2str( tokens ), "{}" );
+	ASSERT_EQ( to_str( tokens, ',' ), "" );
 };
 
 TEST( TestStrSets, outputStrSet ) {
 	StrSet_t tokens {};
-	ASSERT_EQ( set2str( tokens ), "{}" );
+	ASSERT_EQ( to_str( tokens, ':' ), "" );
 
 	tokens.insert( "abc" );
 	tokens.insert( "def" );
 	tokens.insert( "ghi" );
-	ASSERT_EQ( set2str( tokens ), "{abc,def,ghi,}" );
+	ASSERT_EQ( to_str( tokens, ':' ), "abc:def:ghi" );
 
 	tokens.erase( "ghi" );
-	ASSERT_EQ( set2str( tokens ), "{abc,def,}" );
+	ASSERT_EQ( to_str( tokens, ':' ), "abc:def" );
 
 	tokens.clear();
-	ASSERT_EQ( set2str( tokens ), "{}" );
+	ASSERT_EQ( to_str( tokens, ':' ), "" );
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

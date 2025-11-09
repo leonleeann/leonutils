@@ -13,6 +13,7 @@ using set_t = std::set<K, C, A>;
 
 using str_t = std::string;
 using StrSet_t = set_t<str_t>;
+using IntSet_t = set_t<int>;
 
 using ost_t = std::ostream;
 
@@ -21,9 +22,11 @@ namespace leon_utl {
 //==== 交叉转换 =================================================================
 // 切分字符串到集合
 StrSet_t split2set( const str_t& src, char delimiter );
+IntSet_t split2int( const str_t& src, char delimiter );
 
-// 字符串集合输出
-str_t set2str( const StrSet_t& );
+// 集合转为字符串
+template <typename K, typename C, typename SA>
+str_t to_str( const set_t<K, C, SA>&, char delimiter );
 
 template <typename K, typename V, typename C, typename SA, typename MA>
 void assign( set_t<K, C, SA>& keys_, const map_t<K, V, C, MA>& map_ ) {
