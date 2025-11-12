@@ -7,6 +7,7 @@ using oss_t = std::ostringstream;
 
 namespace leon_utl {
 
+/*
 template <typename K, typename C, typename SA>
 str_t to_str( const set_t<K, C, SA>& set_, char d_ ) {
 
@@ -23,9 +24,9 @@ str_t to_str( const set_t<K, C, SA>& set_, char d_ ) {
 
 	return oss.str();
 };
-
 template str_t to_str( const IntSet_t&, char );
 template str_t to_str( const StrSet_t&, char );
+*/
 
 }; //namespace leon_utl
 

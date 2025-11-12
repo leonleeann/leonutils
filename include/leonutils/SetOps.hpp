@@ -5,6 +5,7 @@
 #include <leonutils/Converts.hpp>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <type_traits>
 
@@ -15,15 +16,15 @@ using map_t = std::map<K, V, C, A>;
 template<typename K, typename C = std::less<K>, typename A = std::allocator<K> >
 using set_t = std::set<K, C, A>;
 
-using str_t = std::string;
-using StrSet_t = set_t<str_t>;
-using IntSet_t = set_t<int>;
-using I32Set_t = set_t<int32_t>;
-using U32Set_t = set_t<uint32_t>;
-using I64Set_t = set_t<int64_t>;
-using U64Set_t = set_t<uint64_t>;
-
+using oss_t = std::ostringstream;
 using ost_t = std::ostream;
+using str_t = std::string;
+using strset_t = set_t<str_t>;
+using intset_t = set_t<int>;
+using i32set_t = set_t<int32_t>;
+using u32set_t = set_t<uint32_t>;
+using i64set_t = set_t<int64_t>;
+using u64set_t = set_t<uint64_t>;
 
 namespace leon_utl {
 
@@ -72,8 +73,22 @@ set_t<T> split2set( const str_t& src, char delimiter ) {
 };
 
 // 集合转为字符串
-template <typename K, typename C, typename SA>
-str_t to_str( const set_t<K, C, SA>&, char delimiter );
+template<typename K, typename C = std::less<K>, typename A = std::allocator<K> >
+str_t to_str( const set_t<K,C,A>& v_set, char delimiter ) {
+
+	oss_t oss;
+	bool first = true;
+
+	for( const auto& v : v_set ) {
+		if( !first )
+			oss << delimiter;
+		first = false;
+
+		oss << v;
+	}
+
+	return oss.str();
+};
 
 template <typename K, typename V, typename C, typename SA, typename MA>
 void assign( set_t<K, C, SA>& keys_, const map_t<K, V, C, MA>& map_ ) {
@@ -91,8 +106,8 @@ set_t<K, C> keys( const map_t<K, V, C, A>& map_ ) {
 };
 
 template <typename K, typename C, typename A>
-StrSet_t keys( const set_t<K, C, A>& src_ ) {
-	StrSet_t tgt;
+strset_t keys( const set_t<K, C, A>& src_ ) {
+	strset_t tgt;
 	for( auto& s : src_ )
 		tgt.insert( s.str() );
 	return tgt;
