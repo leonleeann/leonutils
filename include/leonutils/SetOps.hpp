@@ -1,8 +1,12 @@
 #pragma once
 #include <algorithm>	// set_union, set_difference, set_intersection
+#include <concepts>
+#include <cstdlib>		// atoi, atol, atof, strtol, strtoul, strtof, strtod
+#include <leonutils/Converts.hpp>
 #include <map>
 #include <set>
 #include <string>
+#include <type_traits>
 
 template<typename K, typename V, typename C = std::less<K>,
 		 typename A = std::allocator<std::pair<const K, V> > >
@@ -14,15 +18,58 @@ using set_t = std::set<K, C, A>;
 using str_t = std::string;
 using StrSet_t = set_t<str_t>;
 using IntSet_t = set_t<int>;
+using I32Set_t = set_t<int32_t>;
+using U32Set_t = set_t<uint32_t>;
+using I64Set_t = set_t<int64_t>;
+using U64Set_t = set_t<uint64_t>;
 
 using ost_t = std::ostream;
 
 namespace leon_utl {
 
 //==== 交叉转换 =================================================================
+
 // 切分字符串到集合
-StrSet_t split2set( const str_t& src, char delimiter );
-IntSet_t split2int( const str_t& src, char delimiter );
+template<typename T = str_t>
+set_t<T> split2set( const str_t& src, char delimiter ) {
+
+	set_t<T> result;
+	if( src.empty() )
+		return result;
+
+	size_t pos = 0, end;
+	while( ( end = src.find( delimiter, pos ) ) != src.npos ) {
+		auto substr = trim( src.substr( pos, end - pos ) );
+		if( ! substr.empty() )
+			result.insert( T{ substr } );
+		pos = end + 1;
+	}
+
+	auto substr = src.substr( pos );
+	if( ! substr.empty() )
+		result.insert( T{ substr } );
+	return result;
+};
+
+template<std::integral T>
+set_t<T> split2set( const str_t& src, char delimiter ) {
+
+	auto str_set = split2set<str_t>( src, delimiter );
+	set_t<T> result;
+	if( str_set.empty() )
+		return result;
+
+	for( const auto& s : str_set ) {
+		if( s.empty() )
+			continue;
+		if( std::is_signed_v<T> )
+			result.insert( std::stoll( s ) );
+		else
+			result.insert( std::stoull( s ) );
+	}
+
+	return result;
+};
 
 // 集合转为字符串
 template <typename K, typename C, typename SA>
@@ -211,7 +258,17 @@ map_t<K, V, C, MA> operator *( const map_t<K, V, C, MA>& s0_, const set_t<K, C, 
 
 }; //namespace leon_utl
 
-// 有关 ostream 的运算符重载, 尽量不放任何命名空间内
-ost_t& operator<<( ost_t&, const StrSet_t& );
+// 好像运算符重载要放入 std::ostream 所在的命名空间才能匹配到
+namespace std {
+
+template<typename K, typename C = std::less<K>, typename A = std::allocator<K> >
+ost_t& operator<<( ost_t& os_, const set_t<K, C, A>& set_ ) {
+	os_ << '{';
+	for( auto& v : set_ )
+		os_ << v << ',';
+	return os_ << '}';
+};
+
+};	// namespace std
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

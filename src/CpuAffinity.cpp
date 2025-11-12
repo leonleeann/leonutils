@@ -9,6 +9,8 @@
 #include <set>
 #include <unistd.h>
 
+using IntSet_t = set_t<int>;
+
 namespace leon_utl {
 
 int GetCpuCount() {
@@ -75,7 +77,7 @@ cpu_set_t _MakeSet( const IntSet_t& ids_ ) {
 
 void ProcessOnlyCPU( const str_t& ids_ ) {
 
-	auto id_set = split2int( ids_, ',' );
+	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {
 		std::cerr << "不可能1个CPU也不用!" << std::endl;
 		return;
@@ -94,7 +96,7 @@ void ProcessOnlyCPU( const str_t& ids_ ) {
 
 void PthreadOnlyCPU( const str_t& ids_ ) {
 
-	auto id_set = split2int( ids_, ',' );
+	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {
 		std::cerr << "不可能1个CPU也不用!" << std::endl;
 		return;
