@@ -18,165 +18,181 @@ struct Rec3B_t {
 	bool b1;
 	bool b2;
 };
-using RQ3B_t = ShmAtmRQ_t<Rec3B_t, int32_t>;
-using RQInt_t = ShmAtmRQ_t<int, int32_t>;
 
-// 1.看看每个 Node_t 是否都从64字节边界开始; 2.每个 Node_t 大小
-TEST( TestShmAtmRQ, AlignTo64 ) {
-	RQ3B_t rq;
-	rq.make( 8, "TestShmAtmRQ_AlignTo64" );
-	rq.enque( Rec3B_t{} );
-	rq.enque( Rec3B_t{} );
-//	static_assert( sizeof( RQ3B_t::Node_t ) == 64 );
+struct TestShmAtmRQ_F: public testing::Test {
+	ShmAtmRQ_t	_testee;
 
-	ASSERT_EQ( reinterpret_cast<uint64_t>( rq._head_addr() ) % 64, 0 );
-	ASSERT_EQ( reinterpret_cast<uint64_t>( rq._tail_addr() ) % 64, 0 );
+	uintptr_t	headNode() { return _testee._head_node(); };
+	uintptr_t	tailNode() { return _testee._head_node(); };
+
+	uintptr_t	payload( uintptr_t node_ ) {
+		auto payload = reinterpret_cast<ShmAtmRQ_t::Node_t*>( node_ )->goods;
+		return reinterpret_cast<uintptr_t>( payload );
+	};
+};
+
+// 1.看看每个 Node_t 是否都从64字节边界开始; 2.每个 Node_t 大小都是 128字节
+TEST_F( TestShmAtmRQ_F, AlignTo64 ) {
+	const char* test_name = "TestShmAtmRQ_F_AlignTo64";
+	_testee.make( 8, test_name );
+	char buffer[ShmAtmRQ_t::LOAD_SIZE];
+	strncpy( buffer, test_name, ShmAtmRQ_t::LOAD_SIZE );
+	_testee.enque( buffer );
+	memset( buffer, 0, ShmAtmRQ_t::LOAD_SIZE );
+
+	auto head_node = headNode();
+	auto tail_node = tailNode();
+	auto u64_haddr = reinterpret_cast<uint64_t>( head_node );
+	auto u64_taddr = reinterpret_cast<uint64_t>( tail_node );
+	ASSERT_EQ( u64_haddr % 64, 0 );
+	ASSERT_EQ( u64_taddr % 64, 0 );
+
+	auto head_addr = reinterpret_cast<ShmAtmRQ_t::Node_t*>( head_node );
+	auto head_htag = reinterpret_cast<uintptr_t>( & head_addr->h_tag );
+	auto head_ttag = reinterpret_cast<uintptr_t>( & head_addr->t_tag );
+	ASSERT_EQ( head_htag % 8, 0 );
+	ASSERT_EQ( head_ttag % 8, 0 );
+	// 确保不在同一个 cache line
+	ASSERT_GE( head_ttag, head_htag + 64 );
+	ASSERT_STRCASEEQ( head_addr->goods, test_name );
 };
 
 // 如果放弃了所有权, 销毁对象时, 不应该删除底层 shm 文件
 TEST( TestShmAtmRQ, Ownership ) {
+	const char* test_name = "TestShmAtmRQ_Ownership";
 	path_t shm_path { "/dev/shm" };
-	shm_path /= "TestShmAtmRQ";
-	shm_unlink( "TestShmAtmRQ" );
+	shm_path /= test_name;
+	shm_unlink( test_name );
 	ASSERT_FALSE( fs::exists( shm_path ) );
 
 	{
-		RQInt_t rq;
-		rq.make( 8, "TestShmAtmRQ" );
-		ASSERT_EQ( rq.osFile(), shm_path );
+		ShmAtmRQ_t testee;
+		testee.make( 8, test_name );
+		ASSERT_EQ( testee.osFile(), shm_path );
 		ASSERT_TRUE( fs::exists( shm_path ) );
-		rq.releaseOwnership();	// 放弃所有权
+		testee.releaseOwnership();	// 放弃所有权
 	}
 	ASSERT_TRUE( fs::exists( shm_path ) );
 
 	{
-		RQInt_t rq;
-		rq.make( 8, "TestShmAtmRQ" );
+		ShmAtmRQ_t testee;
+		testee.make( 8, test_name );
 		ASSERT_TRUE( fs::exists( shm_path ) );
-//		rq.releaseOwnership(); 未放弃所有权, 对象销毁时会删除底层文件
+//		testee.releaseOwnership(); 未放弃所有权, 对象销毁时会删除底层文件
 	}
 	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
 // 使用者可以提前删除底层 shm 文件
 TEST( TestShmAtmRQ, removeOsShmFile ) {
+	const char* test_name = "TestShmAtmRQ_removeOsShmFile";
 	path_t shm_path { "/dev/shm" };
-	shm_path /= "TestShmAtmRQ";
-	shm_unlink( "TestShmAtmRQ" );
+	shm_path /= test_name;
+	shm_unlink( test_name );
 	ASSERT_FALSE( fs::exists( shm_path ) );
 
-	RQInt_t rq;
-	rq.make( 8, "TestShmAtmRQ" );
-	ASSERT_EQ( rq.osFile(), shm_path );
+	ShmAtmRQ_t testee;
+	testee.make( 8, test_name );
+	ASSERT_EQ( testee.osFile(), shm_path );
 	ASSERT_TRUE( fs::exists( shm_path ) );
 
 	// 调用删除
-	rq.delOsFile();
-
+	testee.delOsFile();
 	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
 // 自动扩展容量到2的n次方
 TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
+	const char* test_name = "TestShmAtmRQ_AutoExtToPowerOf2";
 
-	ASSERT_EQ( sizeof( Rec3B_t ),  3 );
-
-	RQ3B_t rq;
-	rq.make( 5, "TestShmAtmRQ" );
-	EXPECT_EQ( rq.capa(), 8 );
-
-	RQ3B_t rq1;
-	rq1.make( 17, "TestShmAtmRQ" );
-	EXPECT_EQ( rq1.capa(), 32 );
-
-	/* 注释原因: 并非本测试不该有,只因分配一块大内存实在太慢,影响日常检查.需测试时可临时恢复
-	size_t max_capa = RQ3B_t::MAX_MEM_USAGE / sizeof( Rec3B_t );
-	max_capa = std::pow( 2, std::floor( std::log2( static_cast<double>( max_capa ) ) ) );
-	RQ3B_t rq2( max_capa );
-	ASSERT_EQ( rq2.capa(), max_capa );
-	*/
+	ShmAtmRQ_t testee;
+	testee.make( 5, test_name );
+	EXPECT_EQ( testee.capa(), 8 );
 };
 
 TEST( TestShmAtmRQ, emptyOrFully ) {
-	RQInt_t rq;
-	rq.make( 4, "TestShmAtmRQ" );
+	const char* test_name = "ShmAtmRQ_emptyOrFully";
+	ShmAtmRQ_t testee;
+	testee.make( 4, test_name );
 
-	EXPECT_TRUE( rq.empty() );
-	EXPECT_FALSE( rq.full() );
-	EXPECT_EQ( rq.size(), 0 );
+	EXPECT_TRUE( testee.empty() );
+	EXPECT_FALSE( testee.full() );
+	EXPECT_EQ( testee.size(), 0 );
 
 	// 添加 1 个元素不会满
-	rq.enque( 111 );
-	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.full() );
-	EXPECT_EQ( rq.size(), 1 );
+	testee.enque( test_name );
+	EXPECT_FALSE( testee.empty() );
+	EXPECT_FALSE( testee.full() );
+	EXPECT_EQ( testee.size(), 1 );
 
 	// 添加 2 个元素不会满
-	rq.enque( 222 );
-	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.full() );
-	EXPECT_EQ( rq.size(), 2 );
+	testee.enque( test_name );
+	EXPECT_FALSE( testee.empty() );
+	EXPECT_FALSE( testee.full() );
+	EXPECT_EQ( testee.size(), 2 );
 
 	// 添加 3 个元素不会满
-	rq.enque( 333 );
-	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.full() );
-	EXPECT_EQ( rq.size(), 3 );
+	testee.enque( test_name );
+	EXPECT_FALSE( testee.empty() );
+	EXPECT_FALSE( testee.full() );
+	EXPECT_EQ( testee.size(), 3 );
 
 	// 添加 4 个元素就满了
-	rq.enque( 444 );
-	EXPECT_FALSE( rq.empty() );
-	EXPECT_TRUE( rq.full() );
-	EXPECT_EQ( rq.size(), 4 );
+	testee.enque( test_name );
+	EXPECT_FALSE( testee.empty() );
+	EXPECT_TRUE( testee.full() );
+	EXPECT_EQ( testee.size(), 4 );
 };
 
 // 满了之后出队数据还能恢复
 TEST( TestShmAtmRQ, CanRecoverFromFull ) {
-	RQInt_t rq;
-	rq.make( 4, "TestShmAtmRQ" );
-	rq.enque( 111 );
-	rq.enque( 222 );
-	rq.enque( 333 );
-	rq.enque( 444 );
-	EXPECT_TRUE( rq.full() );
-	EXPECT_EQ( rq.size(), 4 );
-	EXPECT_FALSE( rq.enque( 555 ) );
-	EXPECT_EQ( rq.err_cnt(), 1 );
+	const char* test_name = "ShmAtmRQ_CanRecoverFromFull";
+	ShmAtmRQ_t testee;
+	testee.make( 4, test_name );
+	testee.enque( test_name );
+	testee.enque( test_name );
+	testee.enque( test_name );
+	testee.enque( test_name );
+	EXPECT_TRUE( testee.full() );
+	EXPECT_EQ( testee.size(), 4 );
+	EXPECT_FALSE( testee.enque( test_name ) );
+	EXPECT_EQ( testee.err_cnt(), 1 );
 
-	int tmp;
-	rq.deque( tmp );
-	EXPECT_EQ( rq.err_cnt(), 0 );
-	EXPECT_FALSE( rq.empty() );
-	EXPECT_FALSE( rq.full() );
-	EXPECT_EQ( rq.size(), 3 );
+	char buffer[ShmAtmRQ_t::LOAD_SIZE] {};
+	testee.deque( buffer );
+	EXPECT_EQ( testee.err_cnt(), 0 );
+	EXPECT_FALSE( testee.empty() );
+	EXPECT_FALSE( testee.full() );
+	EXPECT_EQ( testee.size(), 3 );
 
-	EXPECT_TRUE( rq.enque( 666 ) );
-	EXPECT_EQ( rq.err_cnt(), 0 );
+	EXPECT_TRUE( testee.enque( test_name ) );
+	EXPECT_EQ( testee.err_cnt(), 0 );
 };
 
 // 出入队数据核对
 TEST( TestShmAtmRQ, DequeDataIsWhatEnqued ) {
-	RQInt_t rq;
-	rq.make( 4, "TestShmAtmRQ" );
+	str_t test_name = "TestShmAtmRQ_DequeDataIsWhatEnqued";
+	str_t use_case0 = test_name + "_0";
+	str_t use_case1 = test_name + "_1";
+	str_t use_case2 = test_name + "_2";
+	str_t use_case3 = test_name + "_3";
+	ShmAtmRQ_t testee;
+	testee.make( 4, test_name );
+	testee.enque( use_case0.c_str() );
+	testee.enque( use_case1.c_str() );
+	testee.enque( use_case2.c_str() );
+	testee.enque( use_case3.c_str() );
 
-	rq.enque( 1 );
-	rq.enque( 2 );
-	rq.enque( 3 );
-	rq.enque( 4 );
-
-	int tmp;
-	EXPECT_EQ( rq.head(), 0 );
-	rq.deque( tmp );
-	EXPECT_EQ( rq.head(), 1 );
-	rq.deque( tmp );
-	EXPECT_EQ( rq.head(), 2 );
-	rq.deque( tmp );
-	EXPECT_EQ( rq.head(), 3 );
-	rq.deque( tmp );
-	ASSERT_TRUE( rq.empty() );
+	char buffer[ShmAtmRQ_t::LOAD_SIZE] {};
+	testee.deque( buffer ); EXPECT_STREQ( buffer, use_case0.c_str() );
+	testee.deque( buffer ); EXPECT_STREQ( buffer, use_case1.c_str() );
+	testee.deque( buffer ); EXPECT_STREQ( buffer, use_case2.c_str() );
+	testee.deque( buffer ); EXPECT_STREQ( buffer, use_case3.c_str() );
+	EXPECT_FALSE( testee.deque( buffer ) );
+	ASSERT_TRUE( testee.empty() );
 };
 
-// 记录一个对象是移动构造还是复制构造的
+/* 记录一个对象是移动构造还是复制构造的
 struct LiveWatch_t {
 	static int destroieds;	// 总共销毁计数
 	static int deft_conss;	// 默认构造计数
@@ -222,8 +238,8 @@ int LiveWatch_t::move_asgns { 0 };
 int LiveWatch_t::copy_asgns { 0 };
 using RQWatches_t = ShmAtmRQ_t<LiveWatch_t, int32_t>;
 
-TEST( TestShmAtmRQ, copyIn ) {
-	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ" );
+TEST_F( TestShmAtmRQ_F, copyIn ) {
+	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ_F" );
 	// 弄个不能改的对象
 	const LiveWatch_t cw( 3 );
 	LiveWatch_t::clearCounts();
@@ -240,9 +256,9 @@ TEST( TestShmAtmRQ, copyIn ) {
 	ASSERT_EQ( LiveWatch_t::copy_asgns, 1 );
 };
 
-TEST( TestShmAtmRQ, moveIn ) {
+TEST_F( TestShmAtmRQ_F, moveIn ) {
 	LiveWatch_t::clearCounts();
-	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ" );
+	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ_F" );
 	ASSERT_EQ( LiveWatch_t::destroieds, 0 );
 	ASSERT_EQ( LiveWatch_t::deft_conss, 0 );
 	ASSERT_EQ( LiveWatch_t::expl_conss, 0 );
@@ -264,9 +280,9 @@ TEST( TestShmAtmRQ, moveIn ) {
 	ASSERT_EQ( LiveWatch_t::copy_asgns, 1 );
 };
 
-TEST( TestShmAtmRQ, moveOut ) {
+TEST_F( TestShmAtmRQ_F, moveOut ) {
 	LiveWatch_t::clearCounts();
-	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ" );
+	RQWatches_t rq; rq.make( 4, "TestShmAtmRQ_F" );
 	LiveWatch_t lw;	// 这里也有一次构造
 	ASSERT_EQ( LiveWatch_t::destroieds, 0 );
 	ASSERT_EQ( LiveWatch_t::deft_conss, 1 );
@@ -289,6 +305,7 @@ TEST( TestShmAtmRQ, moveOut ) {
 	ASSERT_EQ( LiveWatch_t::copy_asgns, 1 );
 	ASSERT_EQ( rq.size(), 0 );
 };
+*/
 
 };	// namespace leon_utl
 

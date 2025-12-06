@@ -279,8 +279,10 @@ namespace std {
 template<typename K, typename C = std::less<K>, typename A = std::allocator<K> >
 ost_t& operator<<( ost_t& os_, const set_t<K, C, A>& set_ ) {
 	os_ << '{';
+
 	for( auto& v : set_ )
 		os_ << v << ',';
+
 	return os_ << '}';
 };
 
