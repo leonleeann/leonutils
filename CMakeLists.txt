@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 19 )   # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 20 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "ShmAtomicRQ强制限制每个Node刚好128字节" )
+set( PROJECT_VERSION_NOTES "增加测量时差小工具" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -38,6 +38,16 @@ endif()
 set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
+find_package( rpclib REQUIRED )
+message( STATUS "RPCLIB_FOUND:\"${RPCLIB_FOUND}\"" )
+message( STATUS "RPCLIB_LIBS:\"${RPCLIB_LIBS}\"" )
+message( STATUS "RPCLIB_INCLUDE_DIR:\"${RPCLIB_INCLUDE_DIR}\"" )
+message( STATUS "RPCLIB_EXTRA_FLAGS:\"${RPCLIB_EXTRA_FLAGS}\"" )
+message( STATUS "RPCLIB_EXTRA_FLAGS_DEBUG:\"${RPCLIB_EXTRA_FLAGS_DEBUG}\"" )
+# cmake_host_system_information( RESULT host_name QUERY HOSTNAME )
+# set( MY_RPC_LIB rpclib::rpc CACHE STRING "rpc libs" FORCE )
+# message( STATUS "在${host_name}上使用了:\"${MY_RPC_LIB}\"" )
+
 # find_package( fmt REQUIRED )
 
 # 对任何头文件的搜索都可 以本目录为根开始
@@ -129,6 +139,14 @@ install( TARGETS leonutl_dynmic
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+#======= TARGET time-diff ======================================================
+add_executable( time-diff src/TimeDiff.cpp )
+# target_include_directories( time-diff PRIVATE ${PROJECT_SOURCE_DIR} )
+target_link_libraries( time-diff objCommon
+	rpclib::rpc
+)
+install( TARGETS time-diff RUNTIME DESTINATION bin )
 
 ######## 单元测试 ###############################################################
 add_subdirectory( tests )
