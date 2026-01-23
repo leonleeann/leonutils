@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>		// abs, ceil, floor, isnan, log, log10, log2, pow, round, sqrt
+#include <concepts>
 #include <limits>
 #include <vector>
 
@@ -8,6 +9,20 @@ using vct_t = std::vector<T, A>;
 using NumbVect_t = vct_t<double>;
 
 namespace leon_utl {
+
+// 指数式移动平均数计算器
+template<typename T> requires std::floating_point<T>
+struct EmaTracer_t {
+	T old_w { 0.999 };	// 旧值权重
+	T new_w { 0.001 };	// 新值权重
+	T ema_v { 0.000 };	// 当前ema
+
+	T update( T new_ ) {
+		return ema_v = ema_v * old_w + new_ * new_w;
+	};
+
+	T get() const { return ema_v; };
+};
 
 // "增量式"统计, 不能保留全部样本时使用, 每次更新时积累中间变量, 最后算出标准差
 struct IncStat_t {
