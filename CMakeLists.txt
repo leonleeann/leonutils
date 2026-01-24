@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 21 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 22 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "增加指数移动平均计算器" )
+set( PROJECT_VERSION_NOTES "为静态库也增加软链" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION   "leon's c++ utils" )
@@ -57,6 +57,13 @@ include_directories( "." )	# 这不是本文件的目录！是包含者文件的
 include_directories( "include" )
 
 ######## 主要模块 ###############################################################
+#[[
+add_library( hugetlbfs_static STATIC IMPORTED )
+set_property( TARGET hugetlbfs_static PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.a" )
+add_library( hugetlbfs_dynmic SHARED IMPORTED )
+set_property( TARGET hugetlbfs_dynmic PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.so" )
+]]
+
 add_library( objCommon OBJECT
 	src/Algorithms.cpp
 	src/CallStack.cpp
@@ -75,7 +82,7 @@ add_library( objCommon OBJECT
 )
 
 ######## 主要产出 ###############################################################
-#======== 静态版 ========================
+#======== 静态版 ================================================================
 add_library( leonutl_static STATIC )
 set_target_properties( leonutl_static PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
@@ -112,21 +119,20 @@ FILES
 	include/leonutils/UnionTypes.hpp
 )
 
-#[[
-add_library( hugetlbfs_static STATIC IMPORTED )
-set_property( TARGET hugetlbfs_static PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.a" )
-add_library( hugetlbfs_dynmic SHARED IMPORTED )
-set_property( TARGET hugetlbfs_dynmic PROPERTY IMPORTED_LOCATION "/usr/lib/x86_64-linux-gnu/libhugetlbfs.so" )
-]]
-
 target_link_libraries( leonutl_static objCommon )
 install( TARGETS leonutl_static
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 	FILE_SET HEADERS
 )
+# 自己创建软链(CMake不会帮 静态库 做这个, 只会为 *.so 做)
+install( CODE "execute_process(
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
+		$<TARGET_FILE_NAME:leonutl_static>
+		$<TARGET_FILE_PREFIX:leonutl_static>$<TARGET_FILE_BASE_NAME:leonutl_static>.a
+	WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib )" )
 
-#======== 动态版 =====================
+#======== 动态版 ================================================================
 add_library( leonutl_dynmic SHARED )
 set_target_properties( leonutl_dynmic PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
