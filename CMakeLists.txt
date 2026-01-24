@@ -3,21 +3,21 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 22 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 23 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES "为静态库也增加软链" )
+set( PROJECT_VERSION_NOTES	"干脆只生成静态库" )
 
 # 项目描述
-set( PROJECT_DESCRIPTION   "leon's c++ utils" )
+set( PROJECT_DESCRIPTION	"leon's c++ utils" )
 
 project( LeonUtils
 	VERSION		${PROJECT_VERSION}
 	DESCRIPTION	${PROJECT_DESCRIPTION}
-	LANGUAGES CXX
+	LANGUAGES	CXX
 )
 configure_file( Version.hpp.in Version.hpp )
 
@@ -39,14 +39,16 @@ set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 set( THREADS_PREFER_PTHREAD_FLAG ON )
 find_package( Threads REQUIRED )
 find_package( rpclib REQUIRED )
+#[[
 message( STATUS "RPCLIB_FOUND:\"${RPCLIB_FOUND}\"" )
 message( STATUS "RPCLIB_LIBS:\"${RPCLIB_LIBS}\"" )
 message( STATUS "RPCLIB_INCLUDE_DIR:\"${RPCLIB_INCLUDE_DIR}\"" )
 message( STATUS "RPCLIB_EXTRA_FLAGS:\"${RPCLIB_EXTRA_FLAGS}\"" )
 message( STATUS "RPCLIB_EXTRA_FLAGS_DEBUG:\"${RPCLIB_EXTRA_FLAGS_DEBUG}\"" )
-# cmake_host_system_information( RESULT host_name QUERY HOSTNAME )
-# set( MY_RPC_LIB rpclib::rpc CACHE STRING "rpc libs" FORCE )
-# message( STATUS "在${host_name}上使用了:\"${MY_RPC_LIB}\"" )
+cmake_host_system_information( RESULT host_name QUERY HOSTNAME )
+set( MY_RPC_LIB rpclib::rpc CACHE STRING "rpc libs" FORCE )
+message( STATUS "在${host_name}上使用了:\"${MY_RPC_LIB}\"" )
+]]
 
 # find_package( fmt REQUIRED )
 
@@ -88,13 +90,10 @@ set_target_properties( leonutl_static PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
 	OUTPUT_NAME_DEBUG		LeonUtils
 	VERSION					${PROJECT_VERSION}
-	SUFFIX					".a.${PROJECT_VERSION}"
-#	ARCHIVE_OUTPUT_NAME_RELEASE  "ARCHIVE_OUTPUT_NAME_.${PROJECT_VERSION}"
-#	LIBRARY_OUTPUT_NAME_RELEASE  "LIBRARY_OUTPUT_NAME_.${PROJECT_VERSION}"
+#	SUFFIX					".a.${PROJECT_VERSION}"
 	ENABLE_EXPORTS	TRUE	# CMake 3.4 之后必须显示指定, 确保策略需要调用的函数存在
 )
-target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include"
-FILES
+target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 	include/leonutils/Algorithms.hpp
 	include/leonutils/CallStack.hpp
 	include/leonutils/Chrono.hpp
@@ -119,20 +118,20 @@ FILES
 	include/leonutils/UnionTypes.hpp
 )
 
-target_link_libraries( leonutl_static objCommon )
+target_link_libraries( leonutl_static PUBLIC objCommon )
 install( TARGETS leonutl_static
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-	FILE_SET HEADERS
-)
-# 自己创建软链(CMake不会帮 静态库 做这个, 只会为 *.so 做)
+	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
+	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
+	FILE_SET		HEADERS )
+
+#[[ 自己创建软链(CMake不会帮 静态库 做这个, 只会为 *.so 做)
 install( CODE "execute_process(
 	COMMAND ${CMAKE_COMMAND} -E create_symlink
 		$<TARGET_FILE_NAME:leonutl_static>
 		$<TARGET_FILE_PREFIX:leonutl_static>$<TARGET_FILE_BASE_NAME:leonutl_static>.a
-	WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib )" )
+	WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib )" )]]
 
-#======== 动态版 ================================================================
+#[[======== 动态版(没人用, 追求性能都是静态链接) ====================================
 add_library( leonutl_dynmic SHARED )
 set_target_properties( leonutl_dynmic PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
@@ -142,16 +141,14 @@ set_target_properties( leonutl_dynmic PROPERTIES
 )
 target_link_libraries( leonutl_dynmic objCommon )
 install( TARGETS leonutl_dynmic
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
+	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
+)]]
 
 #======= TARGET time-diff ======================================================
 add_executable( time-diff src/TimeDiff.cpp )
 # target_include_directories( time-diff PRIVATE ${PROJECT_SOURCE_DIR} )
-target_link_libraries( time-diff objCommon
-	rpclib::rpc
-)
+target_link_libraries( time-diff objCommon rpclib::rpc )
 install( TARGETS time-diff RUNTIME DESTINATION bin )
 
 ######## 单元测试 ###############################################################
