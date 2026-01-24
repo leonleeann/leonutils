@@ -52,7 +52,8 @@ protected:
 	Node_t*						_buff {};
 	const QueSize_t				_capa {};
 	const QueSize_t				_mask {};
-	std::allocator<Node_t>		_allc {};
+	std::allocator<Node_t>		_node_allc {};
+//	std::allocator<T>			_data_allc {};
 
 	// 对齐到64字节(一个CPU cache line的大小),保证 _tail, _head 不在同一个line里面
 	alignas( 64 ) AtmSize_t		_head = {};

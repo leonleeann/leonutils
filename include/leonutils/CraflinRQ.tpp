@@ -28,7 +28,7 @@ inline CraflinRQ_t<T>::CraflinRQ_t( QueSize_t capa_ ) {
 	const_cast<QueSize_t&>( _mask ) = capa_ - 1;
 
 	// 分配内存
-	_buff = _allc.allocate( capa_ );
+	_buff = _node_allc.allocate( capa_ );
 	// 检查是否对齐到整64字节边界
 	if( ( reinterpret_cast<uintptr_t>( _buff ) & 63 ) != 0 )
 		throw std::runtime_error( "CraflinRQ_t:地址未从64字节整倍数开始!" );
@@ -38,7 +38,7 @@ inline CraflinRQ_t<T>::CraflinRQ_t( QueSize_t capa_ ) {
 		_base[i].tail.store( i, mo_relaxed );
 		_base[i].head.store( -1, mo_relaxed );
 //		_base[i].data = {};
-//		_allc.construct_at( & _base[i] );
+//		_data_allc.construct_at( & _base[i] );
 	}
 
 	_tail.store( 0, mo_relaxed );
@@ -48,10 +48,10 @@ inline CraflinRQ_t<T>::CraflinRQ_t( QueSize_t capa_ ) {
 template <typename T>
 inline CraflinRQ_t<T>::~CraflinRQ_t() {
 	for( QueSize_t j = _head.load(); j < _tail.load(); ++j )
-// 		_allc.destroy_at( & _base[j & _mask] );
-		_base[j & _mask].data.~T();
+//		_base[j & _mask].data.~T();
+		std::destroy_at<T>( & _base[j & _mask].data );
 
-	_allc.deallocate( _buff, _capa );
+	_node_allc.deallocate( _buff, _capa );
 };
 
 template <typename T>
@@ -76,8 +76,8 @@ inline bool CraflinRQ_t<T>::enque( U&& src_ ) {
 			return false;
 	} while( ! _tail.compare_exchange_weak( tail, tail + 1, mo_relaxed ) );
 
-//	_allc.construct_at( node, std::move( src_ ) );
-	new( & node->data ) T( std::forward<U>( src_ ) );
+//	new( & node->data ) T( std::forward<U>( src_ ) );
+	std::construct_at<T>( & node->data, std::forward<U>( src_ ) );
 	node->head.store( tail, mo_release );
 	return true;
 };
@@ -93,8 +93,8 @@ inline bool CraflinRQ_t<T>::deque( T& dest_ ) {
 	} while( ! _head.compare_exchange_weak( head, head + 1, mo_relaxed ) );
 
 	dest_ = std::move( node->data );
-// 	_allc.destroy_at( node );
-	node->data.~T();
+//	node->data.~T();
+	std::destroy_at<T>( & node->data );
 	node->tail.store( head + _capa, mo_release );
 	return true;
 };
