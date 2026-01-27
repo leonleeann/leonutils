@@ -22,7 +22,7 @@ add_executable( unit-test UnitTestMain.cpp
 )
 target_include_directories( unit-test PRIVATE ${PROJECT_SOURCE_DIR} )
 target_link_libraries( unit-test
-	leonutl_static
+	leonutl_dynmic
 
 	GTest::gtest GTest::gtest_main
 	GTest::gmock GTest::gmock_main
@@ -30,14 +30,11 @@ target_link_libraries( unit-test
 install( TARGETS unit-test RUNTIME DESTINATION testing )
 
 #[[用得极少,改动也少,所以暂时不加测试
-add_library( leonlog_dynmic SHARED IMPORTED )
-set_property( TARGET leonlog_dynmic PROPERTY
-	IMPORTED_LOCATION "/usr/local/lib/libLeonLog.so.1.9.1" )
 #======= TARGET test-craflinrq =================================================
 add_executable( test-craflinrq Craflin_RQ-testMain.cpp )
 target_link_libraries( test-craflinrq
 	leonutl_static
-	leonlog_dynmic
+	LeonLog
 	Threads::Threads
 )
 install( TARGETS test-craflinrq RUNTIME DESTINATION testing )
@@ -57,11 +54,11 @@ install( TARGETS try-hugepage RUNTIME DESTINATION testing )
 ]]
 
 add_executable( try-swap try-swapout.cpp )
-target_link_libraries( try-swap leonutl_static )
+target_link_libraries( try-swap leonutl_dynmic )
 install( TARGETS try-swap RUNTIME DESTINATION testing )
 
 add_executable( cpu-set cpu-affinity.cpp )
-target_link_libraries( cpu-set leonutl_static )
+target_link_libraries( cpu-set leonutl_dynmic )
 install( TARGETS cpu-set RUNTIME DESTINATION testing )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;

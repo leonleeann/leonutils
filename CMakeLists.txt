@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 24 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 25 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES	"CraflinRQ出入队操作为载荷对象改用新式析构构造函数" )
+set( PROJECT_VERSION_NOTES	"可纳入其它项目统一编译" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION	"leon's c++ utils" )
@@ -19,7 +19,6 @@ project( LeonUtils
 	DESCRIPTION	${PROJECT_DESCRIPTION}
 	LANGUAGES	CXX
 )
-configure_file( Version.hpp.in Version.hpp )
 
 ######## 全局配置 ###############################################################
 # 采用C++标准:20
@@ -84,7 +83,7 @@ add_library( objCommon OBJECT
 )
 
 ######## 主要产出 ###############################################################
-#======== 静态版 ================================================================
+#[[======== 静态版 ==============================================================
 add_library( leonutl_static STATIC )
 set_target_properties( leonutl_static PROPERTIES
 	OUTPUT_NAME_RELEASE		LeonUtils
@@ -93,7 +92,27 @@ set_target_properties( leonutl_static PROPERTIES
 #	SUFFIX					".a.${PROJECT_VERSION}"
 	ENABLE_EXPORTS	TRUE	# CMake 3.4 之后必须显示指定, 确保策略需要调用的函数存在
 )
-target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
+target_link_libraries( leonutl_static PUBLIC objCommon )
+install( TARGETS leonutl_static
+	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
+	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
+)
+# 自己创建软链(CMake不会帮 静态库 做这个, 只会为 *.so 做)
+install( CODE "execute_process(
+	COMMAND ${CMAKE_COMMAND} -E create_symlink
+		$<TARGET_FILE_NAME:leonutl_static>
+		$<TARGET_FILE_PREFIX:leonutl_static>$<TARGET_FILE_BASE_NAME:leonutl_static>.a
+	WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib )" )]]
+
+#======== 动态版 ================================================================
+add_library( leonutl_dynmic SHARED )
+set_target_properties( leonutl_dynmic PROPERTIES
+	OUTPUT_NAME_RELEASE		LeonUtils
+	OUTPUT_NAME_DEBUG		LeonUtils
+	VERSION					${PROJECT_VERSION}
+	SOVERSION				${PROJECT_VERSION_MAJOR}
+)
+target_sources( leonutl_dynmic PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 	include/leonutils/Algorithms.hpp
 	include/leonutils/CallStack.hpp
 	include/leonutils/Chrono.hpp
@@ -118,32 +137,11 @@ target_sources( leonutl_static PUBLIC FILE_SET HEADERS BASE_DIRS "include" FILES
 	include/leonutils/UnionTypes.hpp
 )
 
-target_link_libraries( leonutl_static PUBLIC objCommon )
-install( TARGETS leonutl_static
-	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
-	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
-	FILE_SET		HEADERS )
-
-#[[ 自己创建软链(CMake不会帮 静态库 做这个, 只会为 *.so 做)
-install( CODE "execute_process(
-	COMMAND ${CMAKE_COMMAND} -E create_symlink
-		$<TARGET_FILE_NAME:leonutl_static>
-		$<TARGET_FILE_PREFIX:leonutl_static>$<TARGET_FILE_BASE_NAME:leonutl_static>.a
-	WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib )" )]]
-
-#[[======== 动态版(没人用, 追求性能都是静态链接) ====================================
-add_library( leonutl_dynmic SHARED )
-set_target_properties( leonutl_dynmic PROPERTIES
-	OUTPUT_NAME_RELEASE		LeonUtils
-	OUTPUT_NAME_DEBUG		LeonUtils
-	VERSION					${PROJECT_VERSION}
-	SOVERSION				${PROJECT_VERSION_MAJOR}
-)
 target_link_libraries( leonutl_dynmic objCommon )
 install( TARGETS leonutl_dynmic
 	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
-)]]
+	FILE_SET		HEADERS )
 
 #======= TARGET time-diff ======================================================
 add_executable( time-diff src/TimeDiff.cpp )
