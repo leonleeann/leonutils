@@ -13,6 +13,9 @@ inline bool is_alpha( char c ) {
 	return ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' );
 };
 
+inline bool is_lowercase( char c ) { return ( c >= 'a' && c <= 'z' ); };
+inline bool is_uppercase( char c ) { return ( c >= 'A' && c <= 'Z' ); };
+
 inline bool is_digit( char c ) {
 	return c >= '0' && c <= '9';
 };

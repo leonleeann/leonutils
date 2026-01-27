@@ -12,9 +12,36 @@ TEST( TestConverts, is_alpha ) {
 	ASSERT_FALSE( is_alpha( '.' ) );
 	ASSERT_FALSE( is_alpha( '0' ) );
 	ASSERT_FALSE( is_alpha( '9' ) );
+
 	ASSERT_TRUE( is_alpha( 'a' ) );
 	ASSERT_TRUE( is_alpha( 'A' ) );
 	ASSERT_TRUE( is_alpha( 'Z' ) );
+};
+
+TEST( TestConverts, is_lowercase ) {
+	ASSERT_FALSE( is_lowercase( '\0' ) );
+	ASSERT_FALSE( is_lowercase( '\255' ) );
+	ASSERT_FALSE( is_lowercase( '.' ) );
+	ASSERT_FALSE( is_lowercase( '0' ) );
+	ASSERT_FALSE( is_lowercase( '9' ) );
+	ASSERT_FALSE( is_lowercase( 'A' ) );
+	ASSERT_FALSE( is_lowercase( 'Z' ) );
+
+	ASSERT_TRUE( is_lowercase( 'a' ) );
+	ASSERT_TRUE( is_lowercase( 'z' ) );
+};
+
+TEST( TestConverts, is_uppercase ) {
+	ASSERT_FALSE( is_uppercase( '\0' ) );
+	ASSERT_FALSE( is_uppercase( '\255' ) );
+	ASSERT_FALSE( is_uppercase( '.' ) );
+	ASSERT_FALSE( is_uppercase( '0' ) );
+	ASSERT_FALSE( is_uppercase( '9' ) );
+	ASSERT_FALSE( is_uppercase( 'a' ) );
+	ASSERT_FALSE( is_uppercase( 'z' ) );
+
+	ASSERT_TRUE( is_uppercase( 'A' ) );
+	ASSERT_TRUE( is_uppercase( 'Z' ) );
 };
 
 TEST( TestConverts, is_digit ) {

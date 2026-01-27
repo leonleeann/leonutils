@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 25 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 26 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES	"可纳入其它项目统一编译" )
+set( PROJECT_VERSION_NOTES	"增加小工具show-stamp" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION	"leon's c++ utils" )
@@ -142,6 +142,11 @@ install( TARGETS leonutl_dynmic
 	ARCHIVE			DESTINATION	${CMAKE_INSTALL_LIBDIR}
 	PUBLIC_HEADER	DESTINATION	${CMAKE_INSTALL_INCLUDEDIR}
 	FILE_SET		HEADERS )
+
+#======= TARGET show-stamp =====================================================
+add_executable( show-stamp src/ShowStamp.cpp )
+target_link_libraries( show-stamp objCommon )
+install( TARGETS show-stamp RUNTIME DESTINATION bin )
 
 #======= TARGET time-diff ======================================================
 add_executable( time-diff src/TimeDiff.cpp )
