@@ -32,6 +32,19 @@ struct IncStat_t {
 	double		_sum {};
 	double		_sqr {};	// 所有样本的平方之和, 用于增量式(不保留样本)计算标准差
 
+	// 为让开始的n次统计比较平稳(不会得到太小的标准差), 可以初始化一下, 假装已经统计了很多次
+	void initialize( int64_t cnt_, double avg_, double std_ ) {
+		_max = std::numeric_limits<int64_t>::lowest();
+		_min = std::numeric_limits<int64_t>::max();
+
+		// 给 _sqr 的值相当于做 std() 函数的逆运算
+		_cnt = cnt_;
+		_sum = avg_ * cnt_;
+		auto avg_p2 = avg_ * avg_;
+		auto std_p2 = std_ * std_;
+		_sqr = std_p2 * ( cnt_ - 1 ) - avg_p2 * cnt_ + 2 * _sum * avg_;
+	};
+
 	void update( int64_t d_ ) {
 		_max = std::max( _max, d_ );
 		_min = std::min( _min, d_ );
