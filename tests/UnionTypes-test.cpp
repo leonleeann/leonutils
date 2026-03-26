@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <limits>
+#include <new>
 #include <sstream>
 
 // #include "leonutils/Algorithms.hpp"
@@ -11,10 +12,6 @@ using ost_t = std::ostream;
 using oss_t = std::ostringstream;
 
 TEST( TestUnionTypes, U16 ) {
-	ASSERT_EQ( sizeof( U16_u ), 2 );
-	ASSERT_TRUE( std::is_trivial<U16_u>::value );
-	ASSERT_TRUE( std::is_standard_layout<U16_u>::value );
-
 	U16_u u16 { "78" };
 	ASSERT_EQ( u16.asA[0], '7' );
 	ASSERT_EQ( u16.asA[1], '8' );
@@ -33,13 +30,21 @@ TEST( TestUnionTypes, U16 ) {
 	u16.b1 = 255;
 	ASSERT_EQ( u16.asU, 65535 - 255 );
 	ASSERT_EQ( u16.asI, -1 - 255 );
+
+	// 给空指针初始化, 不能崩溃
+	const char* pch = nullptr;
+	u16 = pch;
+	ASSERT_EQ( u16.asU, 0 );
+	ASSERT_EQ( U16_u( pch ).asU, 0 );
+
+	// 给空字符串初始化, 不能崩溃
+	str_t str;
+	u16 = str;
+	ASSERT_EQ( u16.asU, 0 );
+	ASSERT_EQ( U16_u( str ).asU, 0 );
 };
 
 TEST( TestUnionTypes, U32 ) {
-	ASSERT_EQ( sizeof( U32_u ), 4 );
-	ASSERT_TRUE( std::is_trivial<U32_u>::value );
-	ASSERT_TRUE( std::is_standard_layout<U32_u>::value );
-
 	U32_u u32 { "1234" };
 	ASSERT_EQ( u32.asA[0], '1' );
 	ASSERT_EQ( u32.asA[1], '2' );
@@ -64,13 +69,21 @@ TEST( TestUnionTypes, U32 ) {
 	u32.b3 = 128;
 	ASSERT_EQ( u32.asU, 0x80000000U );
 	ASSERT_EQ( u32.asI, 0x80000000 );
+
+	// 给空指针初始化, 不能崩溃
+	const char* pch = nullptr;
+	u32 = pch;
+	ASSERT_EQ( u32.asU, 0 );
+	ASSERT_EQ( U32_u( pch ).asU, 0 );
+
+	// 给空字符串初始化, 不能崩溃
+	str_t str;
+	u32 = str;
+	ASSERT_EQ( u32.asU, 0 );
+	ASSERT_EQ( U32_u( str ).asU, 0 );
 };
 
 TEST( TestUnionTypes, U64 ) {
-	ASSERT_EQ( sizeof( U64_u ), 8 );
-// ASSERT_TRUE( std::is_trivial<U64_u>::value );
-	ASSERT_TRUE( std::is_standard_layout<U64_u>::value );
-
 	U64_u u64 { "12345678" };
 	ASSERT_EQ( u64.asA[0], '1' );
 	ASSERT_EQ( u64.asA[1], '2' );
@@ -102,6 +115,62 @@ TEST( TestUnionTypes, U64 ) {
 	u64.b7 = 128;
 	ASSERT_EQ( u64.asU, 0x8000000000000000UL );
 	ASSERT_EQ( u64.asI, 0x8000000000000000L );
+
+	// 给空指针初始化, 不能崩溃
+	const char* pch = nullptr;
+	u64 = pch;
+	ASSERT_EQ( u64.asU, 0 );
+	ASSERT_EQ( U64_u( pch ).asU, 0 );
+
+	// 给空字符串初始化, 不能崩溃
+	str_t str;
+	u64 = str;
+	ASSERT_EQ( u64.asU, 0 );
+	ASSERT_EQ( U64_u( str ).asU, 0 );
+};
+
+// 验证默认构造（不初始化，保留垃圾值）
+TEST( TestUnionTypes, triviallyConstructions ) {
+	// 先用已知非零值填充内存
+	alignas( U64_u ) uint8_t buf[ sizeof( U64_u ) ];
+	::memset( buf, 0xCD, sizeof( buf ) ); // 0xCD 是 MSVC debug heap 的经典填充值
+
+	// 在该内存上原地默认构造（不加 {}）
+	U64_u* p64 = ::new( buf ) U64_u;
+	// 验证内存内容未被改变
+	EXPECT_EQ( p64->asU, 0xCDCDCDCDCDCDCDCDull ) << "默认构造不应初始化内存";
+
+	// 在该内存上原地默认构造（不加 {}）
+	U32_u* p32 = ::new( buf ) U32_u;
+	// 验证内存内容未被改变
+	EXPECT_EQ( p32->asU, 0xCDCDCDCDu ) << "默认构造不应初始化内存";
+
+	// 在该内存上原地默认构造（不加 {}）
+	U16_u* p16 = ::new( buf ) U16_u;
+	// 验证内存内容未被改变
+	EXPECT_EQ( p16->asU, uint16_t( 0xCDCD ) ) << "默认构造不应初始化内存";
+};
+
+// 验证值初始化（{} 确保全零）
+TEST( TestUnionTypes, bracesConstructions ) {
+	// 先用已知非零值填充内存
+	alignas( U64_u ) uint8_t buf[ sizeof( U64_u ) ];
+	::memset( buf, 0xCD, sizeof( buf ) ); // 0xCD 是 MSVC debug heap 的经典填充值
+
+	// 在该内存上原地构造（加 {}）
+	U64_u* p64 = ::new( buf ) U64_u {};
+	// 验证内存已被清零
+	EXPECT_EQ( p64->asU, 0ULL ) << "值初始化应将内存清零";
+
+	// 在该内存上原地构造（加 {}）
+	U32_u* p32 = ::new( buf ) U32_u {};
+	// 验证内存已被清零
+	EXPECT_EQ( p32->asU, 0ULL ) << "值初始化应将内存清零";
+
+	// 在该内存上原地构造（加 {}）
+	U16_u* p16 = ::new( buf ) U16_u {};
+	// 验证内存已被清零
+	EXPECT_EQ( p16->asU, 0ULL ) << "值初始化应将内存清零";
 };
 
 // cstring "硬转"为 uint64_t
@@ -219,6 +288,12 @@ TEST( TestUnionTypes, convertFromToString ) {
 	ASSERT_EQ( u0.b5, 'F' );
 	ASSERT_EQ( u0.b6, 'G' );
 	ASSERT_EQ( u0.b7, 'H' );
+
+	U64_u uid { "NULL_OID" };
+	ASSERT_EQ( uid.str(), str_t( "NULL_OID" ) );
+	std::cout << "U64_u{\"" << uid.view() << "\"}.asU:" << uid.asU
+			  << std::hex << "(0x" << uid.asU << ")." << std::endl;
+	ASSERT_EQ( uid.asU, 0x44494f5f4c4c554e );
 };
 
 TEST( TestUnionTypes, RawConvert ) {
