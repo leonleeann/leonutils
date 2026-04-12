@@ -164,6 +164,8 @@ union U64_u {
 	[[gnu::always_inline]] constexpr bool operator!=( U64_u o_ ) const { return asU != o_.asU; };
 	[[gnu::always_inline]] constexpr bool operator==( U64_u o_ ) const { return asU == o_.asU; };
 
+	[[gnu::always_inline]] void assignTo( char* to_ ) const
+	{ *reinterpret_cast<uint64_t*>( to_ ) = asU; };
 	[[gnu::always_inline]] constexpr stv_t view() const
 	{ return stv_t( asA, sizeof( uint64_t ) ); };
 

@@ -1,8 +1,10 @@
 #pragma once
 #include <chrono>
 
+// 到处都要用 std::chrono 的东西,到处都在 using. 干脆统一在此 using
 using namespace std::chrono;
 using namespace std::chrono_literals;
+using ss = std::chrono::seconds;
 using ms = std::chrono::milliseconds;
 using us = std::chrono::microseconds;
 using ns = std::chrono::nanoseconds;

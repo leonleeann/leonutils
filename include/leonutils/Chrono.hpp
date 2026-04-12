@@ -1,12 +1,17 @@
 #pragma once
+#include <iosfwd>
+
 #include "leonutils/ChronoTypes.hpp"
 #include "leonutils/Converts.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+
+using ost_t = std::ostream;
 using ts_nsec_t = decltype( timespec::tv_nsec );
 using ts_secs_t = decltype( timespec::tv_sec );
 static_assert( sizeof( ts_nsec_t ) == 8 );
+
 constexpr ts_nsec_t NS_IN_1_SEC = 1000 * 1000 * 1000;
 
 //========== 两个timespec时间结构的比较及运算 ======================================
@@ -251,5 +256,11 @@ void delay( MonDura_t lasting, MonTime_t from = steady_clock::now() );
 bool valid_date( const str_t& );
 
 }; // namespace leon_utl
+
+namespace std {
+
+ost_t& operator<<( ost_t&, leon_utl::SysTime_t );
+
+} // namespace std
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

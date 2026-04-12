@@ -34,7 +34,7 @@ TEST( TestAlgorithms, numericChecking ) {
 	ASSERT_FALSE( about_int( f7 ) );
 	ASSERT_TRUE( about_int( f8 ) );
 	ASSERT_FALSE( about_int( d15 ) );
-	ASSERT_TRUE( about_int( d16 ) );
+	ASSERT_FALSE( about_int( d16 ) );
 
 	f7 =  -1234567.1;
 	f8 = -12345678.1;
@@ -43,12 +43,12 @@ TEST( TestAlgorithms, numericChecking ) {
 	ASSERT_FALSE( about_int( f7 ) );
 	ASSERT_TRUE( about_int( f8 ) );
 	ASSERT_FALSE( about_int( d15 ) );
-	ASSERT_TRUE( about_int( d16 ) );
+	ASSERT_FALSE( about_int( d16 ) );
 
 	ASSERT_FALSE( about_int( 0.00001f ) );
 	ASSERT_TRUE( about_int( 0.000f ) );
-	ASSERT_FALSE( about_int( 0.000000001l ) );
-	ASSERT_TRUE( about_int( 0.0000000000l ) );
+	ASSERT_FALSE( about_int( 0.000001l ) );
+	ASSERT_TRUE( about_int( 0.0000001) );
 };
 
 TEST( TestAlgorithms, signFunction ) {

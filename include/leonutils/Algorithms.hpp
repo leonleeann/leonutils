@@ -25,13 +25,12 @@ template<> inline bool strict_low( const double	v_ ) { return U64_u( v_ ) == D64
 
 // 浮点数存了一个整数
 template<typename T>
-inline bool about_int( T v ) {
+inline bool about_int( T v_ ) {
 	if( std::numeric_limits<T>::is_integer )
 		return true;
-
-	double rounded = std::round( v );
-	double epsilon = std::max( std::abs( rounded * 0.0000000001 ), 0.0000000001 );
-	return std::abs( rounded - v ) < epsilon;
+	double rounded = std::round( v_ );
+	double org_val = v_;
+	return std::abs( rounded - org_val ) < 0.000001;
 };
 
 //========== 各种转换 ===========================================================

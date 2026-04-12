@@ -153,4 +153,12 @@ template str_t fmt_secs( const nanoseconds );
 
 }; //namespace leon_utl
 
+namespace std {
+
+ost_t& operator<<( ost_t& os_, leon_utl::SysTime_t tp_ ) {
+	return os_ << leon_utl::fmt( tp_, 0, leon_utl::NEAT_FORMAT );
+};
+
+} // namespace std
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
