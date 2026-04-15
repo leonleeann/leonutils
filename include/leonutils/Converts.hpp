@@ -6,6 +6,7 @@
 
 using oss_t = std::ostringstream;
 using str_t = std::string;
+using str_cr = const str_t&;
 
 namespace leon_utl {
 
@@ -60,21 +61,21 @@ inline bool is_number( const char* pc, size_t s ) {
 	}
 };
 
-inline bool is_number( const str_t& s ) {
+inline bool is_number( str_cr s ) {
 	return is_number( s.c_str(), s.size() );
 };
 
-inline str_t trim_l( const str_t& src ) {
+inline str_t trim_l( str_cr src ) {
 	auto pos = src.find_first_not_of( ' ' );
 	return ( str_t::npos == pos ? "" : src.substr( pos ) );
 };
 
-inline str_t trim_r( const str_t& src ) {
+inline str_t trim_r( str_cr src ) {
 	auto pos = src.find_last_not_of( ' ' );
 	return ( str_t::npos == pos ? "" : src.substr( 0, pos + 1 ) );
 };
 
-inline str_t trim( const str_t& src ) {
+inline str_t trim( str_cr src ) {
 	return trim_l( trim_r( src ) );
 };
 
@@ -99,7 +100,7 @@ inline void copy_str( const char* src_, char* dest_, ssize_t size_ = -1 ) {
  * CTP 的一个 TradingDay 字段是 char[9], 我们用一个 string("20240217") 本来刚好填充.
  * 但调用 strncpy, 最后一个参数如果给 9, 要得到 gcc 警告"Wstringop-truncation";
  * 如果给8, 又不能保证末尾有个 null 字符. */
-inline void copy_str( const str_t& src_, char* dest_, ssize_t size_ = -1 ) {
+inline void copy_str( str_cr src_, char* dest_, ssize_t size_ = -1 ) {
 	ssize_t src_len = src_.size();
 	if( size_ < 0 )
 		size_ = src_len + 1;
@@ -109,30 +110,30 @@ inline void copy_str( const str_t& src_, char* dest_, ssize_t size_ = -1 ) {
 	dest_[to_cp] = '\0';
 };
 
-inline str_t pad_l( const str_t& s, size_t w,
-					const str_t& tail = " ", char ch = ' ' ) {
+inline str_t pad_l( str_cr s, size_t w,
+					str_cr tail = " ", char ch = ' ' ) {
 	oss_t o;
 	o << std::setw( w - tail.size() ) << std::right << std::setfill( ch )
 	  << s << tail;
 	return o.str();
 };
 
-inline str_t pad_r( const str_t& s, size_t w,
-					const str_t& head = " ", char ch = ' ' ) {
+inline str_t pad_r( str_cr s, size_t w,
+					str_cr head = " ", char ch = ' ' ) {
 	oss_t o;
 	o << head << std::setw( w - head.size() ) << std::left << std::setfill( ch )
 	  << s;
 	return o.str();
 };
 
-inline str_t to_lower( const str_t& src ) {
+inline str_t to_lower( str_cr src ) {
 	str_t s = src;
 	for( auto& c : s )
 		c = std::tolower( c );
 	return s;
 };
 
-inline str_t to_upper( const str_t& src ) {
+inline str_t to_upper( str_cr src ) {
 	str_t s = src;
 	for( auto& c : s )
 		c = std::toupper( c );

@@ -3,6 +3,7 @@
 #include "leonutils/CallStack.hpp"
 
 using str_t = std::string;
+using str_cr = const str_t&;
 
 namespace leon_utl {
 

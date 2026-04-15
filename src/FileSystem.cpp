@@ -30,7 +30,7 @@ str_t new_tmp_dir() {
 	return buffer;
 };
 
-void del_tmp_dir( const str_t& path_ ) {
+void del_tmp_dir( str_cr path_ ) {
 
 	path_t p1 = path_;
 	path_t p2 = ( path_.back() == '/' )
@@ -61,7 +61,7 @@ str_t read_file( const char* f_path ) {
 	return buff;
 };
 
-bool writ_file( const char* f_path, const str_t& body ) {
+bool writ_file( const char* f_path, str_cr body ) {
 	ofs_t ofs { f_path, std::ios_base::out | std::ios_base::trunc };
 	ofs.imbue( std::locale( "zh_CN.UTF-8" ) );
 	ofs.clear();

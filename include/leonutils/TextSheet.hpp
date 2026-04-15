@@ -2,14 +2,16 @@
 #include <string>
 
 using str_t = std::string;
+using str_cr = const str_t&;
 using wstr_t = std::wstring;
+using wstr_cr = const wstr_t&;
 
 namespace leon_utl {
 
 // 将数据制作成字符串表格,可供终端文本输出
 class TextSheet_t {
 public:
-	TextSheet_t( const str_t& sheet_name );
+	TextSheet_t( str_cr sheet_name );
 	~TextSheet_t();
 
 //---- 初始化阶段 -------------------------------------
@@ -17,17 +19,17 @@ public:
 	void	clear();
 
 	// 2.添加新列,返回总列数(可以做多次)
-	int		addCol( const str_t&	col_name,		// 列名
-					int8_t			width,			// 列宽
-					int8_t			precision,		// 显示精度
-					int8_t			group = 0,		// 数字分组
-					char			sep_chr = ',',	// 分组字符
-					// 可设置某列不显示出来, 避免使用时到处判断
-					bool			visible = true
-			   );
+	int		addCol(
+		str_cr	col_name,		// 列名
+		int8_t	width,			// 列宽
+		int8_t	precision,		// 显示精度
+		int8_t	group = 0,		// 数字分组
+		char	sep_chr = ',',	// 分组字符
+		bool	visible = true	// 可设置某列不显示出来, 避免使用时到处判断
+	);
 
 	// 3.添加新行,返回总行数(可以做多次)
-	int		addRow( const str_t& row_name, bool visible = true );
+	int		addRow( str_cr row_name, bool visible = true );
 
 	// 4.重新生成表头常量(完成初始化)
 	void	skeleton();
@@ -41,9 +43,9 @@ public:
 	str_t	makeUtf8() const;
 
 	// 返回总列数
-	int cols() const;
+	int		cols() const;
 	// 返回总行数
-	int rows() const;
+	int		rows() const;
 
 private:
 	struct	Imp_t;

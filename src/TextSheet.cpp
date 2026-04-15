@@ -153,7 +153,7 @@ wstr_t TextSheet_t::Imp_t::make() const {
 	return wos.str();
 };
 
-TextSheet_t::TextSheet_t( const str_t& name_ ) {
+TextSheet_t::TextSheet_t( str_cr name_ ) {
 	_imp = new Imp_t { u8_2_ws( name_ ) };
 };
 
@@ -171,13 +171,13 @@ void TextSheet_t::clear() {
 	_imp->_all_data.clear();
 };
 
-int TextSheet_t::addCol( const str_t& n_, int8_t w_, int8_t p_,
+int TextSheet_t::addCol( str_cr n_, int8_t w_, int8_t p_,
 						 int8_t g_, char s_, bool v_ ) {
 	_imp->_col_specs.emplace_back( u8_2_ws( n_ ), w_, p_, g_, s_, v_ );
 	return _imp->_col_specs.size();
 };
 
-int TextSheet_t::addRow( const str_t& name_, bool v_ ) {
+int TextSheet_t::addRow( str_cr name_, bool v_ ) {
 	_imp->_row_specs.emplace_back( u8_2_ws( name_ ), v_ );
 	return _imp->_row_specs.size();
 };

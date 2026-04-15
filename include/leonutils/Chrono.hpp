@@ -253,7 +253,7 @@ SysTime_t make_time( int y, int mon, int d,
 
 void delay( MonDura_t lasting, MonTime_t from = steady_clock::now() );
 
-bool valid_date( const str_t& );
+bool valid_date( str_cr );
 
 }; // namespace leon_utl
 

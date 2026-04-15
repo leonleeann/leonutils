@@ -8,6 +8,7 @@
 // #pragma GCC diagnostic ignored "-Warray-bounds"
 
 using str_t = std::string;
+using str_cr = const str_t&;
 using stv_t = std::string_view;
 
 namespace leon_utl {
@@ -23,14 +24,14 @@ union U16_u {
 	[[gnu::always_inline]] constexpr U16_u operator=( uint16_t	u_ ) { asU = u_; return *this; };
 	[[gnu::always_inline]] constexpr U16_u operator=( const char* p_ )
 	{ if( p_ ) { b0 = p_[0]; b1 = p_[1]; } else { b0 = b1 = 0; }; return *this; };
-	[[gnu::always_inline]] constexpr U16_u operator=( const str_t& s_ )
+	[[gnu::always_inline]] constexpr U16_u operator=( str_cr s_ )
 	{ b0 = s_.empty() ? 0 : s_[0]; b1 = s_.size() > 1 ? s_[1] : 0; return *this; };
 
 	[[gnu::always_inline]] constexpr U16_u( int16_t  i_ ): asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U16_u( uint16_t u_ ): asU( u_ ) {};
 	[[gnu::always_inline]] constexpr U16_u( const char* p_ )
 		: b0( p_ ? p_[0] : 0 ), b1( p_ ? p_[1] : 0 ) {};
-	[[gnu::always_inline]] constexpr U16_u( const str_t& s_ )
+	[[gnu::always_inline]] constexpr U16_u( str_cr s_ )
 		: b0( s_.empty() ? 0 : s_[0] ), b1( s_.size() > 1 ? s_[1] : 0 ) {};
 
 	[[gnu::always_inline]] constexpr bool operator< ( U16_u o_ ) const { return asU <  o_.asU; };
@@ -72,7 +73,7 @@ union U32_u {
 		b0 = p_[0]; b1 = p_[1]; b2 = p_[2]; b3 = p_[3];
 		return *this;
 	};
-	[[gnu::always_inline]] constexpr U32_u operator=( const str_t& s_ ) {
+	[[gnu::always_inline]] constexpr U32_u operator=( str_cr s_ ) {
 		if( s_.empty() ) { asI = 0; return *this; }
 		b0 = s_[0]; b1 = s_[1]; b2 = s_[2]; b3 = s_[3];
 //		asI = s_.empty() ? 0 : *reinterpret_cast<const int32_t*>( s_.c_str() );
@@ -86,7 +87,7 @@ union U32_u {
 		if( !p_ ) { asI = 0; return; }
 		b0 = p_[0]; b1 = p_[1]; b2 = p_[2]; b3 = p_[3];
 	};
-	[[gnu::always_inline]] constexpr U32_u( const str_t& s_ ) {
+	[[gnu::always_inline]] constexpr U32_u( str_cr s_ ) {
 		if( s_.empty() ) { asI = 0; return; }
 		b0 = s_[0]; b1 = s_[1]; b2 = s_[2]; b3 = s_[3];
 	};
@@ -138,7 +139,7 @@ union U64_u {
 		}
 		return *this;
 	};
-	[[gnu::always_inline]] constexpr U64_u operator=( const str_t& s_ ) {
+	[[gnu::always_inline]] constexpr U64_u operator=( str_cr s_ ) {
 		asI = 0; auto n = s_.size();
 		if( n == 0 ) { return *this; }
 		if( n >= sizeof( asI ) ) {
@@ -155,7 +156,7 @@ union U64_u {
 	[[gnu::always_inline]] constexpr U64_u( int64_t i_ ):	asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( uint64_t u_ ):	asU( u_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( const char* p_ ) { operator=( p_ ); };
-	[[gnu::always_inline]] constexpr U64_u( const str_t& s_ ) {operator=( s_ ); };
+	[[gnu::always_inline]] constexpr U64_u( str_cr s_ ) {operator=( s_ ); };
 
 	[[gnu::always_inline]] constexpr bool operator< ( U64_u o_ ) const { return asU <  o_.asU; };
 	[[gnu::always_inline]] constexpr bool operator<=( U64_u o_ ) const { return asU <= o_.asU; };

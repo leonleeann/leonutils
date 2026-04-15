@@ -2,6 +2,7 @@
 #include <string>
 
 using str_t = std::string;
+using str_cr = const str_t&;
 
 namespace leon_utl {
 
@@ -20,8 +21,8 @@ str_t GetThreadCpuMask();	// pthread_getaffinity_np
 		整个进程的全局限制, 而后者仅能限制单个线程.
 	2.以下两个函数接口一致, 传入参数是逗号分隔的 cpu_id, 不是 mask!!!
 */
-void ProcessOnlyCPU( const str_t& cpu_ids );	// sched_setaffinity
-void PthreadOnlyCPU( const str_t& cpu_ids );	// pthread_setaffinity_np
+void ProcessOnlyCPU( str_cr cpu_ids );	// sched_setaffinity
+void PthreadOnlyCPU( str_cr cpu_ids );	// pthread_setaffinity_np
 
 };	// namespace leon_utl
 

@@ -14,6 +14,7 @@ using namespace leon_utl;
 using namespace std::chrono;
 using namespace std::chrono_literals;
 using str_t = std::string;
+using str_cr = const str_t&;
 using SysTime_t = system_clock::time_point;
 using SysDura_t = system_clock::duration;
 using atime_t = std::atomic<SysTime_t>;
@@ -161,7 +162,7 @@ void RunClient() {
 	Calculate();
 };
 
-void Help( const str_t& hint_ ) {
+void Help( str_cr hint_ ) {
 	if( ! hint_.empty() )
 		std::cerr << hint_ << '\n' << std::endl;
 

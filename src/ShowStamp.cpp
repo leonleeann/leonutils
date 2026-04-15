@@ -23,7 +23,7 @@ int main( int argc, const char* const* const args ) {
 	return EXIT_SUCCESS;
 };
 
-void Help( const str_t& hint_ ) {
+void Help( str_cr hint_ ) {
 	if( ! hint_.empty() )
 		std::cerr << hint_ << '\n' << std::endl;
 

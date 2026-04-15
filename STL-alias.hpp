@@ -18,6 +18,7 @@ using aptid_t = std::atomic<pthread_t>;
 using atime_t = std::atomic<SysTime_t>;
 
 using str_t = std::string;
+using str_cr = const str_t&;
 using StrSet_t = set_t<str_t>;
 
 using ifs_t = std::ifstream;

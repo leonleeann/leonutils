@@ -8,6 +8,7 @@
 using namespace leon_utl;
 using oss_t = std::ostringstream;
 using str_t = std::string;
+using str_cr = const str_t&;
 
 thread_local sigjmp_buf sig_recovery_point;
 

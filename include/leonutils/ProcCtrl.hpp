@@ -7,6 +7,7 @@ template<typename K, typename V, typename C = std::less<K>,
 		 typename A = std::allocator<std::pair<const K, V> > >
 using map_t = std::map<K, V, C, A>;
 using str_t = std::string;
+using str_cr = const str_t&;
 
 namespace leon_utl {
 
@@ -35,7 +36,7 @@ public:
 	virtual pid_t	forkOnly() = 0;
 
 	// 创建子进程, 并执行指定的可执行文件
-	virtual pid_t	forkExec( const str_t& bin_path, const CliArgs_t& ) = 0;
+	virtual pid_t	forkExec( str_cr bin_path, const CliArgs_t& ) = 0;
 
 	// 给某进程发信号
 	virtual void	sendSign( pid_t, int ) = 0;

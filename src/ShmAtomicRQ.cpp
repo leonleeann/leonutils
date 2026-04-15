@@ -4,7 +4,7 @@
 
 namespace leon_utl {
 
-void ShmAtmRQ_t::make( SIZE_TYPE capa_, const str_t& name_ ) {
+void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_ ) {
 	capa_ = _AlignCapa( capa_ );
 	size_t bytes = sizeof( Meta_t ) + capa_ * sizeof( Node_t );
 	bytes = _buff.make( name_, bytes, true );
@@ -50,7 +50,7 @@ void ShmAtmRQ_t::make( SIZE_TYPE capa_, const str_t& name_ ) {
 				<< ",总尺寸:"	<< bytes		<< ",\nSHM:\t"	<< _buff.get(); */
 };
 
-void ShmAtmRQ_t::plug( const str_t& name_ ) {
+void ShmAtmRQ_t::plug( str_cr name_ ) {
 
 	auto real_bytes = _buff.plug( name_, true );
 

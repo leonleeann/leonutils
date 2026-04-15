@@ -19,6 +19,7 @@ using set_t = std::set<K, C, A>;
 using oss_t = std::ostringstream;
 using ost_t = std::ostream;
 using str_t = std::string;
+using str_cr = const str_t&;
 using strset_t = set_t<str_t>;
 using intset_t = set_t<int>;
 using i32set_t = set_t<int32_t>;
@@ -32,7 +33,7 @@ namespace leon_utl {
 
 // 切分字符串到集合
 template<typename T = str_t>
-set_t<T> split2set( const str_t& src, char delimiter ) {
+set_t<T> split2set( str_cr src, char delimiter ) {
 
 	set_t<T> result;
 	if( src.empty() )
@@ -53,7 +54,7 @@ set_t<T> split2set( const str_t& src, char delimiter ) {
 };
 
 template<std::integral T>
-set_t<T> split2set( const str_t& src, char delimiter ) {
+set_t<T> split2set( str_cr src, char delimiter ) {
 
 	auto str_set = split2set<str_t>( src, delimiter );
 	set_t<T> result;

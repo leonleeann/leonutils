@@ -20,7 +20,7 @@ ShmBuffer_t::~ShmBuffer_t() {
 		unplug();
 };
 
-void* CreateOrPlug( const str_t& n_, size_t b_, bool cr_,
+void* CreateOrPlug( str_cr n_, size_t b_, bool cr_,
 					int f_mask_, mode_t u_mask_, int m_mask_ ) {
 
 	auto shm_fd = shm_open( n_.c_str(), f_mask_, u_mask_ );
@@ -44,7 +44,7 @@ void* CreateOrPlug( const str_t& n_, size_t b_, bool cr_,
 	return shm_pt;
 };
 
-size_t ShmBuffer_t::make( const str_t& n_, size_t b_, bool wr_ ) {
+size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_ ) {
 	_1page = getpagesize();
 
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
@@ -87,7 +87,7 @@ size_t ShmBuffer_t::make( const str_t& n_, size_t b_, bool wr_ ) {
 	return _bytes;
 };
 
-size_t ShmBuffer_t::plug( const str_t& n_, bool wr_ ) {
+size_t ShmBuffer_t::plug( str_cr n_, bool wr_ ) {
 	_1page = getpagesize();
 
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )

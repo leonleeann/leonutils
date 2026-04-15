@@ -64,7 +64,7 @@ str_t gb_2_u8( const char* gb_str_ ) {
 	return gb2u8_raw( gb_str_, std::strlen( gb_str_ ) );
 };
 
-str_t gb_2_u8( const str_t& gb_str_ ) {
+str_t gb_2_u8( str_cr gb_str_ ) {
 	return gb2u8_raw( gb_str_.c_str(), gb_str_.size() );
 };
 
@@ -72,7 +72,7 @@ wstr_t gb_2_ws( const char* gb_str_ ) {
 	return gb2w_raw( gb_str_, std::strlen( gb_str_ ) );
 };
 
-wstr_t gb_2_ws( const str_t& gb_str_ ) {
+wstr_t gb_2_ws( str_cr gb_str_ ) {
 	return gb2w_raw( gb_str_.c_str(), gb_str_.size() );
 };
 
@@ -88,7 +88,7 @@ wstr_t u8_2_ws( const char* cstr_ ) {
 	return u82w_raw( cstr_, std::strlen( cstr_ ) );
 };
 
-wstr_t u8_2_ws( const str_t& u8_str_ ) {
+wstr_t u8_2_ws( str_cr u8_str_ ) {
 	return u82w_raw( u8_str_.c_str(), u8_str_.size() );
 };
 
@@ -105,12 +105,12 @@ int chinese_chars( const char* u8_str_ ) {
 	return chinese_chars( ws );
 };
 
-int chinese_chars( const str_t& u8_str_ ) {
+int chinese_chars( str_cr u8_str_ ) {
 	wstr_t ws = u82w_raw( u8_str_.c_str(), u8_str_.size() );
 	return chinese_chars( ws );
 };
 
-int displ_width( const str_t& u8_ ) {
+int displ_width( str_cr u8_ ) {
 	return displ_width( u8_2_ws( u8_ ) );
 };
 
@@ -132,7 +132,7 @@ wstr_t adapt_width( int exp_w_, const wstr_t& wtxt_ ) {
 	return widen.substr( 0, chinese_cnt + other_chars + width_diff );
 };
 
-wstr_t adapt_width( int exp_w_, const str_t& u8_txt_ ) {
+wstr_t adapt_width( int exp_w_, str_cr u8_txt_ ) {
 	return adapt_width( exp_w_, u8_2_ws( u8_txt_ ) );
 };
 
@@ -153,7 +153,7 @@ wstr_t adapt_centr( int exp_w_, const wstr_t& w_txt_ ) {
 	return widen.substr( 0, chinese_cnt + other_chars + width_diff );
 };
 
-wstr_t adapt_centr( int exp_w_, const str_t& u8_txt_ ) {
+wstr_t adapt_centr( int exp_w_, str_cr u8_txt_ ) {
 	return adapt_centr( exp_w_, u8_2_ws( u8_txt_ ) );
 };
 

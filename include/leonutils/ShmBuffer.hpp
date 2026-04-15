@@ -1,6 +1,7 @@
 #pragma once
 
 using str_t = std::string;
+using str_cr = const str_t&;
 
 namespace leon_utl {
 
@@ -23,22 +24,22 @@ public:
 
 	//---- 公开例程 ---------------------------------------------
 	// 创建底层SHM, 返回真实创建的字节数
-	size_t make( const str_t& name, size_t bytes, bool writable );
+	size_t	make( str_cr name, size_t bytes, bool writable );
 
 	// 对接底层SHM, 返回真实的字节数
-	size_t plug( const str_t& name, bool writable );
+	size_t	plug( str_cr name, bool writable );
 
-	void unplug( bool remove_shm_file = false );
+	void	unplug( bool remove_shm_file = false );
 
-	const str_t&	name()		const { return _shm_n; };
-	size_t			bytes()		const { return _bytes; };
-	void*			get()		const { return _shm_p; };
-	ssize_t			pageSize()	const { return _1page; };
-	ssize_t			swapout()	const;
+	str_cr	name()		const { return _shm_n; };
+	size_t	bytes()		const { return _bytes; };
+	void*	get()		const { return _shm_p; };
+	ssize_t	pageSize()	const { return _1page; };
+	ssize_t	swapout()	const;
 
 	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
-	str_t			osFile()	const { return "/dev/shm/" + _shm_n; };
-	void			delOsFile()	const;
+	str_t	osFile()	const { return "/dev/shm/" + _shm_n; };
+	void	delOsFile()	const;
 
 //==== 内部实现 =================================================================
 private:

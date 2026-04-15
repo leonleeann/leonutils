@@ -75,7 +75,7 @@ cpu_set_t _MakeSet( const IntSet_t& ids_ ) {
 	return cpu_set;
 };
 
-void ProcessOnlyCPU( const str_t& ids_ ) {
+void ProcessOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {
@@ -94,7 +94,7 @@ void ProcessOnlyCPU( const str_t& ids_ ) {
 		std::cerr << "sched_setaffinity失败:" << std::strerror( errno ) << std::endl;
 };
 
-void PthreadOnlyCPU( const str_t& ids_ ) {
+void PthreadOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {

@@ -10,7 +10,7 @@ namespace leon_utl {
 
 struct ProcCtrlImp_t: public ProcCtrl_t {
 	pid_t	forkOnly() override;
-	pid_t	forkExec( const str_t& bin_path, const CliArgs_t& ) override;
+	pid_t	forkExec( str_cr bin_path, const CliArgs_t& ) override;
 	void	sendSign( pid_t, int ) override;
 	pid_t	waitExit() override;
 };
@@ -25,7 +25,7 @@ pid_t ProcCtrlImp_t::forkOnly() {
 	return fork();
 };
 
-pid_t ProcCtrlImp_t::forkExec( const str_t& bin_, const CliArgs_t& args_ ) {
+pid_t ProcCtrlImp_t::forkExec( str_cr bin_, const CliArgs_t& args_ ) {
 	/* 进到本函数时,日志系统应该是关闭的. 为了让 主、 子 进程输出互不干扰,
 		本函数内不用 LeonLog. 而且, 子进程日志输出到 stderr */
 
