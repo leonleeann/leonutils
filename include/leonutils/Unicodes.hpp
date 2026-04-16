@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+using char_cp = const char*;
 using str_t = std::string;
 using str_cr = const str_t&;
 using wstr_t = std::wstring;
@@ -32,11 +33,11 @@ static constexpr wchar_t TAB_FOOT_SEP = 0x2534;
 static constexpr wchar_t TAB_CROS_SEP = 0x253C;
 
 // GB18030转UTF8
-str_t	gb_2_u8( const char* gb_str );
+str_t	gb_2_u8( char_cp gb_str );
 str_t	gb_2_u8( str_cr gb_str );
 
 // GB18030转wstring_t
-wstr_t	gb_2_ws( const char* gb_str );
+wstr_t	gb_2_ws( char_cp gb_str );
 wstr_t	gb_2_ws( str_cr gb_str );
 
 // wstring_t转UTF8
@@ -44,14 +45,14 @@ str_t	ws_2_u8( const wchar_t* );
 str_t	ws_2_u8( const wstr_t& );
 
 // UTF8转wstring_t
-wstr_t	u8_2_ws( const char* utf8_str );
+wstr_t	u8_2_ws( char_cp utf8_str );
 wstr_t	u8_2_ws( str_cr utf8_str );
 
 // 在一个wstring_t中计数汉字个数
 int		chinese_chars( const wstr_t& );
 
 // 在一个UTF8串中计数汉字个数
-int		chinese_chars( const char* utf8_str );
+int		chinese_chars( char_cp utf8_str );
 int		chinese_chars( str_cr utf8_str );
 
 // 按照"字母数字占1个位宽,汉字占2个位宽"的原则,计算一段文本的显示宽度

@@ -2,6 +2,7 @@
 #include <array>
 #include <iosfwd>
 
+using char_cp = const char*;
 using ost_t = std::ostream;
 
 namespace leon_utl {
@@ -18,11 +19,11 @@ public:
 	static void ClearCallStack();
 	static void PrintCallStack( ost_t& );
 
-	explicit Tracer_t( const char* trace_point_name );
+	explicit Tracer_t( char_cp trace_point_name );
 	~Tracer_t();
 
 private:
-	const char* _name;
+	char_cp _name;
 };
 
 #define TRACE_POINT Tracer_t _tracer { __func__ }
@@ -38,7 +39,7 @@ private:
 // 0.3.13 运行发现动态加载的模块(*.so)未能正确入栈, 试试把 tl_call_stack 暴露成 extern
 constexpr int		STACK_CAPA = 64;
 constexpr int		STACK_MASK = 63;
-extern thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
+extern thread_local std::array<char_cp, STACK_CAPA> tl_call_stack;
 
 }; //namespace leon_utl
 

@@ -19,25 +19,25 @@ static_assert( sizeof( timespec::tv_nsec ) == 8, "timespec::tv_nsec not a 64 bit
 thread_local const std::time_put<char>& tl_time_formater
 	= std::use_facet<std::time_put<char>>( std::locale( "C" ) );
 
-str_t fmt_tm( const tm& tm_, const char* fmt_ ) {
+str_t fmt_tm( const tm& tm_, char_cp fmt_ ) {
 	oss_t oss;
 	tl_time_formater.put( oss, oss, ' ', &tm_, fmt_, fmt_ + std::strlen( fmt_ ) );
 	return oss.str();
 };
 
-str_t fmt_tmt( const std::time_t time_, const char* fmt_ ) {
+str_t fmt_tmt( const std::time_t time_, char_cp fmt_ ) {
 	tm tm1;
 	localtime_r( &time_, &tm1 );
 	return fmt_tm( tm1, fmt_ );
 };
 
 template <typename C, typename D>
-str_t fmt( const time_point<C, D> tp_, const char* fmt_ ) {
+str_t fmt( const time_point<C, D> tp_, char_cp fmt_ ) {
 	return fmt_tmt( C::to_time_t( std::chrono::floor<seconds>( tp_ ) ), fmt_ );
 };
 
 template <typename C, typename D>
-str_t fmt( const time_point<C, D> tp_, size_t prec_, const char* fmt_ ) {
+str_t fmt( const time_point<C, D> tp_, size_t prec_, char_cp fmt_ ) {
 	// 精度最多9位,也即纳秒
 	if( prec_ > 9 )
 		prec_ = 9;
@@ -114,19 +114,19 @@ bool valid_date( str_cr str_ ) {
 };
 
 // 显式地实例化一下,以免链接时找不到
-template str_t fmt( const time_point<system_clock, hours>, const char* );
-template str_t fmt( const time_point<system_clock, minutes>, const char* );
-template str_t fmt( const time_point<system_clock, ss>, const char* );
-template str_t fmt( const time_point<system_clock, ms>, const char* );
-template str_t fmt( const time_point<system_clock, us>, const char* );
-template str_t fmt( const time_point<system_clock, ns>, const char* );
+template str_t fmt( const time_point<system_clock, hours>, char_cp );
+template str_t fmt( const time_point<system_clock, minutes>, char_cp );
+template str_t fmt( const time_point<system_clock, ss>, char_cp );
+template str_t fmt( const time_point<system_clock, ms>, char_cp );
+template str_t fmt( const time_point<system_clock, us>, char_cp );
+template str_t fmt( const time_point<system_clock, ns>, char_cp );
 
-template str_t fmt( const time_point<system_clock, hours>, size_t, const char* );
-template str_t fmt( const time_point<system_clock, minutes>, size_t, const char* );
-template str_t fmt( const time_point<system_clock, ss>, size_t, const char* );
-template str_t fmt( const time_point<system_clock, ms>, size_t, const char* );
-template str_t fmt( const time_point<system_clock, us>, size_t, const char* );
-template str_t fmt( const time_point<system_clock, ns>, size_t, const char* );
+template str_t fmt( const time_point<system_clock, hours>, size_t, char_cp );
+template str_t fmt( const time_point<system_clock, minutes>, size_t, char_cp );
+template str_t fmt( const time_point<system_clock, ss>, size_t, char_cp );
+template str_t fmt( const time_point<system_clock, ms>, size_t, char_cp );
+template str_t fmt( const time_point<system_clock, us>, size_t, char_cp );
+template str_t fmt( const time_point<system_clock, ns>, size_t, char_cp );
 
 template str_t fmt_date( const time_point<system_clock, hours> );
 template str_t fmt_date( const time_point<system_clock, minutes> );

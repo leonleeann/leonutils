@@ -7,7 +7,7 @@ using str_cr = const str_t&;
 
 namespace leon_utl {
 
-thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
+thread_local std::array<char_cp, STACK_CAPA> tl_call_stack;
 
 /*
 	0.2.0 改用定长数组实现:
@@ -18,7 +18,7 @@ thread_local std::array<const char*, STACK_CAPA> tl_call_stack;
 thread_local int	s_top {};
 thread_local int	s_btm {};
 
-Tracer_t::Tracer_t( const char* fn_ ): _name( fn_ ) {
+Tracer_t::Tracer_t( char_cp fn_ ): _name( fn_ ) {
 	tl_call_stack[ ++s_top & STACK_MASK ] = fn_;
 
 	int new_btm = s_top - STACK_MASK;

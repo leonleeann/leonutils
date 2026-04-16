@@ -4,6 +4,7 @@
 #include <iosfwd>
 #include <string>
 
+using char_cp = const char*;
 using oss_t = std::ostringstream;
 using str_t = std::string;
 using str_cr = const str_t&;
@@ -21,7 +22,7 @@ inline bool is_digit( char c ) {
 	return c >= '0' && c <= '9';
 };
 
-inline bool is_number( const char* pc, size_t s ) {
+inline bool is_number( char_cp pc, size_t s ) {
 	char c;
 	// 跳过前导空格,遇到数字就停下,遇到空格继续判断,遇到其它字符直接返回false
 	for( ; true; ++pc, --s ) {
@@ -86,7 +87,7 @@ inline str_t tail( str_t const& src_, size_t len_ ) {
 	return src_.substr( size - len_ );
 };
 
-inline void copy_str( const char* src_, char* dest_, ssize_t size_ = -1 ) {
+inline void copy_str( char_cp src_, char* dest_, ssize_t size_ = -1 ) {
 	ssize_t src_len = std::strlen( src_ );
 	if( size_ < 0 )
 		size_ = src_len + 1;
@@ -141,10 +142,10 @@ inline str_t to_upper( str_cr src ) {
 };
 
 // 移除字符串内的特殊字符,仅保留字母、数字,和下划线
-str_t rm_special( const char* source );
+str_t rm_special( char_cp source );
 
 template <typename T>
-inline constexpr const char* parse_int( T& result_, const char* s_, size_t n_ ) {
+inline constexpr char_cp parse_int( T& result_, char_cp s_, size_t n_ ) {
 
 	result_ = 0;
 
@@ -165,7 +166,7 @@ inline constexpr const char* parse_int( T& result_, const char* s_, size_t n_ ) 
 };
 
 template <typename T>
-inline const char* parse_all( T& i, const char* s ) {
+inline char_cp parse_all( T& i, char_cp s ) {
 	i = 0;
 	while( s != nullptr && is_digit( *s ) )
 		i = i * 10 + ( *s++ - '0' );

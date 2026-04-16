@@ -4,10 +4,10 @@
 #include <new>
 #include <sstream>
 
-// #include "leonutils/Algorithms.hpp"
 #include "leonutils/UnionTypes.hpp"
 
 using namespace leon_utl;
+using char_cp = const char*;
 using ost_t = std::ostream;
 using oss_t = std::ostringstream;
 
@@ -32,7 +32,7 @@ TEST( TestUnionTypes, U16 ) {
 	ASSERT_EQ( u16.asI, -1 - 255 );
 
 	// 给空指针初始化, 不能崩溃
-	const char* pch = nullptr;
+	char_cp pch = nullptr;
 	u16 = pch;
 	ASSERT_EQ( u16.asU, 0 );
 	ASSERT_EQ( U16_u( pch ).asU, 0 );
@@ -71,7 +71,7 @@ TEST( TestUnionTypes, U32 ) {
 	ASSERT_EQ( u32.asI, 0x80000000 );
 
 	// 给空指针初始化, 不能崩溃
-	const char* pch = nullptr;
+	char_cp pch = nullptr;
 	u32 = pch;
 	ASSERT_EQ( u32.asU, 0 );
 	ASSERT_EQ( U32_u( pch ).asU, 0 );
@@ -117,7 +117,7 @@ TEST( TestUnionTypes, U64 ) {
 	ASSERT_EQ( u64.asI, 0x8000000000000000L );
 
 	// 给空指针初始化, 不能崩溃
-	const char* pch = nullptr;
+	char_cp pch = nullptr;
 	u64 = pch;
 	ASSERT_EQ( u64.asU, 0 );
 	ASSERT_EQ( U64_u( pch ).asU, 0 );

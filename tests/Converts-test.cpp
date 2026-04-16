@@ -104,7 +104,7 @@ TEST( TestConverts, padString ) {
 
 TEST( TestConverts, parse_int ) {
 	int result;
-	const char* end;
+	char_cp end;
 
 	ASSERT_NO_THROW( end = parse_int( result, nullptr, 255 ) );
 	ASSERT_EQ( end, nullptr );
@@ -120,7 +120,7 @@ TEST( TestConverts, parse_int ) {
 
 TEST( TestConverts, parse_all ) {
 	int result;
-	const char* end;
+	char_cp end;
 
 	ASSERT_NO_THROW( end = parse_all( result, nullptr ) );
 	ASSERT_EQ( end, nullptr );

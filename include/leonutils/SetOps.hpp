@@ -18,9 +18,8 @@ using set_t = std::set<K, C, A>;
 
 using oss_t = std::ostringstream;
 using ost_t = std::ostream;
-using str_t = std::string;
-using str_cr = const str_t&;
-using strset_t = set_t<str_t>;
+using str_t = std::string;			using str_cr = const str_t&;
+using strset_t = set_t<str_t>;		using strset_cr = const strset_t&;
 using intset_t = set_t<int>;
 using i32set_t = set_t<int32_t>;
 using u32set_t = set_t<uint32_t>;

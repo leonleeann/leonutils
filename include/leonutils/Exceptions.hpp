@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <string>
 
+using char_cp = const char*;
 using str_t = std::string;
 using str_cr = const str_t&;
 
@@ -13,7 +14,7 @@ public:
 	explicit bad_usage( str_cr err_ ):
 		std::logic_error( err_ ) {};
 
-	explicit bad_usage( const char* err_ ):
+	explicit bad_usage( char_cp err_ ):
 		std::logic_error( err_ ) {};
 };
 
@@ -24,7 +25,7 @@ public:
 
 	explicit bad_index( str_cr err_ ): std::out_of_range( err_ ) {};
 
-	explicit bad_index( const char* err_ ): std::out_of_range( err_ ) {};
+	explicit bad_index( char_cp err_ ): std::out_of_range( err_ ) {};
 };
 
 class parse_err: public std::runtime_error {
@@ -33,7 +34,7 @@ public:
 
 	explicit parse_err( str_cr err_ ): std::runtime_error( err_ ) {};
 
-	explicit parse_err( const char* err_ ): std::runtime_error( err_ ) {};
+	explicit parse_err( char_cp err_ ): std::runtime_error( err_ ) {};
 };
 
 }; //namespace leon_utl

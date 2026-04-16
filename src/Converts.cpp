@@ -13,7 +13,7 @@ using std::ostream;
 
 namespace leon_utl {
 
-str_t rm_special( const char* src_ ) {
+str_t rm_special( char_cp src_ ) {
 	oss_t oss;
 	char c;
 	while( ( c = *src_ ) ) {

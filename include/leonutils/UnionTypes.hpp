@@ -7,6 +7,7 @@
 // #pragma GCC diagnostic push
 // #pragma GCC diagnostic ignored "-Warray-bounds"
 
+using char_cp = const char*;
 using str_t = std::string;
 using str_cr = const str_t&;
 using stv_t = std::string_view;
@@ -22,14 +23,14 @@ union U16_u {
 
 	[[gnu::always_inline]] constexpr U16_u operator=( int16_t	i_ ) { asI = i_; return *this; };
 	[[gnu::always_inline]] constexpr U16_u operator=( uint16_t	u_ ) { asU = u_; return *this; };
-	[[gnu::always_inline]] constexpr U16_u operator=( const char* p_ )
+	[[gnu::always_inline]] constexpr U16_u operator=( char_cp p_ )
 	{ if( p_ ) { b0 = p_[0]; b1 = p_[1]; } else { b0 = b1 = 0; }; return *this; };
 	[[gnu::always_inline]] constexpr U16_u operator=( str_cr s_ )
 	{ b0 = s_.empty() ? 0 : s_[0]; b1 = s_.size() > 1 ? s_[1] : 0; return *this; };
 
 	[[gnu::always_inline]] constexpr U16_u( int16_t  i_ ): asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U16_u( uint16_t u_ ): asU( u_ ) {};
-	[[gnu::always_inline]] constexpr U16_u( const char* p_ )
+	[[gnu::always_inline]] constexpr U16_u( char_cp p_ )
 		: b0( p_ ? p_[0] : 0 ), b1( p_ ? p_[1] : 0 ) {};
 	[[gnu::always_inline]] constexpr U16_u( str_cr s_ )
 		: b0( s_.empty() ? 0 : s_[0] ), b1( s_.size() > 1 ? s_[1] : 0 ) {};
@@ -68,7 +69,7 @@ union U32_u {
 	[[gnu::always_inline]] constexpr U32_u operator=( float		f_ ) { asF = f_; return *this; };
 	[[gnu::always_inline]] constexpr U32_u operator=( int32_t	i_ ) { asI = i_; return *this; };
 	[[gnu::always_inline]] constexpr U32_u operator=( uint32_t	u_ ) { asU = u_; return *this; };
-	[[gnu::always_inline]] constexpr U32_u operator=( const char* p_ ) {
+	[[gnu::always_inline]] constexpr U32_u operator=( char_cp p_ ) {
 		if( !p_ ) { asI = 0; return *this; }
 		b0 = p_[0]; b1 = p_[1]; b2 = p_[2]; b3 = p_[3];
 		return *this;
@@ -83,7 +84,7 @@ union U32_u {
 	[[gnu::always_inline]] constexpr U32_u( float	 f_ ):	asF( f_ ) {};
 	[[gnu::always_inline]] constexpr U32_u( int32_t  i_ ):	asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U32_u( uint32_t u_ ):	asU( u_ ) {};
-	[[gnu::always_inline]] constexpr U32_u( const char* p_ ) {
+	[[gnu::always_inline]] constexpr U32_u( char_cp p_ ) {
 		if( !p_ ) { asI = 0; return; }
 		b0 = p_[0]; b1 = p_[1]; b2 = p_[2]; b3 = p_[3];
 	};
@@ -132,7 +133,7 @@ union U64_u {
 	[[gnu::always_inline]] constexpr U64_u operator=( double	d_ ) { asD = d_; return *this; };
 	[[gnu::always_inline]] constexpr U64_u operator=( int64_t	i_ ) { asI = i_; return *this; };
 	[[gnu::always_inline]] constexpr U64_u operator=( uint64_t	u_ ) { asU = u_; return *this; };
-	[[gnu::always_inline]] constexpr U64_u operator=( const char* p_ ) {
+	[[gnu::always_inline]] constexpr U64_u operator=( char_cp p_ ) {
 		asI = 0; if( !p_ ) { return *this; }
 		for( size_t i = 0; i < sizeof( asI ); ++i ) {
 			char c = p_[i]; if( c == '\0' ) return *this; asA[i] = c;
@@ -155,7 +156,7 @@ union U64_u {
 	[[gnu::always_inline]] constexpr U64_u( double d_ ):	asD( d_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( int64_t i_ ):	asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( uint64_t u_ ):	asU( u_ ) {};
-	[[gnu::always_inline]] constexpr U64_u( const char* p_ ) { operator=( p_ ); };
+	[[gnu::always_inline]] constexpr U64_u( char_cp p_ ) { operator=( p_ ); };
 	[[gnu::always_inline]] constexpr U64_u( str_cr s_ ) {operator=( s_ ); };
 
 	[[gnu::always_inline]] constexpr bool operator< ( U64_u o_ ) const { return asU <  o_.asU; };

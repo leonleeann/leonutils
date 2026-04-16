@@ -11,6 +11,7 @@ namespace leon_utl {
 
 namespace fs = std::filesystem;
 using path_t = fs::path;
+using char_cp = const char*;
 
 struct Rec3B_t {
 	// unsigned char pch3[3];
@@ -33,7 +34,7 @@ struct TestShmAtmRQ_F: public testing::Test {
 
 // 1.看看每个 Node_t 是否都从64字节边界开始; 2.每个 Node_t 大小都是 128字节
 TEST_F( TestShmAtmRQ_F, AlignTo64 ) {
-	const char* test_name = "TestShmAtmRQ_F_AlignTo64";
+	char_cp test_name = "TestShmAtmRQ_F_AlignTo64";
 	_testee.make( 8, test_name );
 	char buffer[ShmAtmRQ_t::LOAD_SIZE];
 	strncpy( buffer, test_name, ShmAtmRQ_t::LOAD_SIZE );
@@ -59,7 +60,7 @@ TEST_F( TestShmAtmRQ_F, AlignTo64 ) {
 
 // 如果放弃了所有权, 销毁对象时, 不应该删除底层 shm 文件
 TEST( TestShmAtmRQ, Ownership ) {
-	const char* test_name = "TestShmAtmRQ_Ownership";
+	char_cp test_name = "TestShmAtmRQ_Ownership";
 	path_t shm_path { "/dev/shm" };
 	shm_path /= test_name;
 	shm_unlink( test_name );
@@ -85,7 +86,7 @@ TEST( TestShmAtmRQ, Ownership ) {
 
 // 使用者可以提前删除底层 shm 文件
 TEST( TestShmAtmRQ, removeOsShmFile ) {
-	const char* test_name = "TestShmAtmRQ_removeOsShmFile";
+	char_cp test_name = "TestShmAtmRQ_removeOsShmFile";
 	path_t shm_path { "/dev/shm" };
 	shm_path /= test_name;
 	shm_unlink( test_name );
@@ -103,7 +104,7 @@ TEST( TestShmAtmRQ, removeOsShmFile ) {
 
 // 自动扩展容量到2的n次方
 TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
-	const char* test_name = "TestShmAtmRQ_AutoExtToPowerOf2";
+	char_cp test_name = "TestShmAtmRQ_AutoExtToPowerOf2";
 
 	ShmAtmRQ_t testee;
 	testee.make( 5, test_name );
@@ -111,7 +112,7 @@ TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
 };
 
 TEST( TestShmAtmRQ, emptyOrFully ) {
-	const char* test_name = "ShmAtmRQ_emptyOrFully";
+	char_cp test_name = "ShmAtmRQ_emptyOrFully";
 	ShmAtmRQ_t testee;
 	testee.make( 4, test_name );
 
@@ -146,7 +147,7 @@ TEST( TestShmAtmRQ, emptyOrFully ) {
 
 // 满了之后出队数据还能恢复
 TEST( TestShmAtmRQ, CanRecoverFromFull ) {
-	const char* test_name = "ShmAtmRQ_CanRecoverFromFull";
+	char_cp test_name = "ShmAtmRQ_CanRecoverFromFull";
 	ShmAtmRQ_t testee;
 	testee.make( 4, test_name );
 	testee.enque( test_name );

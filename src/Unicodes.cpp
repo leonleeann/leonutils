@@ -24,11 +24,11 @@ thread_local const w2c_cvt_t& crtl_cvt_gb2w = use_facet<w2c_cvt_t>( cg_loc_gb );
 
 thread_local wstring_convert<codecvt_utf8<wchar_t> > tl_cvt_w2u8;
 
-inline str_t gb2u8_raw( const char* gb_str_, size_t len_ ) {
+inline str_t gb2u8_raw( char_cp gb_str_, size_t len_ ) {
 	wchar_t  aw_buf[ len_ + 1 ];
 	wchar_t* aw_end = aw_buf;
 	mbstate_t mt = {};
-	const char* gb_end = gb_str_;
+	char_cp gb_end = gb_str_;
 
 	if( crtl_cvt_gb2w.in( mt, gb_str_, gb_str_ + len_,
 						  gb_end, aw_buf, aw_buf + len_, aw_end ) ==
@@ -38,11 +38,11 @@ inline str_t gb2u8_raw( const char* gb_str_, size_t len_ ) {
 		return "";
 };
 
-inline wstr_t gb2w_raw( const char* gb_str_, size_t len_ ) {
+inline wstr_t gb2w_raw( char_cp gb_str_, size_t len_ ) {
 	wchar_t  aw_buf[ len_ + 1 ];
 	wchar_t* aw_end = aw_buf;
 	mbstate_t mt = {};
-	const char* gb_end = gb_str_;
+	char_cp gb_end = gb_str_;
 
 	if( crtl_cvt_gb2w.in( mt, gb_str_, gb_str_ + len_,
 						  gb_end, aw_buf, aw_buf + len_, aw_end ) ==
@@ -56,11 +56,11 @@ inline str_t w2u8_raw( const wchar_t* wstr_, size_t len_ ) {
 	return tl_cvt_w2u8.to_bytes( wstr_, wstr_ + len_ );
 };
 
-inline wstr_t u82w_raw( const char* cstr_, size_t len_ ) {
+inline wstr_t u82w_raw( char_cp cstr_, size_t len_ ) {
 	return tl_cvt_w2u8.from_bytes( cstr_, cstr_ + len_ );
 };
 
-str_t gb_2_u8( const char* gb_str_ ) {
+str_t gb_2_u8( char_cp gb_str_ ) {
 	return gb2u8_raw( gb_str_, std::strlen( gb_str_ ) );
 };
 
@@ -68,7 +68,7 @@ str_t gb_2_u8( str_cr gb_str_ ) {
 	return gb2u8_raw( gb_str_.c_str(), gb_str_.size() );
 };
 
-wstr_t gb_2_ws( const char* gb_str_ ) {
+wstr_t gb_2_ws( char_cp gb_str_ ) {
 	return gb2w_raw( gb_str_, std::strlen( gb_str_ ) );
 };
 
@@ -84,7 +84,7 @@ str_t ws_2_u8( const wstr_t& wstr_ ) {
 	return w2u8_raw( wstr_.c_str(), wstr_.size() );
 };
 
-wstr_t u8_2_ws( const char* cstr_ ) {
+wstr_t u8_2_ws( char_cp cstr_ ) {
 	return u82w_raw( cstr_, std::strlen( cstr_ ) );
 };
 
@@ -100,7 +100,7 @@ int chinese_chars( const wstr_t& wstr_ ) {
 	return cnt;
 };
 
-int chinese_chars( const char* u8_str_ ) {
+int chinese_chars( char_cp u8_str_ ) {
 	wstr_t ws = u82w_raw( u8_str_, std::strlen( u8_str_ ) );
 	return chinese_chars( ws );
 };

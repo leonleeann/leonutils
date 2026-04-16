@@ -7,6 +7,7 @@
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
+using char_cp = const char*;
 using ost_t = std::ostream;
 using ts_nsec_t = decltype( timespec::tv_nsec );
 using ts_secs_t = decltype( timespec::tv_sec );
@@ -138,7 +139,7 @@ struct SsUsNs_t {	// 没有毫秒值, 毫秒值 * 1000 和微秒存在一起
 
 //========== 日期时间parsing ====================================================
 //-------- parse时间 到 tm --------
-inline constexpr const char* parse_time( tm& tm_, const char* str_ ) {
+inline constexpr char_cp parse_time( tm& tm_, char_cp str_ ) {
 	str_ = parse_int( tm_.tm_hour, str_, 2 );
 	if( *str_ < '0' || *str_ > '9' )
 		++str_;
@@ -149,7 +150,7 @@ inline constexpr const char* parse_time( tm& tm_, const char* str_ ) {
 	return str_;
 };
 
-inline SysDura_t parse_time( const char* str_ ) {
+inline SysDura_t parse_time( char_cp str_ ) {
 	int hh, mi, ss;
 	str_ = parse_int( hh, str_, 2 );
 	if( *str_ < '0' || *str_ > '9' )
@@ -177,7 +178,7 @@ inline SysDura_t parse_time( const char* str_ ) {
 };
 
 //-------- parse日期 到 tm --------
-inline constexpr const char* parse_date( tm& tm_, const char* str_ ) {
+inline constexpr char_cp parse_date( tm& tm_, char_cp str_ ) {
 	str_ = parse_int( tm_.tm_year, str_, 4 );
 	tm_.tm_year -= 1900;
 	if( *str_ < '0' || *str_ > '9' )
@@ -191,14 +192,14 @@ inline constexpr const char* parse_date( tm& tm_, const char* str_ ) {
 };
 
 //-------- 日期 -> time_point --------
-inline SysTime_t parse_date( const char* str_ ) {
+inline SysTime_t parse_date( char_cp str_ ) {
 	tm tm1 {};
 	parse_date( tm1, str_ );
 	return system_clock::from_time_t( mktime( &tm1 ) );
 };
 
 //-------- 同时parse日期时间 --------
-inline constexpr const char* parse_datetime( tm& tm_, const char* str_ ) {
+inline constexpr char_cp parse_datetime( tm& tm_, char_cp str_ ) {
 	str_ = parse_date( tm_, str_ );
 	if( *str_ < '0' || *str_ > '9' )
 		++str_;
@@ -207,7 +208,7 @@ inline constexpr const char* parse_datetime( tm& tm_, const char* str_ ) {
 };
 
 //-------- 日期+时间 -> time_point ----
-inline SysTime_t parse_datetime( const char* str_ ) {
+inline SysTime_t parse_datetime( char_cp str_ ) {
 	tm tm1 {};
 	str_ = parse_date( tm1, str_ );
 	if( *str_ < '0' || *str_ > '9' )
@@ -216,26 +217,26 @@ inline SysTime_t parse_datetime( const char* str_ ) {
 };
 
 //========== 日期时间格式化 ======================================================
-static const char* const FULL_FORMAT = "%Y-%m-%d %H:%M:%S";
-static const char* const DATE_FORMAT = "%Y%m%d";
-static const char* const HUMAN_DATE = "%Y-%m-%d";
-static const char* const TIME_FORMAT = "%H:%M:%S";
-static const char* const NEAT_FORMAT = "%y/%m/%d %H:%M:%S";
+static char_cp const FULL_FORMAT = "%Y-%m-%d %H:%M:%S";
+static char_cp const DATE_FORMAT = "%Y%m%d";
+static char_cp const HUMAN_DATE = "%Y-%m-%d";
+static char_cp const TIME_FORMAT = "%H:%M:%S";
+static char_cp const NEAT_FORMAT = "%y/%m/%d %H:%M:%S";
 
 extern thread_local const std::time_put<char>& tl_time_formater;
 
 // 格式化 tm
-str_t fmt_tm( const tm&, const char* fmt = FULL_FORMAT );
+str_t fmt_tm( const tm&, char_cp fmt = FULL_FORMAT );
 // 格式化 time_t
-str_t fmt_tmt( const std::time_t, const char* fmt = FULL_FORMAT );
+str_t fmt_tmt( const std::time_t, char_cp fmt = FULL_FORMAT );
 // 格式化 time_point, 指定格式
 template <typename C, typename D>
-str_t fmt( const time_point<C, D>, const char* fmt = FULL_FORMAT );
+str_t fmt( const time_point<C, D>, char_cp fmt = FULL_FORMAT );
 
 // 格式化 time_point, 指定精度
 template <typename C, typename D>
 str_t fmt( const time_point<C, D>, size_t precision,
-		   const char* fmt = NEAT_FORMAT );
+		   char_cp fmt = NEAT_FORMAT );
 
 template <typename C, typename D>
 str_t fmt_date( const time_point<C, D> );
