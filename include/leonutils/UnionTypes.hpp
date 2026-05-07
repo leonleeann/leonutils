@@ -8,8 +8,7 @@
 // #pragma GCC diagnostic ignored "-Warray-bounds"
 
 using char_cp = const char*;
-using str_t = std::string;
-using str_cr = const str_t&;
+using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 using stv_t = std::string_view;
 
 namespace leon_utl {

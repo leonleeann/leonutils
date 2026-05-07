@@ -2,10 +2,8 @@
 #include <string>
 
 using char_cp = const char*;
-using str_t = std::string;
-using str_cr = const str_t&;
-using wstr_t = std::wstring;
-using wstr_cr = const wstr_t&;
+using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
+using wstr_t = std::wstring; using wstr_cp = const wstr_t*; using wstr_cr = const wstr_t&;
 
 namespace leon_utl {
 

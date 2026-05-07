@@ -6,8 +6,7 @@
 
 using char_cp = const char*;
 using oss_t = std::ostringstream;
-using str_t = std::string;
-using str_cr = const str_t&;
+using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 
 namespace leon_utl {
 

@@ -2,8 +2,14 @@
 #include <atomic>
 
 using abool_t = std::atomic_bool;
+
+using ai16_t = std::atomic_int16_t;
 using ai32_t = std::atomic_int32_t;
 using ai64_t = std::atomic_int64_t;
+
+using au16_t = std::atomic_uint16_t;
+using au32_t = std::atomic_uint32_t;
+using au64_t = std::atomic_uint64_t;
 
 namespace leon_utl {
 

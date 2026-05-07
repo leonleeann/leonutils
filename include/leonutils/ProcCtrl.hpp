@@ -6,8 +6,7 @@
 template<typename K, typename V, typename C = std::less<K>,
 		 typename A = std::allocator<std::pair<const K, V> > >
 using map_t = std::map<K, V, C, A>;
-using str_t = std::string;
-using str_cr = const str_t&;
+using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 
 namespace leon_utl {
 
