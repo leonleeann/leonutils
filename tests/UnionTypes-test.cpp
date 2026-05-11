@@ -312,7 +312,7 @@ TEST( TestUnionTypes, RawConvert ) {
 	ASSERT_EQ( RawU64I( uint64_t( 0x8000000000000000 ) ), std::numeric_limits<int64_t>::min() );
 	ASSERT_EQ( RawU64I( uint64_t( 0x8000000000000001 ) ), std::numeric_limits<int64_t>::min() + 1 );
 	ASSERT_EQ( RawU64I( uint64_t( 0xffffffffffffffff ) ), int64_t( -1 ) );
-	ASSERT_EQ( RawU64I( uint64_t( 0 ) ),                   int64_t( 0 ) );
+	ASSERT_EQ( RawU64I( uint64_t( 0 ) ),                  int64_t( 0 ) );
 	ASSERT_EQ( RawU64I( uint64_t( 0x7fffffffffffffff ) ), std::numeric_limits<int64_t>::max() );
 
 	ASSERT_EQ( RawI64U( std::numeric_limits<int64_t>::min() ),     uint64_t( 0x8000000000000000 ) );
@@ -322,10 +322,6 @@ TEST( TestUnionTypes, RawConvert ) {
 	ASSERT_EQ( RawI64U( std::numeric_limits<int64_t>::max() ),     uint64_t( 0x7fffffffffffffff ) );
 
 //	ASSERT_TRUE( leon_utl::eq( RawU64D( 0x407b4999999999abUL ), 436.6 ) );
-};
-
-ost_t& operator<<( ost_t& os_, U64_u u_ ) {
-	return os_ << u_.view();
 };
 
 TEST( TestUnionTypes, outputAsStrView ) {

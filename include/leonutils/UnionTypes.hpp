@@ -1,4 +1,5 @@
 #pragma once
+#include <iosfwd>
 #include <limits>
 #include <string>
 #include <string_view>
@@ -8,6 +9,7 @@
 // #pragma GCC diagnostic ignored "-Warray-bounds"
 
 using char_cp = const char*;
+using ost_t = std::ostream;
 using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 using stv_t = std::string_view;
 
@@ -214,7 +216,15 @@ constexpr U32_u F32_LOWEST( std::numeric_limits<float>::lowest() );
 constexpr U64_u D64_MAXIMU( std::numeric_limits<double>::max() );	//.asU = 0x7fefffffffffffff
 constexpr U64_u D64_LOWEST( std::numeric_limits<double>::lowest() );
 
-}; //namespace leon_utl
+};	//namespace leon_utl
+
+namespace std {
+
+inline ost_t& operator<<( ost_t& os_, leon_utl::U16_u u_ ) { return os_ << u_.view(); };
+inline ost_t& operator<<( ost_t& os_, leon_utl::U32_u u_ ) { return os_ << u_.view(); };
+inline ost_t& operator<<( ost_t& os_, leon_utl::U64_u u_ ) { return os_ << u_.view(); };
+
+};	//namespace std
 
 // #pragma GCC diagnostic pop
 
