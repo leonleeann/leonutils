@@ -79,12 +79,12 @@ void ProcessOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {
-		std::cerr << "不可能1个CPU也不用!" << std::endl;
+//		std::cerr << "不可能1个CPU也不用!" << std::endl;
 		return;
 	}
 
 	if( id_set.contains( -1 ) ) {
-		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
+//		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
 		return;
 	}
 
@@ -98,12 +98,12 @@ void PthreadOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
 	if( id_set.empty() ) {
-		std::cerr << "不可能1个CPU也不用!" << std::endl;
+//		std::cerr << "不可能1个CPU也不用!" << std::endl;
 		return;
 	}
 
 	if( id_set.contains( -1 ) ) {
-		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
+//		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
 		return;
 	}
 

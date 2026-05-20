@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 33 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 34 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES	"Union16/32/64直接提供流式输出" )
+set( PROJECT_VERSION_NOTES	"CpuAffinity减少报错日志" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION	"leon's c++ utils" )
