@@ -131,7 +131,7 @@ union U64_u {
 	[[gnu::always_inline]] constexpr U64_u( const U64_u& ) = default;
 	[[gnu::always_inline]] constexpr U64_u() = default;
 
-	[[gnu::always_inline]] constexpr U64_u operator=( double	d_ ) { asD = d_; return *this; };
+	[[gnu::always_inline]] constexpr U64_u operator=( double	f_ ) { asF = f_; return *this; };
 	[[gnu::always_inline]] constexpr U64_u operator=( int64_t	i_ ) { asI = i_; return *this; };
 	[[gnu::always_inline]] constexpr U64_u operator=( uint64_t	u_ ) { asU = u_; return *this; };
 	[[gnu::always_inline]] constexpr U64_u operator=( char_cp p_ ) {
@@ -154,7 +154,7 @@ union U64_u {
 		return *this;
 	};
 
-	[[gnu::always_inline]] constexpr U64_u( double d_ ):	asD( d_ ) {};
+	[[gnu::always_inline]] constexpr U64_u( double f_ ):	asF( f_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( int64_t i_ ):	asI( i_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( uint64_t u_ ):	asU( u_ ) {};
 	[[gnu::always_inline]] constexpr U64_u( char_cp p_ ) { operator=( p_ ); };
@@ -178,7 +178,7 @@ union U64_u {
 		return str_t( asA, sizeof( uint64_t ) );
 	};
 
-	double		asD;
+	double		asF;
 	int64_t		asI;
 	uint64_t	asU;
 	char		asA[ sizeof( uint64_t ) ];
@@ -203,8 +203,8 @@ inline constexpr int32_t	RawU32I( const uint32_t	u_ ) { return U32_u( u_ ).asI; 
 inline constexpr uint32_t	RawF32U( const float	f_ ) { return U32_u( f_ ).asU; };
 inline constexpr uint32_t	RawI32U( const int32_t	i_ ) { return U32_u( i_ ).asU; };
 
-inline constexpr float		RawI64D( const int64_t	i_ ) { return U64_u( i_ ).asD; };
-inline constexpr float		RawU64D( const uint64_t	u_ ) { return U64_u( u_ ).asD; };
+inline constexpr double		RawI64F( const int64_t	i_ ) { return U64_u( i_ ).asF; };
+inline constexpr double		RawU64F( const uint64_t	u_ ) { return U64_u( u_ ).asF; };
 inline constexpr int64_t	RawF64I( const double	f_ ) { return U64_u( f_ ).asI; };
 inline constexpr int64_t	RawU64I( const uint64_t	u_ ) { return U64_u( u_ ).asI; };
 inline constexpr uint64_t	RawF64U( const double	f_ ) { return U64_u( f_ ).asU; };
@@ -213,8 +213,8 @@ inline constexpr uint64_t	RawI64U( const int64_t	i_ ) { return U64_u( i_ ).asU; 
 // 把浮点数的某些特殊值按照 U32/U64 的形式返回,可用于某些二进制的快速比较
 constexpr U32_u F32_MAXIMU( std::numeric_limits<float>::max() );	//.asU = 0x7f7fffff
 constexpr U32_u F32_LOWEST( std::numeric_limits<float>::lowest() );
-constexpr U64_u D64_MAXIMU( std::numeric_limits<double>::max() );	//.asU = 0x7fefffffffffffff
-constexpr U64_u D64_LOWEST( std::numeric_limits<double>::lowest() );
+constexpr U64_u F64_MAXIMU( std::numeric_limits<double>::max() );	//.asU = 0x7fefffffffffffff
+constexpr U64_u F64_LOWEST( std::numeric_limits<double>::lowest() );
 
 };	//namespace leon_utl
 

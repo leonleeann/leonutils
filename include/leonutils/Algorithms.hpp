@@ -15,13 +15,13 @@ template<typename T> inline bool strict_max( const T v_ ) {
 	return v_ == std::numeric_limits<T>::max();
 };
 template<> inline bool strict_max( const float	v_ ) { return U32_u( v_ ) == F32_MAXIMU; };
-template<> inline bool strict_max( const double	v_ ) { return U64_u( v_ ) == D64_MAXIMU; };
+template<> inline bool strict_max( const double	v_ ) { return U64_u( v_ ) == F64_MAXIMU; };
 
 template<typename T> inline bool strict_low( const T v_ ) {
 	return v_ == std::numeric_limits<T>::lowest();
 };
 template<> inline bool strict_low( const float	v_ ) { return U32_u( v_ ) == F32_LOWEST; };
-template<> inline bool strict_low( const double	v_ ) { return U64_u( v_ ) == D64_LOWEST; };
+template<> inline bool strict_low( const double	v_ ) { return U64_u( v_ ) == F64_LOWEST; };
 
 // 浮点数存了一个整数
 template<typename T>
