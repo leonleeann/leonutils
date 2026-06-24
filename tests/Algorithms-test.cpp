@@ -1,6 +1,5 @@
 #include <cmath>        // abs, ceil, floor, isnan, log, log10, pow, round, sqrt
 #include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <limits>
 
 #include "leonutils/Algorithms.hpp"
@@ -185,7 +184,7 @@ TEST( TestAlgorithms, doubleEqualWithEpsilon ) {
 
 TEST( TestAlgorithms, doulbeEquality ) {
 	double d1 = 1234567890.0, d2 = 1234567890.1;
-	/* U64_u u2 = d1; ++u2.asU; d2 = u2.asD;
+	/* U64_u u2 = d1; ++u2.asU; d2 = u2.asF;
 	lg_fatl << "d1:" << format( d1, 0, 30 )
 	          << ", d2:" << format( d2, 0, 30 );*/
 	ASSERT_TRUE( eq( d1, d2 ) );	ASSERT_FALSE( ne( d1, d2 ) );
@@ -208,20 +207,20 @@ TEST( TestAlgorithms, doulbeEquality ) {
 	ASSERT_TRUE( eq( d2, d1 ) );	ASSERT_FALSE( ne( d2, d1 ) );
 
 	U64_u d2uT;
-	d2uT.asD = std::numeric_limits<double>::max();
-	ASSERT_TRUE( strict_max( d2uT.asD ) );
+	d2uT.asF = std::numeric_limits<double>::max();
+	ASSERT_TRUE( strict_max( d2uT.asF ) );
 	ASSERT_FALSE( strict_max( d1 ) );
-	ASSERT_FALSE( eq( d1, d2uT.asD ) );	ASSERT_TRUE( ne( d1, d2uT.asD ) );
-	ASSERT_FALSE( eq( d2uT.asD, d1 ) );	ASSERT_TRUE( ne( d2uT.asD, d1 ) );
-	d1 = d2uT.asD = std::numeric_limits<double>::max();
-	ASSERT_TRUE( d1 == d2uT.asD );
-	ASSERT_TRUE( eq( d1, d2uT.asD ) );	ASSERT_FALSE( ne( d1, d2uT.asD ) );
-	ASSERT_TRUE( eq( d2uT.asD, d1 ) );	ASSERT_FALSE( ne( d2uT.asD, d1 ) );
+	ASSERT_FALSE( eq( d1, d2uT.asF ) );	ASSERT_TRUE( ne( d1, d2uT.asF ) );
+	ASSERT_FALSE( eq( d2uT.asF, d1 ) );	ASSERT_TRUE( ne( d2uT.asF, d1 ) );
+	d1 = d2uT.asF = std::numeric_limits<double>::max();
+	ASSERT_TRUE( d1 == d2uT.asF );
+	ASSERT_TRUE( eq( d1, d2uT.asF ) );	ASSERT_FALSE( ne( d1, d2uT.asF ) );
+	ASSERT_TRUE( eq( d2uT.asF, d1 ) );	ASSERT_FALSE( ne( d2uT.asF, d1 ) );
 	--d2uT.asU;
-	ASSERT_FALSE( strict_max( d2uT.asD ) );
-	ASSERT_FALSE( d1 == d2uT.asD );
-	ASSERT_TRUE( eq( d1, d2uT.asD ) );	ASSERT_FALSE( ne( d1, d2uT.asD ) );
-	ASSERT_TRUE( eq( d2uT.asD, d1 ) );	ASSERT_FALSE( ne( d2uT.asD, d1 ) );
+	ASSERT_FALSE( strict_max( d2uT.asF ) );
+	ASSERT_FALSE( d1 == d2uT.asF );
+	ASSERT_TRUE( eq( d1, d2uT.asF ) );	ASSERT_FALSE( ne( d1, d2uT.asF ) );
+	ASSERT_TRUE( eq( d2uT.asF, d1 ) );	ASSERT_FALSE( ne( d2uT.asF, d1 ) );
 };
 
 TEST( TestAlgorithms, floatGreatLessThan ) {
@@ -260,40 +259,40 @@ TEST( TestAlgorithms, floatGreatLessThan ) {
 
 TEST( TestAlgorithms, doubleGreatLessThan ) {
 	U64_u d1, d2;
-	d1.asD = 3.141592654;
+	d1.asF = 3.141592654;
 	d2.asU = d1.asU - 1;
-	ASSERT_FALSE( d1.asD == d2.asD );
-	ASSERT_TRUE( d1.asD > d2.asD );
-	ASSERT_TRUE( eq( d1.asD, d2.asD ) );
-	ASSERT_FALSE( gt( d1.asD, d2.asD ) );
-	ASSERT_FALSE( gt( d2.asD, d1.asD ) );
-	ASSERT_TRUE( ge( d1.asD, d2.asD ) );
-	ASSERT_TRUE( ge( d2.asD, d1.asD ) );
-	ASSERT_TRUE( le( d1.asD, d2.asD ) );
-	ASSERT_TRUE( le( d2.asD, d1.asD ) );
-	ASSERT_FALSE( lt( d1.asD, d2.asD ) );
-	ASSERT_FALSE( lt( d2.asD, d1.asD ) );
+	ASSERT_FALSE( d1.asF == d2.asF );
+	ASSERT_TRUE( d1.asF > d2.asF );
+	ASSERT_TRUE( eq( d1.asF, d2.asF ) );
+	ASSERT_FALSE( gt( d1.asF, d2.asF ) );
+	ASSERT_FALSE( gt( d2.asF, d1.asF ) );
+	ASSERT_TRUE( ge( d1.asF, d2.asF ) );
+	ASSERT_TRUE( ge( d2.asF, d1.asF ) );
+	ASSERT_TRUE( le( d1.asF, d2.asF ) );
+	ASSERT_TRUE( le( d2.asF, d1.asF ) );
+	ASSERT_FALSE( lt( d1.asF, d2.asF ) );
+	ASSERT_FALSE( lt( d2.asF, d1.asF ) );
 
-	d2.asD = d1.asD / 2;
-	ASSERT_TRUE( d1.asD > d2.asD );
-	ASSERT_FALSE( eq( d1.asD, d2.asD ) );
-	ASSERT_TRUE( gt( d1.asD, d2.asD ) );
-	ASSERT_FALSE( gt( d2.asD, d1.asD ) );
-	ASSERT_TRUE( ge( d1.asD, d2.asD ) );
-	ASSERT_FALSE( ge( d2.asD, d1.asD ) );
-	ASSERT_FALSE( le( d1.asD, d2.asD ) );
-	ASSERT_TRUE( le( d2.asD, d1.asD ) );
-	ASSERT_FALSE( lt( d1.asD, d2.asD ) );
-	ASSERT_TRUE( lt( d2.asD, d1.asD ) );
+	d2.asF = d1.asF / 2;
+	ASSERT_TRUE( d1.asF > d2.asF );
+	ASSERT_FALSE( eq( d1.asF, d2.asF ) );
+	ASSERT_TRUE( gt( d1.asF, d2.asF ) );
+	ASSERT_FALSE( gt( d2.asF, d1.asF ) );
+	ASSERT_TRUE( ge( d1.asF, d2.asF ) );
+	ASSERT_FALSE( ge( d2.asF, d1.asF ) );
+	ASSERT_FALSE( le( d1.asF, d2.asF ) );
+	ASSERT_TRUE( le( d2.asF, d1.asF ) );
+	ASSERT_FALSE( lt( d1.asF, d2.asF ) );
+	ASSERT_TRUE( lt( d2.asF, d1.asF ) );
 
-	d1.asD = 3.141592654;
-	d2.asD = d1.asD + 0.4999;
-	ASSERT_FALSE( gt( d2.asD, d1.asD, 0.5 ) );
-	ASSERT_TRUE( ge( d2.asD, d1.asD, 0.5 ) );
-	ASSERT_TRUE( le( d2.asD, d1.asD, 0.5 ) );
+	d1.asF = 3.141592654;
+	d2.asF = d1.asF + 0.4999;
+	ASSERT_FALSE( gt( d2.asF, d1.asF, 0.5 ) );
+	ASSERT_TRUE( ge( d2.asF, d1.asF, 0.5 ) );
+	ASSERT_TRUE( le( d2.asF, d1.asF, 0.5 ) );
 
-	ASSERT_TRUE( gt( d2.asD, d1.asD, 0.25 ) );
-	ASSERT_FALSE( le( d2.asD, d1.asD, 0.25 ) );
+	ASSERT_TRUE( gt( d2.asF, d1.asF, 0.25 ) );
+	ASSERT_FALSE( le( d2.asF, d1.asF, 0.25 ) );
 };
 
 TEST( TestAlgorithms, extreamFloatValues ) {

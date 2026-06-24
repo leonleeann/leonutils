@@ -10,6 +10,7 @@ add_executable( unit-test UnitTestMain.cpp
 	Converts-test.cpp
 	CraflinRQ-test.cpp
 	FileSystem-test.cpp
+	Rdtscp-test.cpp
 	RingQue-test.cpp
 	SetOps-test.cpp
 	ShmAtomicRQ-test.cpp
@@ -60,5 +61,9 @@ install( TARGETS try-swap RUNTIME DESTINATION testing )
 add_executable( cpu-set cpu-affinity.cpp )
 target_link_libraries( cpu-set leonutl_dynmic )
 install( TARGETS cpu-set RUNTIME DESTINATION testing )
+
+add_executable( try-rdtscp try-rdtscp.cpp )
+target_link_libraries( try-rdtscp objCommon )
+install( TARGETS try-rdtscp RUNTIME DESTINATION testing )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;

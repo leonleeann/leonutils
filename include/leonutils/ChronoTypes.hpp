@@ -37,6 +37,6 @@ using Dura15Min_T = duration<int, ratio<900>>;
 using TimeP15Min_T = time_point<steady_clock, Dura15Min_T>;
 */
 
-}; // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
