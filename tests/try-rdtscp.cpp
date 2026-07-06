@@ -7,7 +7,7 @@
 using namespace leon_utl;
 using GetTime_f = std::function<int64_t( void )>;
 
-static constexpr int TRY_COUNT = 1000;
+static constexpr int TRY_COUNT = 10000;
 
 int64_t Benchmark( char_cp name_, GetTime_f do_it_ ) {
 
@@ -36,6 +36,25 @@ int64_t Benchmark( char_cp name_, GetTime_f do_it_ ) {
 	return garbage;
 };
 
+static double s_ghz;
+
+int64_t Benchmark2( char_cp name_, GetTime_f do_it_ ) {
+	// 为防止受测函数被编译器优化掉, 必须留存它的结果
+	// 先运行几次, 热身
+	int64_t garbage = do_it_(); garbage += do_it_(); garbage += do_it_();
+
+	auto beg = TscClock_t::TscLFence();
+	for( int i = 0; i < TRY_COUNT; ++i ) {
+		garbage += do_it_();
+	};
+	auto end = TscClock_t::TscLFence();
+	auto cost = ( end - beg ) / s_ghz / TRY_COUNT;
+
+	std::cout << name_ << ":平均单次成本:" << fmt( cost, 0, 3 ) << "ns"
+			  << std::endl;
+	return garbage;
+};
+
 int main() {
 	// 为防止受测函数被编译器优化掉, 必须留存计算结果
 	int64_t garbage = 0;
@@ -44,6 +63,7 @@ int main() {
 	TscClock_t rdtscp_clock;
 	std::cout << "开始校准..." << std::endl;
 	rdtscp_clock.calibrate( 10s );
+	s_ghz = rdtscp_clock.freqGHz();
 	std::cout << "校准后,freqGHz():" << rdtscp_clock.freqGHz() << std::endl;
 
 	std::cout << "开始为核对而采样..." << std::endl;
@@ -64,18 +84,18 @@ int main() {
 			  << std::endl;
 
 	//---- 看看各种操作的性能 -------------------------------
-	garbage += Benchmark( "system_clock::now()    ", []() {
+	garbage += Benchmark2( "system_clock::now()    ", []() {
 		return system_clock::now().time_since_epoch().count();
 	} );
 
-	garbage += Benchmark( "steady_clock::now()    ", []() {
+	garbage += Benchmark2( "steady_clock::now()    ", []() {
 		return steady_clock::now().time_since_epoch().count();
 	} );
 
-	garbage += Benchmark( "TscClock_t::TscFree()  ", []() { return TscClock_t::TscFree(); } );
-	garbage += Benchmark( "TscClock_t::TscLFence()", []() { return TscClock_t::TscLFence(); } );
-	garbage += Benchmark( "TscClock_t::nowFree()  ", [&]() { return rdtscp_clock.nowFree().time_since_epoch().count(); } );
-	garbage += Benchmark( "TscClock_t::nowLFence()", [&]() { return rdtscp_clock.nowLFence().time_since_epoch().count(); } );
+	garbage += Benchmark2( "TscClock_t::TscFree()  ", []() { return TscClock_t::TscFree(); } );
+	garbage += Benchmark2( "TscClock_t::TscLFence()", []() { return TscClock_t::TscLFence(); } );
+	garbage += Benchmark2( "TscClock_t::nowFree()  ", [&]() { return rdtscp_clock.nowFree().time_since_epoch().count(); } );
+	garbage += Benchmark2( "TscClock_t::nowLFence()", [&]() { return rdtscp_clock.nowLFence().time_since_epoch().count(); } );
 
 	std::cout << "garbage:" << garbage << std::endl;
 	return EXIT_SUCCESS;

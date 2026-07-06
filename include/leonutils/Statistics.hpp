@@ -109,6 +109,6 @@ double pearson( NumPairs_t& );
 // 计算 Spearman 相关系数(会改变输入序列!!!)
 double spearman( NumPairs_t& );
 
-};  // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

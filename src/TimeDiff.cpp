@@ -52,7 +52,7 @@ SysDura_t	g_interval { 10ms };
 int main( int argc, const char* const* const args ) {
 	ParseArgs( argc, args );
 
-	if(g_as_server)
+	if( g_as_server )
 		RunServer();
 	else
 		RunClient();
@@ -102,7 +102,7 @@ void Calculate() {
 	// 再看看扣除网络延迟后的时差: 客户机时间 - 服务器时间 - 单边传输延迟
 	lags.clear();
 	for( auto& td : g_time_difs )
-		lags.emplace_back( td.recv_at - td.serv_at - result.med );
+		lags.emplace_back( td.recv_at / 2 + td.send_at / 2 - td.serv_at );
 
 	result( lags );
 	std::cout << "时差(客户机比服务器快的ns数):"
@@ -124,7 +124,7 @@ void RunClient() {
 	auto end_time = ( system_clock::now() + g_for_secs ).time_since_epoch().count();
 	auto new_line = send_at + 10000000000;
 	// 先热个身, 避免首次延迟纳入统计
-	rpc_clt.call( "T", send_at );
+	rpc_clt.call( "T", send_at ); rpc_clt.call( "T", send_at ); rpc_clt.call( "T", send_at );
 
 	g_time_difs.clear();
 	TimeDiff_t td;
@@ -141,7 +141,7 @@ void RunClient() {
 		td.latency = ( td.recv_at - td.send_at ) / 2;
 		g_time_difs.emplace_back( td );
 		trans_lag.update( td.latency );
-		time_diff.update( td.recv_at - td.serv_at - td.latency );
+		time_diff.update( td.recv_at / 2 + td.send_at / 2 - td.serv_at );
 		std::cout << "\r"
 				  << "延迟:" << fmt( trans_lag.avg(), 10, 0, 3, ' ', ',' ) << "ns,  "
 				  << "标差:" << fmt( trans_lag.std(), 10, 0, 3, ' ', ',' ) << "ns,  "
