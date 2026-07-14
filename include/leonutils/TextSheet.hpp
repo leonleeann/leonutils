@@ -35,6 +35,7 @@ public:
 //---- 使用阶段 -------------------------------------
 	// 5.填入数据(既然是文本输出,就不必纠结性能了,全部都用浮点数)
 	void	fill( int row, int col, double );
+	double&	operator()( int row, int col );
 
 	// 6.得到表格
 	wstr_t	makeWstr() const;
@@ -50,6 +51,6 @@ private:
 	Imp_t*	_imp;
 };
 
-}; //namespace leon_utl
+};	//namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

@@ -198,6 +198,10 @@ void TextSheet_t::fill( int r_, int c_, double d_ ) {
 	_imp->_all_data[r_][c_] = d_;
 };
 
+double& TextSheet_t::operator()( int r_, int c_ ) {
+	return _imp->_all_data[r_][c_];
+};
+
 wstr_t TextSheet_t::makeWstr() const {
 	return _imp->make();
 };
@@ -206,6 +210,6 @@ str_t TextSheet_t::makeUtf8() const {
 	return ws_2_u8( _imp->make() );
 };
 
-}; //namespace leon_utl
+};	//namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

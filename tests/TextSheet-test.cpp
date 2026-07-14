@@ -26,9 +26,9 @@ TEST( TestTextSheet, withNumbers ) {
 	testee.fill( 0, 1, 1112 );
 	testee.fill( 0, 2, 11113.33500001 );
 
-	testee.fill( 1, 0, 22221 );
-	testee.fill( 1, 1, 22222 );
-	testee.fill( 1, 2, 2345678 );
+	testee( 1, 0 ) = 22221;
+	testee( 1, 1 ) = 22222;
+	testee( 1, 2 ) = 2345678;
 
 	str_t result = testee.makeUtf8();
 	str_t refer = R"TXT(
