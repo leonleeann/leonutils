@@ -76,10 +76,10 @@ public:
 	~ShmAtmRQ_t();
 
 	// 作为"拥有者"创建本对象,删除重建底层SHM,并且设定容量、初始化公共部分
-	void make( SIZE_TYPE capacity, str_cr name );
+	void make( SIZE_TYPE capacity, str_cr name, bool log = false );
 
 	// 作为"访问者"创建本对象,只是对接底层SHM,并根据公共部分设定自身规格
-	void plug( str_cr name );
+	void plug( str_cr name, bool log = false );
 
 	// 所有生产者、消费者都对接好之后,可以调用本函数删除对应的底层OS文件,以免/dev/shm下文件太多
 	str_t	osFile() const { return _buff.osFile(); };
@@ -135,6 +135,7 @@ private:
 	SIZE_TYPE const	_mask {};	// 和_meta内部属性相同,复制到外面简化编码
 	ShmBuffer_t		_buff {};
 	ai64_t			_errs {};	// 本对象操作(出入队)失败计数, 成功一次会清除
+	bool const		_wlog {};	// 是否输出创建、对接、销毁日志
 	bool const		_ownr {};	// 为true就是拥有者,否则就是访问者
 };
 

@@ -4,10 +4,11 @@
 
 namespace leon_utl {
 
-void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_ ) {
+void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_, bool log_ ) {
+	const_cast<bool&>( _wlog ) = log_;
 	capa_ = _AlignCapa( capa_ );
 	size_t bytes = sizeof( Meta_t ) + capa_ * sizeof( Node_t );
-	bytes = _buff.make( name_, bytes, true );
+	bytes = _buff.make( name_, bytes, true, _wlog );
 
 	/***************************************************************************
 		注意: Meta_t 结构要在公共区最开始!!!!!!!!!!!!!!!
@@ -50,9 +51,9 @@ void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_ ) {
 				<< ",总尺寸:"	<< bytes		<< ",\nSHM:\t"	<< _buff.get(); */
 };
 
-void ShmAtmRQ_t::plug( str_cr name_ ) {
-
-	auto real_bytes = _buff.plug( name_, true );
+void ShmAtmRQ_t::plug( str_cr name_, bool log_ ) {
+	const_cast<bool&>( _wlog ) = log_;
+	auto real_bytes = _buff.plug( name_, true, _wlog );
 
 	auto up = reinterpret_cast<uintptr_t>( _buff.get() );
 	if( ( up & 63 ) != 0 )
@@ -88,7 +89,7 @@ void ShmAtmRQ_t::plug( str_cr name_ ) {
 
 ShmAtmRQ_t::~ShmAtmRQ_t() {
 	if( _meta )
-		_buff.unplug( _ownr );
+		_buff.unplug( _ownr, _wlog );
 };
 
 bool ShmAtmRQ_t::enque( const void* g_ ) {

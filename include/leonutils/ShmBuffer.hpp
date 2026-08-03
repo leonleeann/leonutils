@@ -24,12 +24,12 @@ public:
 
 	//---- 公开例程 ---------------------------------------------
 	// 创建底层SHM, 返回真实创建的字节数
-	size_t	make( str_cr name, size_t bytes, bool writable );
+	size_t	make( str_cr name, size_t bytes, bool writable, bool log = false );
 
 	// 对接底层SHM, 返回真实的字节数
-	size_t	plug( str_cr name, bool writable );
+	size_t	plug( str_cr name, bool writable, bool log = false );
 
-	void	unplug( bool remove_shm_file = false );
+	void	unplug( bool remove_shm_file = false, bool log = false );
 
 	str_cr	name()		const { return _shm_n; };
 	size_t	bytes()		const { return _bytes; };

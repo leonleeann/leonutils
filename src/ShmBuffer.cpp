@@ -44,7 +44,7 @@ void* CreateOrPlug( str_cr n_, size_t b_, bool cr_,
 	return shm_pt;
 };
 
-size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_ ) {
+size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 	_1page = getpagesize();
 
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
@@ -55,7 +55,7 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_ ) {
 	shm_unlink( n_.c_str() );
 	path_t shm_path { "/dev/shm/" + n_ };
 	if( fs::exists( shm_path ) )
-		std::cerr << "shm_unlink之后依然存在:" << shm_path << ",shm尺寸可能错乱!";
+		std::cerr << "shm_unlink之后依然存在:" << shm_path << ",shm尺寸可能错乱!" << std::endl;
 
 	/* 1.权限分三类:
 		a. f_mask: 当前打开的fd对应的操作权限 (O_RDONLY | O_RDWR | O_CREAT | O_TRUNC)
@@ -77,17 +77,19 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_ ) {
 	if( fs::exists( shm_path ) ) {
 		_bytes = fs::file_size( shm_path );
 		if( _bytes != b_ )
-			std::cerr << "实际创建的shm大小:" << _bytes << "不等于期望值:" << b_;
+			std::cerr << "实际创建的shm大小:" << _bytes << "不等于期望值:" << b_ << std::endl;
 		// else std::cerr << "成功创建shm:" << shm_path << ",文件尺寸:" << _bytes;
 	} else {
 		_shm_n.clear(); _shm_p = nullptr; _bytes = 0;
 		throw std::runtime_error( shm_path.native() + ":shm创建完了居然不存在?" );
 	}
 
+	if( log_ )
+		std::cout << "shm:'" << _shm_n << "' created:" << _bytes << "bytes" << std::endl;
 	return _bytes;
 };
 
-size_t ShmBuffer_t::plug( str_cr n_, bool wr_ ) {
+size_t ShmBuffer_t::plug( str_cr n_, bool wr_, bool log_ ) {
 	_1page = getpagesize();
 
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
@@ -120,16 +122,21 @@ size_t ShmBuffer_t::plug( str_cr n_, bool wr_ ) {
 	_shm_p = CreateOrPlug( n_, rs, false, f_mask, u_mask, m_mask );
 	_shm_n = n_;
 	_bytes = rs;
+
+	if( log_ )
+		std::cout << "shm:'" << _shm_n << "' pluged:" << _bytes << "bytes" << std::endl;
 	return _bytes;
 };
 
-void ShmBuffer_t::unplug( bool rm_ ) {
+void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
 	if( _shm_p == nullptr )
 		throw bad_usage( "重复释放shm!!!" );
 
 	if( munmap( _shm_p, _bytes ) != 0 )
 		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
-				  << "\",shm_name:" << _shm_n;
+				  << "\",shm_name:" << _shm_n << std::endl;
+	else if( log_ )
+		std::cout << "shm:'" << _shm_n << "' release:" << _bytes << "bytes" << std::endl;
 
 	if( rm_ )
 		delOsFile();
@@ -152,7 +159,7 @@ void ShmBuffer_t::delOsFile() const {
 
 	if( shm_unlink( _shm_n.c_str() ) != 0 )
 		std::cerr << "shm_unlink错误:\"" << std::strerror( errno )
-				  << "\",shm_name:" << _shm_n;
+				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
 ssize_t ShmBuffer_t::swapout() const {
