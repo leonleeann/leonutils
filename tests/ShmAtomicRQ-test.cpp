@@ -102,60 +102,60 @@ TEST( TestShmAtmRQ, removeOsShmFile ) {
 	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
+// 保底容量32个, 占一个内存页
+TEST( TestShmAtmRQ, atLeastUse1PageMemory ) {
+	char_cp test_name = "TestShmAtmRQ_AutoExtToPowerOf2";
+
+	ShmAtmRQ_t testee;
+	testee.make( 5, test_name );
+	EXPECT_EQ( testee.capa(), 4096 / sizeof( ShmAtmRQ_t::Node_t ) );
+};
+
 // 自动扩展容量到2的n次方
 TEST( TestShmAtmRQ, AutoExtToPowerOf2 ) {
 	char_cp test_name = "TestShmAtmRQ_AutoExtToPowerOf2";
 
 	ShmAtmRQ_t testee;
-	testee.make( 5, test_name );
-	EXPECT_EQ( testee.capa(), 8 );
+
+	// 自动扩展容量到2的n次方
+	testee.make( 129, test_name );
+	EXPECT_EQ( testee.capa(), 256 );
 };
 
 TEST( TestShmAtmRQ, emptyOrFully ) {
 	char_cp test_name = "ShmAtmRQ_emptyOrFully";
 	ShmAtmRQ_t testee;
-	testee.make( 4, test_name );
+	testee.make( 32, test_name );
 
 	EXPECT_TRUE( testee.empty() );
 	EXPECT_FALSE( testee.full() );
 	EXPECT_EQ( testee.size(), 0 );
 
-	// 添加 1 个元素不会满
-	testee.enque( test_name );
-	EXPECT_FALSE( testee.empty() );
-	EXPECT_FALSE( testee.full() );
-	EXPECT_EQ( testee.size(), 1 );
+	// 添加 31 个元素不会满
+	for( int i = 1; i <= 31; ++i ) {
+		testee.enque( test_name );
+		EXPECT_FALSE( testee.empty() );
+		EXPECT_FALSE( testee.full() );
+		EXPECT_EQ( testee.size(), i );
+	}
 
-	// 添加 2 个元素不会满
-	testee.enque( test_name );
-	EXPECT_FALSE( testee.empty() );
-	EXPECT_FALSE( testee.full() );
-	EXPECT_EQ( testee.size(), 2 );
-
-	// 添加 3 个元素不会满
-	testee.enque( test_name );
-	EXPECT_FALSE( testee.empty() );
-	EXPECT_FALSE( testee.full() );
-	EXPECT_EQ( testee.size(), 3 );
-
-	// 添加 4 个元素就满了
+	// 添加 32 个元素就满了
 	testee.enque( test_name );
 	EXPECT_FALSE( testee.empty() );
 	EXPECT_TRUE( testee.full() );
-	EXPECT_EQ( testee.size(), 4 );
+	EXPECT_EQ( testee.size(), 32 );
 };
 
 // 满了之后出队数据还能恢复
 TEST( TestShmAtmRQ, CanRecoverFromFull ) {
 	char_cp test_name = "ShmAtmRQ_CanRecoverFromFull";
 	ShmAtmRQ_t testee;
-	testee.make( 4, test_name );
-	testee.enque( test_name );
-	testee.enque( test_name );
-	testee.enque( test_name );
-	testee.enque( test_name );
+	testee.make( 32, test_name );
+
+	for( int i = 0; i < 32; ++i )
+		testee.enque( test_name );
 	EXPECT_TRUE( testee.full() );
-	EXPECT_EQ( testee.size(), 4 );
+	EXPECT_EQ( testee.size(), 32 );
 	EXPECT_FALSE( testee.enque( test_name ) );
 	EXPECT_EQ( testee.err_cnt(), 1 );
 
@@ -164,7 +164,7 @@ TEST( TestShmAtmRQ, CanRecoverFromFull ) {
 	EXPECT_EQ( testee.err_cnt(), 0 );
 	EXPECT_FALSE( testee.empty() );
 	EXPECT_FALSE( testee.full() );
-	EXPECT_EQ( testee.size(), 3 );
+	EXPECT_EQ( testee.size(), 31 );
 
 	EXPECT_TRUE( testee.enque( test_name ) );
 	EXPECT_EQ( testee.err_cnt(), 0 );

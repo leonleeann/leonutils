@@ -56,8 +56,8 @@ public:
 //====== 容量限制 ===============================================================
 	// 最大共享内存占用(单位:字节)
 	static constexpr SIZE_TYPE MAX_SHM_USAGE = 0x40000000;	// 1G Bytes
-	// 最少容量(单位:元素个数)
-	static constexpr SIZE_TYPE LEAST_ELEMNTS = 4;
+	// 最少容量(单位:元素个数, 至少一个内存页4k字节)
+	static constexpr SIZE_TYPE LEAST_ELEMNTS = 4096 / sizeof( Node_t );
 	// 最多容量(单位:元素个数,必须是2的整数次幂, 因为_mask必须是全1)
 #if( __GNUC__ >= 10 )
 	static constexpr SIZE_TYPE MOST_ELEMENTS =
@@ -120,7 +120,7 @@ public:
 //====== 内部实现 ===============================================================
 private:
 	// 让容量刚好是2的整数次幂, 因为_mask必须是全1
-	static SIZE_TYPE _AlignCapa( SIZE_TYPE want_capa );
+	static SIZE_TYPE _AlignCapa( str_cr name, SIZE_TYPE want_capa );
 
 	// 为了方便测试,把这几个属性也暴露出来
 	uintptr_t	_base_addr() const { return reinterpret_cast<uintptr_t>( _base ); };

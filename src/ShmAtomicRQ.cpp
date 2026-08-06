@@ -1,4 +1,6 @@
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 
 #include "leonutils/ShmAtomicRQ.hpp"
 
@@ -6,7 +8,7 @@ namespace leon_utl {
 
 void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_, bool log_ ) {
 	const_cast<bool&>( _wlog ) = log_;
-	capa_ = _AlignCapa( capa_ );
+	capa_ = _AlignCapa( name_, capa_ );
 	size_t bytes = sizeof( Meta_t ) + capa_ * sizeof( Node_t );
 	bytes = _buff.make( name_, bytes, true, _wlog );
 
@@ -163,7 +165,7 @@ void ShmAtmRQ_t::clear() {
 	while( deque( buf ) );
 };
 
-ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( SIZE_TYPE w_ ) {
+ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( str_cr n_, SIZE_TYPE w_ ) {
 
 #if( __GNUC__ >= 10 )
 	w_ = std::bit_ceil( static_cast<size_t>( w_ ) );
@@ -171,7 +173,18 @@ ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( SIZE_TYPE w_ ) {
 	w_ = std::ceil2( w_ );
 #endif
 
-	return std::max( LEAST_ELEMNTS, std::min( MOST_ELEMENTS, w_ ) );
+	if( w_ < LEAST_ELEMNTS ) {
+		std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太小,已调整为:"
+				  << LEAST_ELEMNTS << std::endl;
+		w_ = LEAST_ELEMNTS;
+	}
+
+	if( w_ > MOST_ELEMENTS ) {
+		std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太大,已调整为:"
+				  << MOST_ELEMENTS << std::endl;
+		w_ = MOST_ELEMENTS;
+	}
+	return w_;
 };
 
 int64_t ShmAtmRQ_t::get_flag() const {

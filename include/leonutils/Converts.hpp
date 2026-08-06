@@ -1,7 +1,7 @@
 #pragma once
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <iomanip>
-#include <iosfwd>
+#include <sstream>
 #include <string>
 
 using char_cp = const char*;
@@ -183,6 +183,6 @@ str_t fmt( const T	value,		//源数值
 		   char	pad_c = ' ',	//左边填充字符
 		   char	sep_c = '\'' );	//分组分隔符
 
-}; //namespace leon_utl
+};	//namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

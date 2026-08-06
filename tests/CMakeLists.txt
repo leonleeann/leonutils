@@ -5,6 +5,7 @@ find_package( GTest REQUIRED )
 #======= TARGET unit-test ==============
 add_executable( unit-test UnitTestMain.cpp
 	Algorithms-test.cpp
+	ArrayUtils-test.cpp
 	CallStack-test.cpp
 	Chrono-test.cpp
 	Converts-test.cpp
