@@ -69,8 +69,13 @@ cpu_set_t _MakeSet( const IntSet_t& ids_ ) {
 	cpu_set_t cpu_set;
 	CPU_ZERO( &cpu_set );
 
-	for( auto id : ids_ )
-		CPU_SET( id, &cpu_set );
+	if( ids_.contains( -1 ) ) {
+		auto cnt = GetCpuCount();
+		for( int id = 0; id < cnt; ++id )
+			CPU_SET( id, &cpu_set );
+	} else
+		for( auto id : ids_ )
+			CPU_SET( id, &cpu_set );
 
 	return cpu_set;
 };
@@ -78,15 +83,9 @@ cpu_set_t _MakeSet( const IntSet_t& ids_ ) {
 void ProcessOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
-	if( id_set.empty() ) {
-//		std::cerr << "不可能1个CPU也不用!" << std::endl;
-		return;
-	}
 
-	if( id_set.contains( -1 ) ) {
-//		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
-		return;
-	}
+	if( id_set.empty() )
+		id_set.insert( -1 );
 
 	auto cpu_set = _MakeSet( id_set );
 
@@ -97,15 +96,9 @@ void ProcessOnlyCPU( str_cr ids_ ) {
 void PthreadOnlyCPU( str_cr ids_ ) {
 
 	auto id_set = split2set<int>( ids_, ',' );
-	if( id_set.empty() ) {
-//		std::cerr << "不可能1个CPU也不用!" << std::endl;
-		return;
-	}
 
-	if( id_set.contains( -1 ) ) {
-//		std::cerr << "-1代表使用全部CPU,那还来绑核干嘛?!" << std::endl;
-		return;
-	}
+	if( id_set.empty() )
+		id_set.insert( -1 );
 
 	auto cpu_set = _MakeSet( id_set );
 

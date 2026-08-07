@@ -19,6 +19,8 @@ str_t GetThreadCpuMask();	// pthread_getaffinity_np
 	1.目前不清楚 sched 和 pthread 两套API的效果到底有何不同, 暂假定前者可以设置
 		整个进程的全局限制, 而后者仅能限制单个线程.
 	2.以下两个函数接口一致, 传入参数是逗号分隔的 cpu_id, 不是 mask!!!
+	3.包含"-1", 或者空集, 都表示"绑定所有cpu";
+	4.就算"绑定所有cpu", 也会真实去绑一下, 因为程序启动可能继承了父进程的绑核状态, 需要重新调整
 */
 void ProcessOnlyCPU( str_cr cpu_ids );	// sched_setaffinity
 void PthreadOnlyCPU( str_cr cpu_ids );	// pthread_setaffinity_np

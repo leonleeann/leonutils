@@ -3,13 +3,13 @@ cmake_minimum_required( VERSION 3.25.0 )
 ######## 项目及版本定义 ##########################################################
 set( PROJECT_VERSION_MAJOR 0 )   # 主版本
 set( PROJECT_VERSION_MINOR 3 )   # 次版本
-set( PROJECT_VERSION_PATCH 40 )  # 修订号(Bug fix)
+set( PROJECT_VERSION_PATCH 41 )  # 修订号(Bug fix)
 
 # 版本全串
 set( PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 
 # 版本说明
-set( PROJECT_VERSION_NOTES	"1.转换array为字符串;2.ShmAtmRQ_t保底容量32" )
+set( PROJECT_VERSION_NOTES	"就算绑核全部也会执行一下，确保清除继承的状态" )
 
 # 项目描述
 set( PROJECT_DESCRIPTION	"leon's c++ utils" )
