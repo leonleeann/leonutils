@@ -1,14 +1,20 @@
 #include <cstring>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 
 #include "leonutils/ShmAtomicRQ.hpp"
 
+namespace fs = std::filesystem;
+using path_t = fs::path;
+using fs::exists;
+
 namespace leon_utl {
 
 void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_, bool log_ ) {
+
 	const_cast<bool&>( _wlog ) = log_;
-	capa_ = _AlignCapa( name_, capa_ );
+	capa_ = _AlignCapa( name_, capa_, _wlog );
 	size_t bytes = sizeof( Meta_t ) + capa_ * sizeof( Node_t );
 	bytes = _buff.make( name_, bytes, true, _wlog );
 
@@ -54,6 +60,7 @@ void ShmAtmRQ_t::make( SIZE_TYPE capa_, str_cr name_, bool log_ ) {
 };
 
 void ShmAtmRQ_t::plug( str_cr name_, bool log_ ) {
+
 	const_cast<bool&>( _wlog ) = log_;
 	auto real_bytes = _buff.plug( name_, true, _wlog );
 
@@ -87,6 +94,17 @@ void ShmAtmRQ_t::plug( str_cr name_, bool log_ ) {
 				<< "\n载荷尺寸:"	<< sizeof( T )	<< ",节点尺寸:"	<< sizeof( Node_t )
 				<< ",容量:"		<< _capa		<< ",mask:"		<< _mask
 				<< ",总尺寸:"	<< real_bytes	<< ",\nSHM:\t"	<< _buff.get(); */
+};
+
+void ShmAtmRQ_t::makeOrPlug( SIZE_TYPE capa_, str_cr name_, bool log_ ) {
+
+	// 同名 shm 如果存在, 就plug, 否则make
+	path_t shm_path { "/dev/shm/" + name_ };
+
+	if( fs::exists( shm_path ) )
+		plug( name_, log_ );
+	else
+		make( capa_, name_, log_ );
 };
 
 ShmAtmRQ_t::~ShmAtmRQ_t() {
@@ -165,7 +183,7 @@ void ShmAtmRQ_t::clear() {
 	while( deque( buf ) );
 };
 
-ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( str_cr n_, SIZE_TYPE w_ ) {
+ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( str_cr n_, SIZE_TYPE w_, bool log_ ) {
 
 #if( __GNUC__ >= 10 )
 	w_ = std::bit_ceil( static_cast<size_t>( w_ ) );
@@ -174,14 +192,16 @@ ShmAtmRQ_t::SIZE_TYPE ShmAtmRQ_t::_AlignCapa( str_cr n_, SIZE_TYPE w_ ) {
 #endif
 
 	if( w_ < LEAST_ELEMNTS ) {
-		std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太小,已调整为:"
-				  << LEAST_ELEMNTS << std::endl;
+		if( log_ )
+			std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太小,已调整为:"
+					  << LEAST_ELEMNTS << std::endl;
 		w_ = LEAST_ELEMNTS;
 	}
 
 	if( w_ > MOST_ELEMENTS ) {
-		std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太大,已调整为:"
-				  << MOST_ELEMENTS << std::endl;
+		if( log_ )
+			std::cerr << "ShmAtmRQ_t'" << n_ << "'容量(" << w_ << ")太大,已调整为:"
+					  << MOST_ELEMENTS << std::endl;
 		w_ = MOST_ELEMENTS;
 	}
 	return w_;

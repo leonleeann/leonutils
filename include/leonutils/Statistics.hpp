@@ -70,6 +70,7 @@ struct IncStat_t {
 						  / ( _cnt - 1 ) );
 	};
 };
+using IncStat_cp = IncStat_t const*;	using IncStat_cr = IncStat_t const&;
 
 double average( const NumbVect_t& );
 

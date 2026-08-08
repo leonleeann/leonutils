@@ -81,6 +81,9 @@ public:
 	// 作为"访问者"创建本对象,只是对接底层SHM,并根据公共部分设定自身规格
 	void plug( str_cr name, bool log = false );
 
+	// 创建或对接(存在就对接, 否则才创建)
+	void makeOrPlug( SIZE_TYPE capacity, str_cr name, bool log = false );
+
 	// 所有生产者、消费者都对接好之后,可以调用本函数删除对应的底层OS文件,以免/dev/shm下文件太多
 	str_t	osFile() const { return _buff.osFile(); };
 	void delOsFile() const { _buff.delOsFile(); };
@@ -120,7 +123,7 @@ public:
 //====== 内部实现 ===============================================================
 private:
 	// 让容量刚好是2的整数次幂, 因为_mask必须是全1
-	static SIZE_TYPE _AlignCapa( str_cr name, SIZE_TYPE want_capa );
+	static SIZE_TYPE _AlignCapa( str_cr name, SIZE_TYPE want_capa, bool log );
 
 	// 为了方便测试,把这几个属性也暴露出来
 	uintptr_t	_base_addr() const { return reinterpret_cast<uintptr_t>( _base ); };

@@ -20,14 +20,18 @@ ShmBuffer_t::~ShmBuffer_t() {
 		unplug();
 };
 
-void* CreateOrPlug( str_cr n_, size_t b_, bool cr_,
-					int f_mask_, mode_t u_mask_, int m_mask_ ) {
+void* ShmBuffer_t::_mk_plug( str_cr n_, size_t b_, bool tr_,
+							 int f_mask_, mode_t u_mask_, int m_mask_ ) {
+	_1page = getpagesize();
+
+	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
+		throw bad_usage( "用于\"" + n_ + "\"的ShmBuffer对象已作为\"" + _shm_n + "\"之用!!!" );
 
 	auto shm_fd = shm_open( n_.c_str(), f_mask_, u_mask_ );
 	if( shm_fd < 0 )
 		throw std::runtime_error( "shm_open错误:" + str_t( std::strerror( errno ) ) );
 
-	if( cr_ && ftruncate( shm_fd, b_ ) != 0 )
+	if( tr_ && ftruncate( shm_fd, b_ ) != 0 )
 		throw std::runtime_error( "ftruncate错误:" + str_t( std::strerror( errno ) ) );
 
 	auto shm_pt = mmap( NULL, b_, m_mask_, MAP_SHARED_VALIDATE, shm_fd, 0 );
@@ -38,18 +42,13 @@ void* CreateOrPlug( str_cr n_, size_t b_, bool cr_,
 		throw std::runtime_error( "close( shm_fd )错误:" +
 								  str_t( std::strerror( errno ) ) );
 
-	if( ( reinterpret_cast<intptr_t>( shm_pt ) & 63 ) != 0 )
+	if( ( reinterpret_cast<uintptr_t>( shm_pt ) & 63 ) != 0 )
 		throw std::runtime_error( n_ + ":地址未从64字节整倍数开始!" );
 
 	return shm_pt;
 };
 
 size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
-	_1page = getpagesize();
-
-	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
-		throw bad_usage( "用于申请shm:\"" + n_ +
-						 "\"的ShmBuffer_t对象已作为\"" + _shm_n + "\"之用!!!" );
 
 	// 把原有 shm 删除
 	shm_unlink( n_.c_str() );
@@ -68,10 +67,9 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 	auto f_mask = O_RDWR | O_CREAT | O_TRUNC;
 	auto u_mask = S_IRUSR | S_IWUSR;
 	auto m_mask = PROT_READ;
-	if( wr_ )
-		m_mask |= PROT_WRITE;
+	if( wr_ ) { m_mask |= PROT_WRITE; }
 
-	_shm_p = CreateOrPlug( n_, b_, true, f_mask, u_mask, m_mask );
+	_shm_p = _mk_plug( n_, b_, true, f_mask, u_mask, m_mask );
 	_shm_n = n_;
 
 	if( fs::exists( shm_path ) ) {
@@ -90,12 +88,8 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 };
 
 size_t ShmBuffer_t::plug( str_cr n_, bool wr_, bool log_ ) {
-	_1page = getpagesize();
 
-	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
-		throw bad_usage( "用于申请shm:\"" + n_ +
-						 "\"的ShmBuffer_t对象已作为\"" + _shm_n + "\"之用!!!" );
-
+	// 原有 shm 必须已经存在, 否则报错
 	path_t shm_path { "/dev/shm/" + n_ };
 	size_t rs {};
 	if( fs::exists( shm_path ) ) {
@@ -115,11 +109,9 @@ size_t ShmBuffer_t::plug( str_cr n_, bool wr_, bool log_ ) {
 	auto f_mask = O_RDONLY;
 	auto u_mask = S_IRUSR | S_IWUSR;
 	auto m_mask = PROT_READ;
-	if( wr_ ) {
-		f_mask |= O_RDWR;
-		m_mask |= PROT_WRITE;
-	}
-	_shm_p = CreateOrPlug( n_, rs, false, f_mask, u_mask, m_mask );
+	if( wr_ ) { f_mask |= O_RDWR; m_mask |= PROT_WRITE; }
+
+	_shm_p = _mk_plug( n_, rs, false, f_mask, u_mask, m_mask );
 	_shm_n = n_;
 	_bytes = rs;
 
@@ -128,7 +120,19 @@ size_t ShmBuffer_t::plug( str_cr n_, bool wr_, bool log_ ) {
 	return _bytes;
 };
 
+size_t ShmBuffer_t::makeOrPlug( str_cr n_, size_t b_, bool wr_, bool log_ ) {
+
+	// 同名 shm 如果存在, 就plug, 否则make
+	path_t shm_path { "/dev/shm/" + n_ };
+
+	if( fs::exists( shm_path ) )
+		return plug( n_, wr_, log_ );
+	else
+		return make( n_, b_, wr_, log_ );
+};
+
 void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
+
 	if( _shm_p == nullptr )
 		throw bad_usage( "重复释放shm!!!" );
 
@@ -136,7 +140,7 @@ void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
 		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
 				  << "\",shm_name:" << _shm_n << std::endl;
 	else if( log_ )
-		std::cout << "shm:'" << _shm_n << "' release:" << _bytes << "bytes" << std::endl;
+		std::cout << "shm:'" << _shm_n << "' released:" << _bytes << "bytes" << std::endl;
 
 	if( rm_ )
 		delOsFile();
@@ -147,6 +151,7 @@ void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
 };
 
 void ShmBuffer_t::delOsFile() const {
+
 	if( _shm_n.empty() )
 		return;
 

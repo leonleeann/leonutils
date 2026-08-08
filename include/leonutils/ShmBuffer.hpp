@@ -23,11 +23,14 @@ public:
 	~ShmBuffer_t();
 
 	//---- 公开例程 ---------------------------------------------
-	// 创建底层SHM, 返回真实创建的字节数
+	// 强制创建SHM(先无脑删除原有再创建), 返回真实创建的字节数
 	size_t	make( str_cr name, size_t bytes, bool writable, bool log = false );
 
 	// 对接底层SHM, 返回真实的字节数
 	size_t	plug( str_cr name, bool writable, bool log = false );
+
+	// 创建或对接SHM(存在就对接, 否则才创建), 返回SHM真实字节数
+	size_t	makeOrPlug( str_cr name, size_t bytes, bool writable, bool log = false );
 
 	void	unplug( bool remove_shm_file = false, bool log = false );
 
@@ -44,6 +47,8 @@ public:
 //==== 内部实现 =================================================================
 private:
 	//---- 内部例程 ---------------------------------------------
+	void* _mk_plug( str_cr name, size_t bytes, bool resize,
+					int file_mask, mode_t user_mask, int memory_mask );
 
 	//---- 内部变量 ---------------------------------------------
 	str_t	_shm_n {};
