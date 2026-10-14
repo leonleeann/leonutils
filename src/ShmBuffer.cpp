@@ -1,3 +1,4 @@
+#include <cmath>		// ceil
 #include <cerrno>		// errno
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <fcntl.h>		// O_CREAT, O_TRUNC, O_RDWR, S_IRUSR, S_IWUSR
@@ -82,8 +83,10 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 		throw std::runtime_error( shm_path.native() + ":shm创建完了居然不存在?" );
 	}
 
+	_pages = std::ceil( static_cast<float>( _bytes ) / _1page );
 	if( log_ )
-		std::cout << "shm:'" << _shm_n << "' created:" << _bytes << "bytes" << std::endl;
+		std::cout << "shm:'" << _shm_n << "' created:" << _bytes << "bytes in "
+				  << _pages << "pages." << std::endl;
 	return _bytes;
 };
 
@@ -115,8 +118,10 @@ size_t ShmBuffer_t::plug( str_cr n_, bool wr_, bool log_ ) {
 	_shm_n = n_;
 	_bytes = rs;
 
+	_pages = std::ceil( static_cast<float>( _bytes ) / _1page );
 	if( log_ )
-		std::cout << "shm:'" << _shm_n << "' pluged:" << _bytes << "bytes" << std::endl;
+		std::cout << "shm:'" << _shm_n << "' plugged:" << _bytes << "bytes in "
+				  << _pages << "pages." << std::endl;
 	return _bytes;
 };
 
@@ -140,7 +145,7 @@ void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
 		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
 				  << "\",shm_name:" << _shm_n << std::endl;
 	else if( log_ )
-		std::cout << "shm:'" << _shm_n << "' released:" << _bytes << "bytes" << std::endl;
+		std::cout << "shm:'" << _shm_n << "' release:" << _bytes << "bytes" << std::endl;
 
 	if( rm_ )
 		delOsFile();
@@ -167,33 +172,44 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
-ssize_t ShmBuffer_t::swapout() const {
+ssize_t ShmBuffer_t::dontNeed( int beg_, int end_ ) const {
+	return _madvise( __func__, MADV_DONTNEED, beg_, end_ );
+};
 
-	// 首页是不换出的
-	uintptr_t	swap_head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page;
+ssize_t ShmBuffer_t::swapout( int beg_, int end_ ) const {
+	return _madvise( __func__, MADV_PAGEOUT, beg_, end_ );
+};
 
-	ssize_t		swap_size = _bytes - _1page;
-	if( swap_size < 0 ) {
-		std::cerr << "shm_swapout错误:换出尺寸怎么会是负数:" << swap_size << "呢?!"
-				  << std::endl;
+ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) const {
+
+	// 跳过开始多少页
+	beg_ = beg_ >= 0 ? beg_ : _pages + beg_;
+	beg_ = std::min( _pages - 1, std::max( 0, beg_ ) );
+
+	// 跳过末尾多少页
+	end_ = end_ > 0 ? end_ : _pages + end_;
+	end_ = std::min( _pages, std::max( 0, end_ ) );
+
+	// 需要换出的字节数
+	ssize_t to_be = static_cast<ssize_t>( end_ - beg_ ) * _1page;
+	std::cerr << _shm_n << '.' << fn_ << ":beg_" << beg_ << ", end_" << end_
+			  << ", to_be:" << to_be << std::endl;
+
+	if( to_be <= 0 ) {
+//		std::cerr << _shm_n << '.' << fn_ << ":尺寸为负:" << to_be << '!' << std::endl;
 		return 0;
 	}
 
-	// 对齐为 page_size(4096) 的整倍数
-	swap_size /= _1page;
-	// 不够1页就算了
-	if( swap_size < 1 )
-		return 0;
-	swap_size *= _1page;
+	auto head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page * beg_;
 
-	if( madvise( reinterpret_cast<void*>( swap_head ), swap_size, MADV_PAGEOUT ) != 0 ) {
+	if( madvise( reinterpret_cast<void*>( head ), to_be, op_ ) != 0 ) {
 		auto e = errno;
-		std::cerr << "shm_swapout错误:\"" << std::strerror( e )
-				  << "\",shm_name:" << _shm_n << std::endl;
+		std::cerr << _shm_n << '.' << fn_ << ":错误:\"" << std::strerror( e )
+				  << "\"." << std::endl;
 		return 0;
 	}
 
-	return swap_size;
+	return to_be;
 };
 
 };	// namespace leon_utl

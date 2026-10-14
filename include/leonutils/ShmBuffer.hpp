@@ -1,5 +1,6 @@
 #pragma once
 
+using char_cp = char const*;
 using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 
 namespace leon_utl {
@@ -37,8 +38,20 @@ public:
 	str_cr	name()		const { return _shm_n; };
 	size_t	bytes()		const { return _bytes; };
 	void*	get()		const { return _shm_p; };
-	ssize_t	pageSize()	const { return _1page; };
-	ssize_t	swapout()	const;
+	int		pages()		const { return _pages; };
+	int		pageSize()	const { return _1page; };
+
+	// 暂时不需要用到的页, 可以报告给OS: 可以换出到交换空间
+	ssize_t	dontNeed(
+		int beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+	) const;
+
+	// 强制换出到交换空间(有可能又被OS加载回来)
+	ssize_t	swapout(
+		int beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+	) const;
 
 	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
 	str_t	osFile()	const { return "/dev/shm/" + _shm_n; };
@@ -49,12 +62,19 @@ private:
 	//---- 内部例程 ---------------------------------------------
 	void* _mk_plug( str_cr name, size_t bytes, bool resize,
 					int file_mask, mode_t user_mask, int memory_mask );
+	ssize_t _madvise(
+		char_cp	func_name,
+		int		directive,		// MADV_PAGEOUT, MADV_DONTNEED
+		int		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+	) const;
 
 	//---- 内部变量 ---------------------------------------------
 	str_t	_shm_n {};
 	void*	_shm_p {};
 	size_t	_bytes {};
-	ssize_t	_1page {};	// 单个页面大小(字节)
+	int		_pages {};	// 共占多少页
+	int		_1page {};	// 单页大小(字节)
 };
 
 };	// namespace leon_utl

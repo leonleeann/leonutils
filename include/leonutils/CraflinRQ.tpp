@@ -99,6 +99,6 @@ inline bool CraflinRQ_t<T>::deque( T& dest_ ) {
 	return true;
 };
 
-}; // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

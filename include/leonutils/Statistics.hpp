@@ -97,6 +97,7 @@ struct Statistic_t {
 	double	avg;	// 平均值
 	double	std;	// 标准差
 };
+using Statistic_cr = Statistic_t const&;	using Statistic_cp = Statistic_t const*;
 
 struct NumPair_t {
 	double x;
