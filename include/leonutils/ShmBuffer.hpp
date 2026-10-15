@@ -41,17 +41,22 @@ public:
 	int		pages()		const { return _pages; };
 	int		pageSize()	const { return _1page; };
 
-	// 暂时不需要用到的页, 可以报告给OS: 可以换出到交换空间
-	ssize_t	dontNeed(
-		int beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
-	) const;
-
-	// 强制换出到交换空间(有可能又被OS加载回来)
+	/* 在小内存平台上分配大 SHM, 可能需要用到交换空间. 但 OS 不会主动换出 SHM 到交换空间.
+	所以需要如下两个操作:
+		1. 每个进程都来标记冷数据(MADV_DONTNEED), 让冷页不再有PTE(Page Table Entry);
+		2. 每个进程都主动要求换出(MADV_PAGEOUT), 才可能得到换出.
+	当然还需要 OS 其它配置, 比如 vm.swappiness, memory.reclaim 配合完成.
+	*/
+	// 标记冷数据(系统调用昂贵, 本对象会记录上次标记范围, 如果新增热数据太少就跳过)
+	void	tagcold(
+		const void*	cool_before,	// 将此地址之前的页标记为冷数据
+		int			skip_header = 1	// 不标记最初几页(保持热度)
+	);
+	// 显示要求换出(必须要标记过的冷页)
 	ssize_t	swapout(
 		int beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
 		int end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
-	) const;
+	);
 
 	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
 	str_t	osFile()	const { return "/dev/shm/" + _shm_n; };
@@ -67,14 +72,15 @@ private:
 		int		directive,		// MADV_PAGEOUT, MADV_DONTNEED
 		int		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
 		int		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
-	) const;
+	);
 
 	//---- 内部变量 ---------------------------------------------
-	str_t	_shm_n {};
-	void*	_shm_p {};
-	size_t	_bytes {};
-	int		_pages {};	// 共占多少页
-	int		_1page {};	// 单页大小(字节)
+	str_t		_shm_n {};	// 名字
+	void*		_shm_p {};	// 基址
+	size_t		_bytes {};	// 大小
+	int			_coolp {};	// 上次标记为冷的页序号, 用于再次标记时计算新增冷页数
+	int			_pages {};	// 共占多少页
+	int			_1page {};	// 单页大小(字节)
 };
 
 };	// namespace leon_utl

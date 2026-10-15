@@ -172,15 +172,32 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
-ssize_t ShmBuffer_t::dontNeed( int beg_, int end_ ) const {
-	return _madvise( __func__, MADV_DONTNEED, beg_, end_ );
+void ShmBuffer_t::tagcold( const void* end_, int beg_ ) {
+
+	// end_ 不应该小于 _shm_p, 否则就是收到了错误的参数
+	if( end_ < _shm_p ) {
+		std::cerr << _shm_n << '.' << __func__ << ":收到的cool_before(0x" << std::hex
+				  << end_ << ")还小于基址(0x" << _shm_p << "),已拒绝!";
+		return;
+	}
+
+	auto new_hots = reinterpret_cast<intptr_t>( end_ ) - reinterpret_cast<intptr_t>( _shm_p );
+
+	// 变为页序号
+	int new_tail = std::max<intptr_t>( beg_, new_hots / _1page );
+
+	// 如果新增的热数据少于 64 页, 就不做, 因为系统调用很耗时
+	if( new_tail - _coolp < 64 || new_tail - beg_ < 64 )
+		return;
+
+	_madvise( __func__, MADV_DONTNEED, beg_, new_tail );
 };
 
-ssize_t ShmBuffer_t::swapout( int beg_, int end_ ) const {
+ssize_t ShmBuffer_t::swapout( int beg_, int end_ ) {
 	return _madvise( __func__, MADV_PAGEOUT, beg_, end_ );
 };
 
-ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) const {
+ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) {
 
 	// 跳过开始多少页
 	beg_ = beg_ >= 0 ? beg_ : _pages + beg_;
@@ -192,8 +209,8 @@ ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) const 
 
 	// 需要换出的字节数
 	ssize_t to_be = static_cast<ssize_t>( end_ - beg_ ) * _1page;
-	std::cerr << _shm_n << '.' << fn_ << ":beg_" << beg_ << ", end_" << end_
-			  << ", to_be:" << to_be << std::endl;
+//	std::cerr << _shm_n << '.' << fn_ << ":beg_" << beg_ << ", end_" << end_
+//			  << ", to_be:" << to_be << std::endl;
 
 	if( to_be <= 0 ) {
 //		std::cerr << _shm_n << '.' << fn_ << ":尺寸为负:" << to_be << '!' << std::endl;
@@ -209,6 +226,7 @@ ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) const 
 		return 0;
 	}
 
+	_coolp = end_;
 	return to_be;
 };
 

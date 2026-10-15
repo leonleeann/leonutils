@@ -32,19 +32,17 @@ int main() {
 			  << "ns." << std::endl;
 	std::this_thread::sleep_for( 3s );
 
-	std::cout << "将要Dont Need..." << std::endl;
+	std::cout << "将要tagcold..." << std::endl;
 	beg_tp = steady_clock::now();
-	auto swap_size = buf.dontNeed( 0, 0 );
+	buf.tagcold( base + count, 0 );
 	elapse = steady_clock::now() - beg_tp;
-	std::cout << "DontNeed完成,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
-			  << "ns. 共:" << fmt( swap_size, 0, 0, 3, ' ', ',' )
-			  << "bytes.\n请观察df/top/free输出变化."
-			  << std::endl;
+	std::cout << "tagcold完成,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+			  << "ns." << std::endl;
 	std::this_thread::sleep_for( 3s );
 
 	std::cout << "将要换出到交换内存..." << std::endl;
 	beg_tp = steady_clock::now();
-	swap_size = buf.swapout( 0, 0 );
+	auto swap_size = buf.swapout( 0, 0 );
 	elapse = steady_clock::now() - beg_tp;
 	std::cout << "换出完成,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
 			  << "ns. 共:" << fmt( swap_size, 0, 0, 3, ' ', ',' )
