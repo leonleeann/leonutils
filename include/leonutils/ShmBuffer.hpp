@@ -48,14 +48,23 @@ public:
 	当然还需要 OS 其它配置, 比如 vm.swappiness, memory.reclaim 配合完成.
 	*/
 	// 标记冷数据(系统调用昂贵, 本对象会记录上次标记范围, 如果新增热数据太少就跳过)
-	void	tagcold(
+	size_t	tagCold(
 		const void*	cool_before,	// 将此地址之前的页标记为冷数据
-		int			skip_header = 1	// 不标记最初几页(保持热度)
+		size_t		skip_header = 1	// 不标记最初几页(保持热度)
 	);
+	size_t	tagPage(
+		int64_t		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int64_t		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+	);
+
 	// 显示要求换出(必须要标记过的冷页)
-	ssize_t	swapout(
-		int beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+	size_t	swapOut(
+		const void*	swap_before,	// 将此地址之前的页换出
+		size_t		skip_header = 1	// 不换出最初几页(保持驻留)
+	);
+	size_t	pageOut(
+		int64_t		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int64_t		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
 	);
 
 	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
@@ -65,22 +74,28 @@ public:
 //==== 内部实现 =================================================================
 private:
 	//---- 内部例程 ---------------------------------------------
-	void* _mk_plug( str_cr name, size_t bytes, bool resize,
-					int file_mask, mode_t user_mask, int memory_mask );
-	ssize_t _madvise(
+	void*	_mk_plug( str_cr name, size_t bytes, bool resize,
+					  int file_mask, mode_t user_mask, int memory_mask );
+
+	// 将地址换算为 相对于基址的 页号
+	size_t	_page_no( const void* address ) const;
+
+	size_t	_madvise(
 		char_cp	func_name,
-		int		directive,		// MADV_PAGEOUT, MADV_DONTNEED
-		int		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		int		directive,	// MADV_PAGEOUT, MADV_DONTNEED
+		int64_t	beg_page,	// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
+		int64_t	end_page,	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		size_t&	last_end
 	);
 
 	//---- 内部变量 ---------------------------------------------
 	str_t		_shm_n {};	// 名字
 	void*		_shm_p {};	// 基址
 	size_t		_bytes {};	// 大小
-	int			_coolp {};	// 上次标记为冷的页序号, 用于再次标记时计算新增冷页数
-	int			_pages {};	// 共占多少页
-	int			_1page {};	// 单页大小(字节)
+	size_t		_pages {};	// 共占多少页
+	size_t		_1page {};	// 单页大小(字节)
+	size_t		_coold {};	// 上次标冷的页序号, 用于再次标记时计算新增页数
+	size_t		_swapd {};	// 上次换出的页序号, 用于再次换出时计算新增页数
 };
 
 };	// namespace leon_utl

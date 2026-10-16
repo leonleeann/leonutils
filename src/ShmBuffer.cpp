@@ -172,61 +172,75 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
-void ShmBuffer_t::tagcold( const void* end_, int beg_ ) {
-
-	// end_ 不应该小于 _shm_p, 否则就是收到了错误的参数
-	if( end_ < _shm_p ) {
-		std::cerr << _shm_n << '.' << __func__ << ":收到的cool_before(0x" << std::hex
-				  << end_ << ")还小于基址(0x" << _shm_p << "),已拒绝!";
-		return;
-	}
-
-	auto new_hots = reinterpret_cast<intptr_t>( end_ ) - reinterpret_cast<intptr_t>( _shm_p );
-
-	// 变为页序号
-	int new_tail = std::max<intptr_t>( beg_, new_hots / _1page );
-
-	// 如果新增的热数据少于 64 页, 就不做, 因为系统调用很耗时
-	if( new_tail - _coolp < 64 || new_tail - beg_ < 64 )
-		return;
-
-	_madvise( __func__, MADV_DONTNEED, beg_, new_tail );
+size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_ ) {
+	return _madvise( __func__, MADV_DONTNEED, beg_, _page_no( end_p_ ), _coold );
 };
 
-ssize_t ShmBuffer_t::swapout( int beg_, int end_ ) {
-	return _madvise( __func__, MADV_PAGEOUT, beg_, end_ );
+size_t ShmBuffer_t::tagPage( int64_t beg_, int64_t end_ ) {
+	return _madvise( __func__, MADV_DONTNEED, beg_, end_, _coold );
 };
 
-ssize_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int beg_, int end_ ) {
+size_t ShmBuffer_t::swapOut( const void* end_p_, size_t beg_ ) {
+	return _madvise( __func__, MADV_PAGEOUT, beg_, _page_no( end_p_ ), _swapd );
+};
 
-	// 跳过开始多少页
-	beg_ = beg_ >= 0 ? beg_ : _pages + beg_;
-	beg_ = std::min( _pages - 1, std::max( 0, beg_ ) );
+size_t ShmBuffer_t::pageOut( int64_t beg_, int64_t end_ ) {
+	return _madvise( __func__, MADV_PAGEOUT, beg_, end_, _swapd );
+};
 
-	// 跳过末尾多少页
-	end_ = end_ > 0 ? end_ : _pages + end_;
-	end_ = std::min( _pages, std::max( 0, end_ ) );
+size_t ShmBuffer_t::_page_no( const void* addr_ ) const {
 
-	// 需要换出的字节数
-	ssize_t to_be = static_cast<ssize_t>( end_ - beg_ ) * _1page;
-//	std::cerr << _shm_n << '.' << fn_ << ":beg_" << beg_ << ", end_" << end_
-//			  << ", to_be:" << to_be << std::endl;
+	/* 尽管64位地址很难遇到最高位为1, 但不能完全排除. 所以地址运算有时需要用有符号运算,
+		有时又需要用无符号运算, 必须处处小心. */
+	uintptr_t uptr_addr = reinterpret_cast<uintptr_t>( addr_ );
+	uintptr_t uptr_base = reinterpret_cast<uintptr_t>( _shm_p );
 
-	if( to_be <= 0 ) {
-//		std::cerr << _shm_n << '.' << fn_ << ":尺寸为负:" << to_be << '!' << std::endl;
+	// end_p_ 不应该小于 _shm_p, 否则就是收到了错误的参数
+	if( uptr_addr < uptr_base ) {
+		std::cerr << _shm_n << '.' << __func__ << ":收到的地址("
+				  << addr_ << ")还小于基址(" << _shm_p << "),已拒绝!";
 		return 0;
 	}
 
-	auto head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page * beg_;
+	// 变为页序号
+	return ( uptr_addr - uptr_base ) / _1page;
+};
 
-	if( madvise( reinterpret_cast<void*>( head ), to_be, op_ ) != 0 ) {
+size_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int64_t beg_, int64_t end_,
+							  size_t& last_end_ ) {
+
+	// 跳过开始多少页(beg_为负表示:倒数第几页)
+	int64_t signed_pages = _pages;
+	beg_ = beg_ >= 0 ? beg_ : signed_pages + beg_;
+	beg_ = std::min( signed_pages - 1, std::max<int64_t>( 0, beg_ ) );
+
+	// 跳过末尾多少页(end_为负表示:倒数第几页)
+	end_ = end_ > 0 ? end_ : signed_pages + end_;
+	end_ = std::min( signed_pages, std::max<int64_t>( 0, end_ ) );
+
+	// 因为 end_ 有可能小于 last_end_, 所以结果要有符号
+	int64_t s_last_end = last_end_;
+	int64_t more_pages = end_ - s_last_end;	// 本次标记范围新增多少页
+	int64_t cool_pages = end_ - beg_;		// 本次总共需要标记多少页
+
+	// 为减少系统调用次数(很耗时), 如果新增(或总共)需要标记的页数少于 64, 就不做.
+	if( more_pages < 64 || cool_pages < 64 )
+		return 0;
+
+	// 需要标记(换出)的字节数
+	auto to_be = cool_pages * _1page;
+
+	// 需要标记的起始地址
+	auto tag_head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page * beg_;
+
+	if( madvise( reinterpret_cast<void*>( tag_head ), to_be, op_ ) != 0 ) {
 		auto e = errno;
 		std::cerr << _shm_n << '.' << fn_ << ":错误:\"" << std::strerror( e )
 				  << "\"." << std::endl;
 		return 0;
 	}
 
-	_coolp = end_;
+	last_end_ = end_;
 	return to_be;
 };
 
