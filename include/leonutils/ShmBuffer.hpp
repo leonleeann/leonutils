@@ -49,23 +49,29 @@ public:
 	*/
 	// 标记冷数据(系统调用昂贵, 本对象会记录上次标记范围, 如果新增热数据太少就跳过)
 	size_t	tagCold(
-		const void*	cool_before,	// 将此地址之前的页标记为冷数据
-		size_t		skip_header = 1	// 不标记最初几页(保持热度)
+		const void*	cool_before,	// 将此地址之前的页标冷
+		size_t		skip_header,	// 不标记最初几页(保持热度)
+		bool		force			// 强制标冷, 不管已标记过的范围, 注意频繁调用比较耗时!
 	);
 	size_t	tagPage(
 		int64_t		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int64_t		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		int64_t		end_page,		// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		bool		force			// 强制标冷, 不管已标记过的范围, 注意频繁调用比较耗时!
 	);
 
-	// 显示要求换出(必须要标记过的冷页)
+	// 显示要求换出(只能是标记过的冷页. 这也只是确保换出条件,实际能否换出只能OS决定)
 	size_t	swapOut(
 		const void*	swap_before,	// 将此地址之前的页换出
-		size_t		skip_header = 1	// 不换出最初几页(保持驻留)
+		size_t		skip_header,	// 不换出最初几页(保持驻留)
+		bool		force			// 强制换出, 不管已换出过的范围, 注意频繁调用比较耗时!
 	);
 	size_t	pageOut(
 		int64_t		beg_page,		// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int64_t		end_page = -1	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		int64_t		end_page,		// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
+		bool		force			// 强制换出, 不管已换出过的范围, 注意频繁调用比较耗时!
 	);
+	// 清除上述两个(标冷,换出)范围记忆
+	void	clearTagRanges() { _coold = _swapd = 0; };
 
 	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
 	str_t	osFile()	const { return "/dev/shm/" + _shm_n; };

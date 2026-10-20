@@ -34,7 +34,7 @@ int main() {
 
 	std::cout << "将要tagcold..." << std::endl;
 	beg_tp = steady_clock::now();
-	buf.tagCold( base + count, 0 );
+	buf.tagPage( 0, 0, true );
 	elapse = steady_clock::now() - beg_tp;
 	std::cout << "tagcold完成,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
 			  << "ns." << std::endl;
@@ -42,7 +42,7 @@ int main() {
 
 	std::cout << "将要换出到交换内存..." << std::endl;
 	beg_tp = steady_clock::now();
-	auto swap_size = buf.swapOut( base + count, 0 );
+	auto swap_size = buf.pageOut( 0, 0, true );
 	elapse = steady_clock::now() - beg_tp;
 	std::cout << "换出完成,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
 			  << "ns. 共:" << fmt( swap_size, 0, 0, 3, ' ', ',' )

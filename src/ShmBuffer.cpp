@@ -172,19 +172,27 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
-size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_ ) {
+size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_, bool force_ ) {
+	if( force_ )
+		_coold = 0;
 	return _madvise( __func__, MADV_DONTNEED, beg_, _page_no( end_p_ ), _coold );
 };
 
-size_t ShmBuffer_t::tagPage( int64_t beg_, int64_t end_ ) {
+size_t ShmBuffer_t::tagPage( int64_t beg_, int64_t end_, bool force_ ) {
+	if( force_ )
+		_coold = 0;
 	return _madvise( __func__, MADV_DONTNEED, beg_, end_, _coold );
 };
 
-size_t ShmBuffer_t::swapOut( const void* end_p_, size_t beg_ ) {
+size_t ShmBuffer_t::swapOut( const void* end_p_, size_t beg_, bool force_ ) {
+	if( force_ )
+		_swapd = 0;
 	return _madvise( __func__, MADV_PAGEOUT, beg_, _page_no( end_p_ ), _swapd );
 };
 
-size_t ShmBuffer_t::pageOut( int64_t beg_, int64_t end_ ) {
+size_t ShmBuffer_t::pageOut( int64_t beg_, int64_t end_, bool force_ ) {
+	if( force_ )
+		_swapd = 0;
 	return _madvise( __func__, MADV_PAGEOUT, beg_, end_, _swapd );
 };
 
@@ -224,7 +232,7 @@ size_t ShmBuffer_t::_madvise( char_cp fn_, int op_, int64_t beg_, int64_t end_,
 	int64_t cool_pages = end_ - beg_;		// 本次总共需要标记多少页
 
 	// 为减少系统调用次数(很耗时), 如果新增(或总共)需要标记的页数少于 64, 就不做.
-	if( more_pages < 64 || cool_pages < 64 )
+	if( more_pages < 1 || cool_pages < 1 )
 		return 0;
 
 	// 需要标记(换出)的字节数
