@@ -321,4 +321,48 @@ TEST( TestConverts, OverWide ) {
 	EXPECT_EQ( fmt( df_Input, 10, 4, 4, '0' ), strExpect );
 };
 
+TEST( TestConverts, HumanFloat ) {
+	using F64_LMT = std::numeric_limits<double>;
+	oss_t oss;
+
+	// 输出各种异常值
+	oss << HumanF_t( F64_LMT::quiet_NaN() ); ASSERT_EQ( oss.str(), "nan" ); oss.str( "" );
+	oss << HumanF_t( F64_LMT::infinity() ); ASSERT_EQ( oss.str(), "inf" ); oss.str( "" );
+	oss << HumanF_t( - F64_LMT::infinity() ); ASSERT_EQ( oss.str(), "-inf" ); oss.str( "" );
+	oss << HumanF_t( F64_LMT::max() ); ASSERT_EQ( oss.str(), "float64::+max_val" ); oss.str( "" );
+	oss << HumanF_t( F64_LMT::lowest() ); ASSERT_EQ( oss.str(), "float64::-max_val" ); oss.str( "" );
+	oss << HumanF_t( F64_LMT::min() ); ASSERT_EQ( oss.str(), "float64::+epsilon" ); oss.str( "" );
+	oss << HumanF_t( - F64_LMT::min() ); ASSERT_EQ( oss.str(), "float64::-epsilon" ); oss.str( "" );
+
+	// 同样一个值, 期望以不同方式输出
+	double val = 1000000;
+	// 默认方式
+	oss << HumanF_t( val );				ASSERT_EQ( oss.str(), "1000000" ); oss.str( "" );
+	// 超过一定量级就用科学记数法
+	oss << HumanF_t( val, 0, 5 );		ASSERT_EQ( oss.str(), "1e+06" ); oss.str( "" );
+	oss << HumanF_t( val, -1, 5 );		ASSERT_EQ( oss.str(), "1e+06" ); oss.str( "" );
+	// 严格按定点数
+	oss << HumanF_t( val, 2, 7 );		ASSERT_EQ( oss.str(), "1000000.00" ); oss.str( "" );
+	oss << HumanF_t( val, -1, 7 );		ASSERT_EQ( oss.str(), "1000000" ); oss.str( "" );
+
+	val = 0.000001;
+	// 默认方式
+	oss << HumanF_t( val );				ASSERT_EQ( oss.str(), "0.000001" ); oss.str( "" );
+	// 低于一定量级就用科学记数法
+	oss << HumanF_t( val, 0, 10, -5 );	ASSERT_EQ( oss.str(), "1e-06" ); oss.str( "" );
+	oss << HumanF_t( val, -1, 10, -5 );	ASSERT_EQ( oss.str(), "1e-06" ); oss.str( "" );
+	// 严格按定点数
+	oss << HumanF_t( val, 8, 10, -7 );	ASSERT_EQ( oss.str(), "0.00000100" ); oss.str( "" );
+	oss << HumanF_t( val, -1, 10, -7 );	ASSERT_EQ( oss.str(), "0.000001" ); oss.str( "" );
+
+	// 任何情况下0都应该输出成"0"
+	oss << HumanF_t( 0 );				ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, -1, 10, -7 );	ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, -1, 7 );		ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, 0, 10, -5 );	ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, 0, 5 );			ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, 2, 7 );			ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+	oss << HumanF_t( 0, 8, 10, -7 );	ASSERT_EQ( oss.str(), "0" ); oss.str( "" );
+};
+
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

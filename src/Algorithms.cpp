@@ -39,6 +39,6 @@ int decimals( const double src_ ) {
 	return cnt;
 };
 
-};  // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

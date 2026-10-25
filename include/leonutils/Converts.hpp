@@ -6,6 +6,7 @@
 
 using char_cp = const char*;
 using oss_t = std::ostringstream;
+using ost_t = std::ostream;
 using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 
 namespace leon_utl {
@@ -176,12 +177,30 @@ inline char_cp parse_all( T& i, char_cp s ) {
 str_t ptr2hex( const void* ptr );
 
 template<typename T>
-str_t fmt( const T	value,		//源数值
-		   size_t	width = 0,	//结果宽度(含填充及分隔符)
-		   size_t	preci = 3,	//精度(小数位数)
-		   size_t	group = 0,	//分组位数(隔几位分一下)
-		   char	pad_c = ' ',	//左边填充字符
-		   char	sep_c = '\'' );	//分组分隔符
+str_t fmt( const T	value,			//源数值
+		   size_t	width = 0,		//结果宽度(含填充及分隔符)
+		   size_t	preci = 3,		//精度(小数位数)
+		   size_t	group = 0,		//分组位数(隔几位分一下)
+		   char		pad_c = ' ',	//左边填充字符
+		   char		sep_c = '\'' );	//分组分隔符
+
+// 尽量以人类可读的方式输出浮点数
+struct HumanF_t {
+	double	_real_val;
+	int		_decimals;
+	int		_max_magn;
+	int		_min_magn;
+//	int		_grp_wide;	// 是否插入"千位|万位"分隔符
+//	char	_grp_char;	// 用什么作为"千位|万位"分隔符
+//	char	_fil_char;	// 宽度不足时,用什么作为填充符
+
+	HumanF_t( double,					// 需要输出的值
+			  int fixed_decimals = -1,	// 按定点数输出时保留几位小数, -1就依赖 ost 现状
+			  int fixed_max_magn = +10,	// 按定点数输出的最大量级, +10表示 10的+10次方以下
+			  int fixed_min_magn = -10	// 按定点数输出的最小量级, -10表示 10的-10次方以上
+			);
+};
+ost_t& operator<<( ost_t&, HumanF_t );
 
 };	//namespace leon_utl
 

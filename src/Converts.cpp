@@ -2,6 +2,7 @@
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <iomanip>		// hex, dec, boolalpha, setw, endl
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include <sstream>
 #include <type_traits>	// is_floating_point_v, is_signed_v, is_unsigned_v
@@ -105,6 +106,44 @@ template str_t fmt<uint64_t>( const uint64_t, size_t, size_t, size_t, char, char
 template str_t fmt<float>( const float, size_t, size_t, size_t, char, char );
 template str_t fmt<double>( const double, size_t, size_t, size_t, char, char );
 
-}; //namespace leon_utl
+HumanF_t::HumanF_t( double val_, int dec_, int max_, int min_ ):
+	_real_val( val_ ), _decimals( dec_ ), _max_magn( max_ ), _min_magn( min_ ) {};
+
+ost_t& operator<<( ost_t& os_, HumanF_t h_ ) {
+	using F64_LMT = std::numeric_limits<double>;
+
+	// 默认输出自会考虑正负号
+	if( std::isnan( h_._real_val ) || std::isinf( h_._real_val ) )
+		return os_ << h_._real_val;
+
+	double abs_val = std::abs( h_._real_val );
+	double max_abs = std::pow( 10, h_._max_magn );
+	double min_abs = std::pow( 10, h_._min_magn );
+
+	if( abs_val == F64_LMT::max() || h_._real_val == F64_LMT::lowest() )
+		return os_ << "float64::" << ( h_._real_val > 0 ? '+' : '-' ) << "max_val";
+
+	if( abs_val == F64_LMT::min() )
+		return os_ << "float64::" << ( h_._real_val > 0 ? '+' : '-' ) << "epsilon";
+
+	if( abs_val == 0 )
+		return os_ << '0';
+
+	if( abs_val >= max_abs || abs_val <= min_abs ) {
+		// 一旦要明确使用科学记数法, 它就默认为真值部分添加6位小数, 没法自动了
+		if( h_._decimals < 0 )
+			h_._decimals = decimals( abs_val / std::pow( 10, std::floor( std::log10( abs_val ) ) ) );
+		return os_ << std::setprecision( h_._decimals ) << std::scientific
+			   << h_._real_val << std::defaultfloat;
+	}
+
+	if( h_._decimals < 0 )
+		h_._decimals = decimals( h_._real_val );
+
+	return os_ << std::setprecision( h_._decimals ) << std::fixed
+		   << h_._real_val << std::defaultfloat;
+};
+
+};	//namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

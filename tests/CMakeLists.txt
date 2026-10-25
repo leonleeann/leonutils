@@ -55,14 +55,25 @@ target_link_libraries( try-hugepage leonutl_static )
 install( TARGETS try-hugepage RUNTIME DESTINATION testing )
 ]]
 
+#==== 测试单进程能否换出shm内存 ====================================================
 add_executable( try-swap try-swapout.cpp )
 target_link_libraries( try-swap leonutl_dynmic )
 install( TARGETS try-swap RUNTIME DESTINATION testing )
 
+#==== 测试多进程能否换出shm内存 ====================================================
+add_executable( swap-consumer swap-consumer.cpp )
+target_link_libraries( swap-consumer leonutl_dynmic )
+install( TARGETS swap-consumer RUNTIME DESTINATION testing )
+add_executable( swap-producer swap-producer.cpp )
+target_link_libraries( swap-producer leonutl_dynmic )
+install( TARGETS swap-producer RUNTIME DESTINATION testing )
+
+#==== 测试CPU绑核 ===============================================================
 add_executable( cpu-set cpu-affinity.cpp )
 target_link_libraries( cpu-set leonutl_dynmic )
 install( TARGETS cpu-set RUNTIME DESTINATION testing )
 
+#==== 测试读取CPU周期数 ==========================================================
 add_executable( try-rdtscp try-rdtscp.cpp )
 target_link_libraries( try-rdtscp objCommon )
 install( TARGETS try-rdtscp RUNTIME DESTINATION testing )
