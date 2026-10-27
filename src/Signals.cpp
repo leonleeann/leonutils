@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string.h>	// strsignal
 
-#include "leonutils//Exceptions.hpp"
+#include "leonutils/Exceptions.hpp"
 #include "leonutils/Converts.hpp"
 #include "leonutils/Signals.hpp"
 

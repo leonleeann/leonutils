@@ -24,7 +24,7 @@ add_executable( unit-test UnitTestMain.cpp
 )
 target_include_directories( unit-test PRIVATE ${PROJECT_SOURCE_DIR} )
 target_link_libraries( unit-test
-	leonutl_dynmic
+	leonutl_dynmic LeonLog
 
 	GTest::gtest GTest::gtest_main
 	GTest::gmock GTest::gmock_main
@@ -57,20 +57,25 @@ install( TARGETS try-hugepage RUNTIME DESTINATION testing )
 
 #==== 测试单进程能否换出shm内存 ====================================================
 add_executable( try-swap try-swapout.cpp )
-target_link_libraries( try-swap leonutl_dynmic )
+target_link_libraries( try-swap leonutl_dynmic LeonLog )
 install( TARGETS try-swap RUNTIME DESTINATION testing )
+
+#==== 测试子线程内能否正确处理异常而不崩溃 ===========================================
+add_executable( test-thread Thread-testMain.cpp )
+target_link_libraries( test-thread leonutl_dynmic LeonLog Threads::Threads )
+install( TARGETS test-thread RUNTIME DESTINATION testing )
 
 #==== 测试多进程能否换出shm内存 ====================================================
 add_executable( swap-consumer swap-consumer.cpp )
-target_link_libraries( swap-consumer leonutl_dynmic )
+target_link_libraries( swap-consumer leonutl_dynmic LeonLog )
 install( TARGETS swap-consumer RUNTIME DESTINATION testing )
 add_executable( swap-producer swap-producer.cpp )
-target_link_libraries( swap-producer leonutl_dynmic )
+target_link_libraries( swap-producer leonutl_dynmic LeonLog )
 install( TARGETS swap-producer RUNTIME DESTINATION testing )
 
 #==== 测试CPU绑核 ===============================================================
 add_executable( cpu-set cpu-affinity.cpp )
-target_link_libraries( cpu-set leonutl_dynmic )
+target_link_libraries( cpu-set leonutl_dynmic LeonLog )
 install( TARGETS cpu-set RUNTIME DESTINATION testing )
 
 #==== 测试读取CPU周期数 ==========================================================

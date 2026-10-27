@@ -10,7 +10,7 @@ using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str
 namespace leon_utl {
 
 /*
- * 名词定义:
+名词定义:
 	1.常规信号: 可由其它进程、线程发送，本进程自由选择哪个线程负责接收处理的OS信号。
 		如:SIGHUP/SIGINT...
 	2.崩溃信号: 应由触发线程自己处理的OS信号。
@@ -18,7 +18,7 @@ namespace leon_utl {
 		法地址(SIGSEGV)、被零除(SIGFPE)等原因引发的异常,已经不能沿既定指令流继续。如果不做
 		处理并完成 longjump, 整个进程就会崩溃。
 
- * 本模块为一个应用程序提供处理信号的统一方案,具体包括两部分:
+本模块为一个应用程序提供处理信号的统一方案,具体包括两部分:
 	1.在主线程中统一接收、处理"常规信号"(如: SIGHUP, SIGINT, SIGQUIT等);
 		由main()函数在初始化本模块时提供处理函数,也就是在调用 CatchGlobalSig 时提
 		供的参数 default_action.
@@ -34,7 +34,7 @@ using SigAction_f = std::function<void( int, siginfo_t*, void* )>;
 using SigAction_t = struct sigaction;
 
 //====== 函数申明 ===============================================================
-// 整个进程信号处理已接管
+// 整个进程信号处理是否已接管
 bool GlobalSigCatching();
 // 接管整个进程的信号处理(全系统只应做一次!)
 void CatchGlobalSig( SigAction_f default_action );
@@ -55,7 +55,7 @@ str_t SigSet2Str( const sigset_t );
 // 每线程独立的恢复点,当发生崩溃信号(SIGFPE/SIGSEGV等)无法继续执行时,就从恢复点继续执行.
 extern thread_local sigjmp_buf tl_recovery_point;
 
-}; //namespace leon_utl
+};	//namespace leon_utl
 
 std::bitset<32> SigMask( sigset_t );
 std::ostream& operator<<( std::ostream&, const leon_utl::SigAction_t& );

@@ -79,7 +79,6 @@ namespace leon_utl {
 //---------- 时点对齐到整日(按本地时区算) ---------------------------
 inline void floor( tm* local_ ) {
 	local_->tm_hour = local_->tm_min = local_->tm_sec = 0;
-	return;
 };
 
 inline time_t floor( time_t local_ ) {
