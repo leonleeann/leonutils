@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "leonutils/CallStack.hpp"
+#include "leonutils/CpuAffinity.hpp"
 #include "leonutils/Exceptions.hpp"
 #include "leonutils/MemoryOrder.hpp"
 #include "leonutils/Signals.hpp"
@@ -22,6 +23,7 @@ const ns Thread_t::DEFAULT_WAIT_TIME = 1s;
 
 struct Thread_t::Imp_t {
 	str_t			_my_name;
+	str_t			_on_cpus;
 	// 系统线程对象
 	std::thread		_my_thrd;
 
@@ -46,6 +48,8 @@ struct Thread_t::Imp_t {
 
 void Thread_t::Imp_t::threadBody() {
 	leon_log::RegistThread( _my_name );
+	PthreadOnlyCPU( _on_cpus );
+
 	_err_cnt = 0;
 
 	bool st = false;
@@ -53,16 +57,23 @@ void Thread_t::Imp_t::threadBody() {
 		lg_erro << "我被重复启动!";
 		return;
 	}
-	lg_debg << "我[" << _my_thrd.native_handle() << "]已启动";
+	lg_info << "我[" << _my_thrd.native_handle() << "]已启动";
 
 	CatchCrashSig();	// 必须要在 sigsetjmp 之前, 否则捕获不了!!!
 	// 异常恢复点
 	if( sigsetjmp( tl_recovery_point, 1 ) != 0 ) {
-		if( ++_err_cnt > _max_err )
+		++_err_cnt;
+		{
+			Log_t log( LogLevel_e::Error );
+			log << "我[" << _my_thrd.native_handle()
+				<< "]遭遇了SegFault或FPE异常,次数:" << _err_cnt << ",CallStack:\n";
+			Tracer_t::PrintCallStack( log );
+		}
+		if( _err_cnt > _max_err )
 			_shldrun = false;
-		lg_erro << "我[" << _my_thrd.native_handle()
-				<< "]遭遇了SegFault或FPE异常,次数:" << _err_cnt;
 	}
+	Tracer_t::ClearCallStack();
+	lg_debg << "崩溃捕获已设...";
 
 	while( _shldrun.load( mo_acquire ) )
 		try {
@@ -80,12 +91,14 @@ void Thread_t::Imp_t::threadBody() {
 	if( _err_cnt >= _max_err )
 		lg_fatl << "我[" << _my_thrd.native_handle() << "]遭遇多次异常,只能退出.";
 	else
-		lg_debg << "我[" << _my_thrd.native_handle() << "]已正常结束.";
+		lg_info << "我[" << _my_thrd.native_handle() << "]已退出.";
 	_running = false;
 	RevocCrashSig();
 };
 
 void Thread_t::Imp_t::killThread() {
+	TRACE_POINT;
+
 	pthread_cancel( _my_thrd.native_handle() );
 	_my_thrd.detach();
 	_running = false;
@@ -93,11 +106,15 @@ void Thread_t::Imp_t::killThread() {
 };
 
 Thread_t::Thread_t( str_cr name_ ) {
+	TRACE_POINT;
+
 	_imp = new Imp_t;
 	_imp->_my_name = name_;
 };
 
 Thread_t::~Thread_t() {
+	TRACE_POINT;
+
 	if( _imp->_running ) {
 		/* 如果没有stop本对象就销毁,是个错误.但没法靠抛异常来提醒使用者了,因为析构器内不宜抛异常!
 		   throw leon_utl::bad_usage( "没有停止" + _imp->my_name + "!!!" ); */
@@ -110,23 +127,33 @@ Thread_t::~Thread_t() {
 };
 
 str_cr Thread_t::name() const {
+	TRACE_POINT;
+
 	return _imp->_my_name;
 };
 
 bool Thread_t::isRunning() const {
+	TRACE_POINT;
+
 	return _imp->_running.load( mo_acquire );
 };
 
 bool Thread_t::shouldRun() const {
+	TRACE_POINT;
+
 	return _imp->_shldrun.load( mo_acquire );
 };
 
-bool Thread_t::start( function<void()> to_do_body_, ns timeout_, int max_err_ ) {
+bool Thread_t::start( function<void()> to_do_body_, str_cr cpus_,
+					  ns timeout_, int max_err_ ) {
+	TRACE_POINT;
+
 	if( _imp->_shldrun.load() ) {
 		lg_erro << "重复启动" << _imp->_my_name;
 		return true;
 	}
 
+	_imp->_on_cpus = cpus_;
 	_imp->_my_job = to_do_body_;
 	_imp->_max_err = max_err_;
 	_imp->_shldrun = true;
@@ -154,6 +181,8 @@ bool Thread_t::start( function<void()> to_do_body_, ns timeout_, int max_err_ ) 
 };
 
 void Thread_t::stop( ns timeout_ ) {
+	TRACE_POINT;
+
 	if( ! _imp->_shldrun.load( mo_acquire ) )
 		return;
 
