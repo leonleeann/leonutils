@@ -40,7 +40,7 @@ Name=GCC
 1=/data/projects/leonutils/include
 
 [Launch]
-Launch Configurations=Launch Configuration 0
+Launch Configurations=Launch Configuration 0,Launch Configuration 1
 
 [Launch][Launch Configuration 0]
 Configured Launch Modes=execute
@@ -57,6 +57,25 @@ Executable=file:///data/projects/leonutils
 External Terminal=konsole --noclose --workdir %workdir -e %exe
 Kill Before Executing Again=4194304
 Project Target=leonutils,tests,unit-test
+Use External Terminal=false
+Working Directory=
+isExecutable=false
+
+[Launch][Launch Configuration 1]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=test-thread
+Type=Native Application
+
+[Launch][Launch Configuration 1][Data]
+Arguments=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x03\x00\x00\x00\x12\x00l\x00e\x00o\x00n\x00u\x00t\x00i\x00l\x00s\x00\x00\x00\n\x00t\x00e\x00s\x00t\x00s\x00\x00\x00\x16\x00t\x00e\x00s\x00t\x00-\x00t\x00h\x00r\x00e\x00a\x00d)
+Dependency Action=Build
+EnvironmentGroup=
+Executable=file:///data/projects/leonutils
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Kill Before Executing Again=4194304
+Project Target=leonutils,tests,test-thread
 Use External Terminal=false
 Working Directory=
 isExecutable=false

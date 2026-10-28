@@ -1,8 +1,7 @@
-#include <leonlog/LeonLog.hpp>
+#include "leonutils/CallStack.hpp"
 #include <iomanip>
 #include <iostream>
-#include <signal.h>
-#include <string.h>
+#include <leonlog/LeonLog.hpp>
 #include <string>
 #include <thread>
 
@@ -16,11 +15,13 @@ using std::to_string;
 
 void DefaultSigAction( int sig, siginfo_t*, void* ) {
 	str_t log_content = "收到信号:" + str_t( strsignal( sig ) )
-						 + '[' + to_string( sig ) + ']';
+						+ '[' + to_string( sig ) + ']';
 	lg_erro << log_content;
 };
 
 void DoDivByZeroBody() {
+	TRACE_POINT;
+
 	lg_debg << "1s后尝试被0除...";
 	sleep_for( 1s );
 
@@ -33,6 +34,8 @@ void DoDivByZeroBody() {
 };
 
 void DoSegFaultBody() {
+	TRACE_POINT;
+
 	lg_debg << "1s后尝试SegFault...";
 	sleep_for( 1s );
 
@@ -47,6 +50,8 @@ void DoSegFaultBody() {
 };
 
 void DoThrowRunTimeError() {
+	TRACE_POINT;
+
 	lg_debg << "1s后尝试throwRunTimeError...";
 	sleep_for( 1s );
 
@@ -54,6 +59,8 @@ void DoThrowRunTimeError() {
 };
 
 void DoThrowInt() {
+	TRACE_POINT;
+
 	lg_debg << "1s后尝试throw int123...";
 	sleep_for( 1s );
 
@@ -84,6 +91,17 @@ int main() {
 	sleep_for( 3s );
 	thrd1.stop();
 	lg_note << "========================" << std::endl;
+
+	// 测试它自停之后还能不能正常退出(不崩溃)
+	auto stop_self = [&]() {
+		lg_debg << "1s后尝试自停...";
+		sleep_for( 1s );
+		thrd1.stopSelf();
+	};
+	thrd1.start( stop_self );
+	sleep_for( 2s );
+	thrd1.stop();
+	lg_note << "自停测试结束========================" << std::endl;
 
 	RevocGlogalSig();
 };

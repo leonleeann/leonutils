@@ -47,7 +47,7 @@ struct Thread_t::Imp_t {
 };
 
 void Thread_t::Imp_t::threadBody() {
-	leon_log::RegistThread( _my_name );
+	RegistThread( _my_name );
 	PthreadOnlyCPU( _on_cpus );
 
 	_err_cnt = 0;
@@ -57,7 +57,8 @@ void Thread_t::Imp_t::threadBody() {
 		lg_erro << "我被重复启动!";
 		return;
 	}
-	lg_info << "我[" << _my_thrd.native_handle() << "]已启动";
+	lg_debg << "我[" << _my_thrd.native_handle() << "]已启动,绑核结果:{"
+			<< GetThreadCpuMask() << "}.";
 
 	CatchCrashSig();	// 必须要在 sigsetjmp 之前, 否则捕获不了!!!
 	// 异常恢复点
@@ -91,7 +92,7 @@ void Thread_t::Imp_t::threadBody() {
 	if( _err_cnt >= _max_err )
 		lg_fatl << "我[" << _my_thrd.native_handle() << "]遭遇多次异常,只能退出.";
 	else
-		lg_info << "我[" << _my_thrd.native_handle() << "]已退出.";
+		lg_debg << "我[" << _my_thrd.native_handle() << "]已退出.";
 	_running = false;
 	RevocCrashSig();
 };
@@ -183,9 +184,6 @@ bool Thread_t::start( function<void()> to_do_body_, str_cr cpus_,
 void Thread_t::stop( ns timeout_ ) {
 	TRACE_POINT;
 
-	if( ! _imp->_shldrun.load( mo_acquire ) )
-		return;
-
 	lg_debg << "将要停止" << _imp->_my_name << "...";
 	_imp->_shldrun.store( false, mo_release );
 
@@ -198,10 +196,18 @@ void Thread_t::stop( ns timeout_ ) {
 	if( _imp->_running.load() ) {
 		lg_erro << _imp->_my_name << "停止超时,开始强杀...";
 		_imp->killThread();
-	} else
+	} else if( _imp->_my_thrd.joinable() )
 		_imp->_my_thrd.join();
 
+	/* 这是错误的, 从来没有运行过的线程对象不应该 join/detach!!!
+	else _imp->_my_thrd.detach(); */
+
 	lg_debg << "已停止" << _imp->_my_name;
+};
+
+void Thread_t::stopSelf() {
+	TRACE_POINT;
+	_imp->_shldrun.store( false, mo_release );
 };
 
 };	// namespace leon_utl

@@ -42,7 +42,10 @@ public:
 		int max_errors = 3						// 崩溃几次就不再继续(子线程退出)
 	);
 
+	// 主线程来停止, 绝不能在 to_do_body 内部调用!!!
 	void stop( ns stop_timeout = DEFAULT_WAIT_TIME );
+	// 本线程自己来停止(退出线程循环,不再调用 to_do_body)
+	void stopSelf();
 
 	// 我正在运行(已启动)
 	bool isRunning() const;

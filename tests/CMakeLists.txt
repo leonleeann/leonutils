@@ -80,7 +80,7 @@ install( TARGETS cpu-set RUNTIME DESTINATION testing )
 
 #==== 测试读取CPU周期数 ==========================================================
 add_executable( try-rdtscp try-rdtscp.cpp )
-target_link_libraries( try-rdtscp objCommon )
+target_link_libraries( try-rdtscp objCommon LeonLog )
 install( TARGETS try-rdtscp RUNTIME DESTINATION testing )
 
 # kate: indent-mode cmake; indent-width 4; replace-tabs off; tab-width 4;
