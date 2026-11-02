@@ -66,10 +66,10 @@ target_link_libraries( test-thread leonutl_dynmic LeonLog Threads::Threads )
 install( TARGETS test-thread RUNTIME DESTINATION testing )
 
 #==== 测试多进程能否换出shm内存 ====================================================
-add_executable( swap-consumer swap-consumer.cpp )
+add_executable( swap-consumer swap-consumer.cpp swap-common.cpp )
 target_link_libraries( swap-consumer leonutl_dynmic LeonLog )
 install( TARGETS swap-consumer RUNTIME DESTINATION testing )
-add_executable( swap-producer swap-producer.cpp )
+add_executable( swap-producer swap-producer.cpp swap-common.cpp )
 target_link_libraries( swap-producer leonutl_dynmic LeonLog )
 install( TARGETS swap-producer RUNTIME DESTINATION testing )
 

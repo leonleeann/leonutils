@@ -1,59 +1,67 @@
 #include "swap-common.hpp"
 
-int main() {
+int main( int argc_, const char* const* const args_ ) {
+	ParseCli( argc_, args_ );
+	StartLog( "consumer.log", {}, false, true, true );
+	RegistThread( "Consumer" );
 
 	ShmBuffer_t buf;
-	buf.make( BUF_NAME, BUF_BYTES, true, true );
-	auto count = BUF_BYTES / sizeof( int64_t );
+	lg_info << "期望创建shm:" << fmt( g_buf_bytes / 1024 / 1024, 0, 0, 3, ' ', ',' ) << "MiB";
+	auto alloc_bytes = buf.make( BUF_NAME, g_buf_bytes, true, true );
+	lg_info << "实际创建shm:" << fmt( alloc_bytes / 1024 / 1024, 0, 0, 3, ' ', ',' ) << "MiB";
 
+	auto count = g_buf_bytes / sizeof( int64_t );
 	auto prod_stat = static_cast<AtmState_t*>( buf.get() );
 	auto cons_stat = static_cast<AtmState_t*>( buf.get() ) + count - 1;
 	cons_stat->store( Pluged );
 	auto base = static_cast<size_t*>( buf.get() );
 
-	std::cout << "已对接Buffer,等待填充..." << std::endl;
+	lg_info << "已创建Buffer,等待填充...";
 	while( prod_stat->load() < Filled )
 		sleep_for( 1ms );
-	sleep_for( 3s );
+//	sleep_for( 3s );
 
-	std::cout << "发现已填充,开始读取..." << std::endl;
+	lg_info << "发现已填充,开始读取...";
 	for( size_t j = 1; j < count - 1; ++j )
 		if( base[j] != j )
-			std::cerr << "重访数据不符!!!" << std::endl;
-	sleep_for( 3s );
+			ExitWithLog( "重访数据不符!!!" );
+//	sleep_for( 3s );
 
-	std::cout << "读取完毕,开始释放..." << std::endl;
+	lg_info << "读取完毕,开始标冷...";
 	auto beg_tp = steady_clock::now();
-	buf.tagCold( cons_stat, 0, true );
+	buf.tagPage( 0, 0, true );
 	auto elapse = steady_clock::now() - beg_tp;
 	cons_stat->store( Leaved );
 
-	std::cout << "释放完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
-			  << "ns. 等待对方释放..." << std::endl;
+	lg_info << "标冷完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+			<< "ns. 等待对方标冷...";
 	while( prod_stat->load() < Leaved )
 		sleep_for( 1ms );
-	sleep_for( 3s );
+//	sleep_for( 3s );
 
-	std::cout << "对方也已释,开始换出..." << std::endl;
+	lg_info << "对方也已标冷,开始换出...";
 	beg_tp = steady_clock::now();
 	buf.pageOut( 0, 0, true );
 	elapse = steady_clock::now() - beg_tp;
 	cons_stat->store( Swaped );
 
-	std::cout << "换出完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
-			  << "ns. 等待对方换出..." << std::endl;
+	lg_info << "换出完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+			<< "ns. 等待对方换出...";
 	while( prod_stat->load() < Swaped )
 		sleep_for( 1ms );
-	std::cout << "对方也已换出,等待退出..." << std::endl;
+	lg_info << "对方也已换出, 静待10s...";
 	sleep_for( 10s );
 
-	std::cout << "将要重访数据..." << std::endl;
+	lg_info << "将要重访数据...";
 	for( size_t j = 1; j < count - 1; ++j )
 		if( base[j] != j )
-			std::cerr << "重访数据出错!!!" << std::endl;
+			ExitWithLog( "重访数据不符!!!" );
+	lg_info << "重访数据完毕, 静待10s...";
 	sleep_for( 10s );
 	buf.delOsFile();
 
+	lg_info << "实验完毕, 我已退出.";
+	StopLog( false, false );
 	return EXIT_SUCCESS;
 };
 

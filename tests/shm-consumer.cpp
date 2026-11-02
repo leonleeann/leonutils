@@ -18,26 +18,8 @@ using MsgQ_t = ShmAtmRQ_t<int, int32_t>;
 
 constexpr int32_t BUFFER_CAPA = 64;
 
-void WaitMsg( MsgQ_t* mq_, int want_ ) {
-
-	int msg {};
-	while( !mq_->deque( msg ) )
-		std::this_thread::sleep_for( 1ms );
-
-	if( msg != want_ ) {
-		std::cerr << "失去同步!" << std::endl;
-		exit( EXIT_FAILURE );
-	}
-};
-
-void CheckBuffer( void* buf_, int32_t cnt_, int val_ ) {
-	int* buffer = static_cast<int*>( buf_ );
-	for( int32_t j = 0; j < cnt_; ++j )
-		if( buffer[j] != val_ ) {
-			std::cerr << "内容不符!" << std::endl;
-			exit( EXIT_FAILURE );
-		};
-};
+void WaitMsg( MsgQ_t* mq_, int want_ );
+void CheckBuffer( void* buf_, int32_t cnt_, int val_ );
 
 int main( int argc, char** args ) {
 	MsgQ_t consumer_mq;
@@ -66,6 +48,27 @@ int main( int argc, char** args ) {
 
 	std::cout << "成功完成." << std::endl;
 	return EXIT_SUCCESS;
+};
+
+void WaitMsg( MsgQ_t* mq_, int want_ ) {
+
+	int msg {};
+	while( !mq_->deque( msg ) )
+		std::this_thread::sleep_for( 1ms );
+
+	if( msg != want_ ) {
+		std::cerr << "失去同步!" << std::endl;
+		exit( EXIT_FAILURE );
+	}
+};
+
+void CheckBuffer( void* buf_, int32_t cnt_, int val_ ) {
+	int* buffer = static_cast<int*>( buf_ );
+	for( int32_t j = 0; j < cnt_; ++j )
+		if( buffer[j] != val_ ) {
+			std::cerr << "内容不符!" << std::endl;
+			exit( EXIT_FAILURE );
+		};
 };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

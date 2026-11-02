@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <leonlog/LeonLog.hpp>
+#include <leonlog/LogCfg.hpp>
 #include <string>
 #include <thread>
 
@@ -10,6 +12,7 @@
 #include "leonutils/Converts.hpp"
 #include "leonutils/ShmBuffer.hpp"
 
+using namespace leon_log;
 using namespace leon_utl;
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -30,9 +33,12 @@ enum SwapState_t : uint64_t {
 
 using AtmState_t = std::atomic<SwapState_t>;
 
-constexpr size_t BUF_BYTES = 1024UL * 1024 * 512;
-// constexpr size_t BUF_BYTES = 2048UL * 1024 * 1024;
-
 static const str_t BUF_NAME = "test_shm_swapout";
+
+// constexpr size_t BUF_BYTES = 1024 * 1024 * 2048UL;
+extern size_t g_buf_bytes;
+
+void ShowHelp( str_cr hint = "" );
+void ParseCli( int arg_count, const char* const* const arg_values );
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

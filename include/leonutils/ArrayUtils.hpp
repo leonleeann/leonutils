@@ -11,10 +11,10 @@ using std::array;
 using oss_t = std::ostringstream;
 using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
 
-namespace leon_utl {
-
 template<typename T>
 concept Numeric = std::integral<T> || std::floating_point<T>;
+
+namespace leon_utl {
 
 /* array<integral, N> 可以直接用"=="比较, array<floating_point, N> 呢?
 	还是必须用 leon_utl::eq() */
@@ -67,6 +67,38 @@ str_t array_to_str( array<T, N> const& arr_ ) {
 	return oss.str();
 };
 
+template <Numeric T, size_t N>
+str_t array_to_str( array<T, N> const& arr_, int dec_ ) {
+
+	oss_t oss;
+
+	if constexpr( std::floating_point<T> )
+		oss << std::fixed << std::setprecision( dec_ );
+
+	oss << '{';
+	bool first = true;
+
+	for( auto v : arr_ ) {
+		if( !first ) oss << ',';
+		oss << v;
+		first = false;
+	}
+
+	oss << '}';
+	return oss.str();
+};
+
 };	//namespace leon_utl
+
+// 似乎运算符重载要放命名空间之外
+template <Numeric T, size_t N> array<T, N>& operator+=( array<T, N>& a_, T d_ ) { for( auto& f : a_ ) f += d_; return a_; };
+template <Numeric T, size_t N> array<T, N>& operator-=( array<T, N>& a_, T d_ ) { for( auto& f : a_ ) f -= d_; return a_; };
+template <Numeric T, size_t N> array<T, N>& operator*=( array<T, N>& a_, T d_ ) { for( auto& f : a_ ) f *= d_; return a_; };
+template <Numeric T, size_t N> array<T, N>& operator/=( array<T, N>& a_, T d_ ) { for( auto& f : a_ ) f /= d_; return a_; };
+
+template <Numeric T, size_t N> array<T, N>& operator+( array<T, N> a_, T d_ ) { return a_ += d_; };
+template <Numeric T, size_t N> array<T, N>& operator-( array<T, N> a_, T d_ ) { return a_ -= d_; };
+template <Numeric T, size_t N> array<T, N>& operator*( array<T, N> a_, T d_ ) { return a_ *= d_; };
+template <Numeric T, size_t N> array<T, N>& operator/( array<T, N> a_, T d_ ) { return a_ /= d_; };
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;
