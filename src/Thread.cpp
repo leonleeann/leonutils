@@ -28,7 +28,9 @@ struct Thread_t::Imp_t {
 	std::thread		_my_thrd;
 
 	// 需要在线程内做的事
-	function<void()> _my_job;
+	CallBack_f		_loop_body;
+	CallBack_f		_beg_body;
+	CallBack_f		_end_body;
 
 	// 超过此失败次数, 就退出
 	int				_max_err { 3 };
@@ -49,6 +51,8 @@ struct Thread_t::Imp_t {
 void Thread_t::Imp_t::threadBody() {
 	RegistThread( _my_name );
 	PthreadOnlyCPU( _on_cpus );
+	if( _beg_body != nullptr )
+		_beg_body();
 
 	_err_cnt = 0;
 
@@ -78,7 +82,7 @@ void Thread_t::Imp_t::threadBody() {
 
 	while( _shldrun.load( mo_acquire ) )
 		try {
-			_my_job();
+			_loop_body();
 		} catch( const std::exception& e ) {
 			if( ++_err_cnt > _max_err )
 				_shldrun = false;
@@ -94,6 +98,10 @@ void Thread_t::Imp_t::threadBody() {
 	else
 		lg_debg << "我[" << _my_thrd.native_handle() << "]已退出.";
 	_running = false;
+
+	if( _end_body != nullptr )
+		_end_body();
+
 	RevocCrashSig();
 };
 
@@ -145,8 +153,8 @@ bool Thread_t::shouldRun() const {
 	return _imp->_shldrun.load( mo_acquire );
 };
 
-bool Thread_t::start( function<void()> to_do_body_, str_cr cpus_,
-					  ns timeout_, int max_err_ ) {
+bool Thread_t::start( CallBack_f loop_, CallBack_f beg_, CallBack_f end_,
+					  str_cr cpus_, ns timeout_, int max_err_ ) {
 	TRACE_POINT;
 
 	if( _imp->_shldrun.load() ) {
@@ -155,7 +163,9 @@ bool Thread_t::start( function<void()> to_do_body_, str_cr cpus_,
 	}
 
 	_imp->_on_cpus = cpus_;
-	_imp->_my_job = to_do_body_;
+	_imp->_loop_body = loop_;
+	_imp->_beg_body = beg_;
+	_imp->_end_body = end_;
 	_imp->_max_err = max_err_;
 	_imp->_shldrun = true;
 	lg_debg << "将要启动" << _imp->_my_name << "...";

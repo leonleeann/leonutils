@@ -18,6 +18,8 @@ namespace leon_utl {
 */
 class Thread_t {
 public:
+	using CallBack_f = std::function<void()>;
+
 	static const ns DEFAULT_WAIT_TIME;
 
 	Thread_t( Thread_t& ) = delete;
@@ -36,10 +38,12 @@ public:
 	str_cr name() const;
 
 	bool start(
-		std::function<void()> to_do_body,		// 要在线程里面干什么(会反复调用)
-		str_cr only_runs_on_cpus = "",			// 只在哪些cpu上运行(为空就不设)
+		CallBack_f	on_loopping,				// 线程循环里干什么(会反复调用)
+		CallBack_f	on_starting = nullptr,		// 线程启动时干什么
+		CallBack_f	on_stopping = nullptr,		// 线程结束时干什么
+		str_cr		on_cpus = "",				// 只在哪些cpu上运行(为空就不设)
 		ns stop_timeout = DEFAULT_WAIT_TIME,	// 多久没启动算超时(会杀掉子线程)
-		int max_errors = 3						// 崩溃几次就不再继续(子线程退出)
+		int			max_errors = 3				// 崩溃几次就不再继续(子线程退出)
 	);
 
 	// 主线程来停止, 绝不能在 to_do_body 内部调用!!!

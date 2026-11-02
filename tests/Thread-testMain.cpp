@@ -72,25 +72,35 @@ int main() {
 	CatchGlobalSig( DefaultSigAction );
 
 	Thread_t thrd1( "ThreadTester" );
-	thrd1.start( DoDivByZeroBody );
+	thrd1.start( DoDivByZeroBody,
+	[]() { lg_note << "被0除 测试开始 ========================" << std::endl; },
+	[]() { lg_note << "被0除 测试结束 ========================" << std::endl; }
+			   );
 	sleep_for( 3s );
 	thrd1.stop();
-	lg_note << "========================" << std::endl;
 
-	thrd1.start( DoSegFaultBody );
+	// 只给启动回调, 看看它会不会崩溃
+	thrd1.start( DoSegFaultBody,
+	[]() { lg_note << "野指针 测试开始 ========================" << std::endl; }
+			   );
 	sleep_for( 3s );
 	thrd1.stop();
-	lg_note << "========================" << std::endl;
+	lg_note << "野指针 测试结束 ========================" << std::endl;
 
-	thrd1.start( DoThrowRunTimeError );
+	// 只给停止回调, 看看它会不会崩溃
+	lg_note << "抛异常 测试开始 ========================" << std::endl;
+	thrd1.start( DoThrowRunTimeError, nullptr,
+	[]() { lg_note << "抛异常 测试结束 ========================" << std::endl; }
+			   );
 	sleep_for( 3s );
 	thrd1.stop();
-	lg_note << "========================" << std::endl;
 
-	thrd1.start( DoThrowInt );
+	// 启停回调都不给 看看它会不会崩溃
+	lg_note << "抛整数 测试开始 ========================" << std::endl;
+	thrd1.start( DoThrowInt, nullptr, nullptr );
 	sleep_for( 3s );
 	thrd1.stop();
-	lg_note << "========================" << std::endl;
+	lg_note << "抛整数 测试结束 ========================" << std::endl;
 
 	// 测试它自停之后还能不能正常退出(不崩溃)
 	auto stop_self = [&]() {
@@ -98,10 +108,14 @@ int main() {
 		sleep_for( 1s );
 		thrd1.stopSelf();
 	};
-	thrd1.start( stop_self );
+	thrd1.start( stop_self,
+	[]() { lg_note << "自停 测试开始 ========================" << std::endl; },
+	[]() { lg_note << "自停 测试结束 ========================" << std::endl; }
+			   );
 	sleep_for( 2s );
 	thrd1.stop();
-	lg_note << "自停测试结束========================" << std::endl;
+
+	lg_note << "========测试结束========================" << std::endl;
 
 	RevocGlogalSig();
 };
