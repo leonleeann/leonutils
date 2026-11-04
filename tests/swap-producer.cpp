@@ -16,7 +16,10 @@ int main() {
 
 	lg_info << "已对接Buffer,开始填充...";
 	auto beg_tp = steady_clock::now();
-	for( size_t j = 1; j < count - 1; ++j ) base[j] = j;
+	for( size_t j = 1; j < count - 1; ++j ) {
+		base[j] = j;
+		buf.tagCold( base + j, 1, false );
+	}
 	auto elapse = steady_clock::now() - beg_tp;
 	lg_info << "填充完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
 			<< "ns. 开始标冷...";
@@ -42,9 +45,10 @@ int main() {
 			<< "ns. 等待对方换出...";
 	while( cons_stat->load() < Swaped )
 		sleep_for( 1ms );
-	lg_info << "对方也已换出, 静待10s...";
-	sleep_for( 10s );
+	lg_info << "对方也已换出, 静待20s...";
+	sleep_for( 20s );
 
+//	buf.swapIn();
 	lg_info << "将要重访数据...";
 	for( size_t j = 2; j < count - 1; ++j )
 		if( base[j] != j )

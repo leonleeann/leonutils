@@ -41,6 +41,8 @@ public:
 	int		pages()		const { return _pages; };
 	int		pageSize()	const { return _1page; };
 
+	void	swapIn();
+
 	/* 在小内存平台上分配大 SHM, 可能需要用到交换空间. 但 OS 不会主动换出 SHM 到交换空间.
 	所以需要如下两个操作:
 		1. 每个进程都来标记冷数据(MADV_DONTNEED), 让冷页不再有PTE(Page Table Entry);

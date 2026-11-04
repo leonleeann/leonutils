@@ -1,6 +1,7 @@
 #include "swap-common.hpp"
 
-size_t g_buf_bytes = 1024 * 1024 * 4096UL;
+size_t	g_buf_bytes = 1024 * 1024 * 4096UL;
+bool	g_warm_again = false;
 
 void ParseCli( int argc_, const char* const* const args_ ) {
 	int  cli_mbs = -1;
@@ -12,9 +13,12 @@ void ParseCli( int argc_, const char* const* const args_ ) {
 		if( argv == "-h" || argv == "--help" ) {
 			ShowHelp();
 
-		} else if( argv == "-s" || argv == "--size-in-MB" ) {
+		} else if( argv == "-b" || argv == "--size-in-MB" ) {
 			if( !( opt_err = ++i >= argc_ ) )
 				cli_mbs = atoi( args_[i] );
+
+		} else if( argv == "-w" || argv == "--warm-again" ) {
+			g_warm_again = true;
 
 		} else
 			ShowHelp( '"' + argv + "\"是无法识别的选项,无法继续!" );
@@ -36,7 +40,8 @@ void ShowHelp( str_cr hint_ ) {
 
 	std::cerr << R"TEXT(用法:
 	-h (--help)         : 显示用法后退出
-	-s (--size-in-MB)   <分配尺寸>(以MiB为单位,默认4096,也即4G)
+	-b (--size-in-MB)   <分配尺寸>(以MiB为单位,默认4096,也即4G)
+	-w (--warm-again)   : 重访之前先预热(MADV_WILLNEED)
 )TEXT" << std::endl;
 
 	exit( EXIT_FAILURE );

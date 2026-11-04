@@ -36,7 +36,8 @@ using AtmState_t = std::atomic<SwapState_t>;
 static const str_t BUF_NAME = "test_shm_swapout";
 
 // constexpr size_t BUF_BYTES = 1024 * 1024 * 2048UL;
-extern size_t g_buf_bytes;
+extern size_t	g_buf_bytes;
+extern bool		g_warm_again;
 
 void ShowHelp( str_cr hint = "" );
 void ParseCli( int arg_count, const char* const* const arg_values );

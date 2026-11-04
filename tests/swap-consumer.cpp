@@ -22,9 +22,11 @@ int main( int argc_, const char* const* const args_ ) {
 //	sleep_for( 3s );
 
 	lg_info << "发现已填充,开始读取...";
-	for( size_t j = 1; j < count - 1; ++j )
+	for( size_t j = 1; j < count - 1; ++j ) {
 		if( base[j] != j )
 			ExitWithLog( "重访数据不符!!!" );
+		buf.tagCold( base + j, 1, false );
+	}
 //	sleep_for( 3s );
 
 	lg_info << "读取完毕,开始标冷...";
@@ -51,6 +53,15 @@ int main( int argc_, const char* const* const args_ ) {
 		sleep_for( 1ms );
 	lg_info << "对方也已换出, 静待10s...";
 	sleep_for( 10s );
+
+	if( g_warm_again ) {
+		lg_info << "将要换入数据...";
+		beg_tp = steady_clock::now();
+		buf.swapIn();
+		elapse = steady_clock::now() - beg_tp;
+		lg_info << "换入完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+				<< "ns.";
+	}
 
 	lg_info << "将要重访数据...";
 	for( size_t j = 1; j < count - 1; ++j )

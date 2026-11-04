@@ -172,6 +172,12 @@ void ShmBuffer_t::delOsFile() const {
 				  << "\",shm_name:" << _shm_n << std::endl;
 };
 
+void ShmBuffer_t::swapIn() {
+	size_t fake_last {};
+	_madvise( __func__, MADV_WILLNEED, 0, 0, fake_last );
+	clearTagRanges();
+};
+
 size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_, bool force_ ) {
 	if( force_ )
 		_coold = 0;
