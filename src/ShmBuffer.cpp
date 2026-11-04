@@ -178,6 +178,18 @@ void ShmBuffer_t::swapIn() {
 	clearTagRanges();
 };
 
+void ShmBuffer_t::tagHuge() {
+	size_t fake_last {};
+
+	/* linux-6.1 才有, 编辑本文件时所用系统库(头文件)尚不支持
+	if( force_ )
+		// 实际上会导致换入
+		_madvise( __func__, MADV_COLLAPSE, 0, 0, fake_last );
+	else */
+
+	_madvise( __func__, MADV_HUGEPAGE, 0, 0, fake_last );
+};
+
 size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_, bool force_ ) {
 	if( force_ )
 		_coold = 0;

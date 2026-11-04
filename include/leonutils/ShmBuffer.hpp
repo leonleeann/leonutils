@@ -43,6 +43,12 @@ public:
 
 	void	swapIn();
 
+	/* 将整块 SHM 标记为巨页
+		linux-6.1 才有 MADV_COLLAPSE, 编辑本文件时所用系统库(头文件)尚不支持
+		force:	false(MADV_HUGEPAGE):异步,暗示性;
+				true (MADV_COLLAPSE):同步,明确要求,并且会导致全部换入. */
+	void	tagHuge();
+
 	/* 在小内存平台上分配大 SHM, 可能需要用到交换空间. 但 OS 不会主动换出 SHM 到交换空间.
 	所以需要如下两个操作:
 		1. 每个进程都来标记冷数据(MADV_DONTNEED), 让冷页不再有PTE(Page Table Entry);
