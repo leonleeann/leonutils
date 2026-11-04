@@ -3,7 +3,10 @@
 #include <gtest/gtest.h>
 #include <sys/mman.h>	// shm_open, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON
 
+#include "leonutils/Algorithms.hpp"
+#include "leonutils/Converts.hpp"
 #include "leonutils/ShmBuffer.hpp"
+#include "leonutils/UnionTypes.hpp"
 
 namespace leon_utl {
 
@@ -107,25 +110,17 @@ TEST( TestShmBuffer, createdByReader ) {
 //	ASSERT_FALSE( fs::exists( shm_path ) );
 };
 
-/* 越界访问内存只是UB,不是必然导致崩溃,所以没法测.
-TEST( TestShmBuffer, crashWhenSubscriptBeyond ) {
+// 分配超过 16M, 页数不能算错
+TEST( TestShmBuffer, pageNoOver16MBytes) {
 	ShmBuffer_t	buf;
 
 	shm_unlink( UT_SHM_NAME );
-	path shm_path { "/dev/shm" };
-	shm_path /= UT_SHM_NAME;
-	buf.make( UT_SHM_NAME, UT_SHM_SIZE, true, false );
+	size_t bytes = ( 1 << 24 ) + 1;
+	size_t pages = bytes / 4096 + 1;
+	ASSERT_EQ( buf.make( UT_SHM_NAME, bytes, true, false ), bytes );
+	ASSERT_EQ( buf.pages(), pages );
+};
 
-	size_t* wr = reinterpret_cast<size_t*>( buf.get() );
-	size_t err_i = UT_SHM_SIZE / sizeof( size_t );
-
-	// 下标超界是否崩溃?
-	ASSERT_DEATH( lg_debg << wr[err_i], "" );
-
-	// 写入一个只读的shm是否崩溃?
-	ASSERT_DEATH( lg_debg << ( wr[0] = 1 ), "" );
-}; */
-
-}; // namespace leon_utl
+};	// namespace leon_utl
 
 // kate: indent-mode cstyle; indent-width 4; replace-tabs off; tab-width 4;

@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 using char_cp = char const*;
 using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str_t&;
@@ -6,11 +7,14 @@ using str_t = std::string;	using str_cp = const str_t*; using str_cr = const str
 namespace leon_utl {
 
 /*******************************************************************************
-一个 SharedBuffer 封装一块共享内存,将申请、释放等琐碎操作集中起来.
+一个 ShmBuffer 封装一块共享内存, 将申请、释放等琐碎操作集中起来.
 主要用于:
 	a.Tick行情共享
 	b.日线行情共享
 	c.跨进程原子变量、消息队列
+注意:
+	1. 适配 Linux-6.1 以上;
+	2. 本对象自己不解决多线程同步问题!!!
 *******************************************************************************/
 
 class ShmBuffer_t {
@@ -20,10 +24,16 @@ public:
 	ShmBuffer_t( const ShmBuffer_t& ) = delete;
 	ShmBuffer_t& operator=( ShmBuffer_t&& ) = delete;
 	ShmBuffer_t& operator=( const ShmBuffer_t& ) = delete;
-	ShmBuffer_t() = default;
+	ShmBuffer_t();
 	~ShmBuffer_t();
 
-	//---- 公开例程 ---------------------------------------------
+	str_cr	name()		const;
+	size_t	bytes()		const;
+	void*	get()		const;
+	size_t	pages()		const;
+	size_t	pageSize()	const;
+
+//==== 创建/销毁 操作 ============================================================
 	// 强制创建SHM(先无脑删除原有再创建), 返回真实创建的字节数
 	size_t	make( str_cr name, size_t bytes, bool writable, bool log = false );
 
@@ -35,19 +45,13 @@ public:
 
 	void	unplug( bool remove_shm_file = false, bool log = false );
 
-	str_cr	name()		const { return _shm_n; };
-	size_t	bytes()		const { return _bytes; };
-	void*	get()		const { return _shm_p; };
-	int		pages()		const { return _pages; };
-	int		pageSize()	const { return _1page; };
+	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
+	str_t	osFile()	const;
+	void	delOsFile()	const;
 
+//==== 换入/换出 操作 ============================================================
+	// 整块换入
 	void	swapIn();
-
-	/* 将整块 SHM 标记为巨页
-		linux-6.1 才有 MADV_COLLAPSE, 编辑本文件时所用系统库(头文件)尚不支持
-		force:	false(MADV_HUGEPAGE):异步,暗示性;
-				true (MADV_COLLAPSE):同步,明确要求,并且会导致全部换入. */
-	void	tagHuge();
 
 	/* 在小内存平台上分配大 SHM, 可能需要用到交换空间. 但 OS 不会主动换出 SHM 到交换空间.
 	所以需要如下两个操作:
@@ -79,37 +83,18 @@ public:
 		bool		force			// 强制换出, 不管已换出过的范围, 注意频繁调用比较耗时!
 	);
 	// 清除上述两个(标冷,换出)范围记忆
-	void	clearTagRanges() { _coold = _swapd = 0; };
+	void	clearTagRanges();
 
-	// 可以提前删除底层OS文件, 以免/dev/shm下文件太多, 被 OS 限制了
-	str_t	osFile()	const { return "/dev/shm/" + _shm_n; };
-	void	delOsFile()	const;
+	/* 将整块 SHM 标记为巨页
+		linux-6.1 才有 MADV_COLLAPSE, 编辑本文件时所用系统库(头文件)尚不支持. 别删, 升级gcc后会改回来
+		force:	false(MADV_HUGEPAGE):异步,暗示性;
+				true (MADV_COLLAPSE):同步,明确要求,并且会导致全部换入. */
+	void	tagHuge();
 
 //==== 内部实现 =================================================================
 private:
-	//---- 内部例程 ---------------------------------------------
-	void*	_mk_plug( str_cr name, size_t bytes, bool resize,
-					  int file_mask, mode_t user_mask, int memory_mask );
-
-	// 将地址换算为 相对于基址的 页号
-	size_t	_page_no( const void* address ) const;
-
-	size_t	_madvise(
-		char_cp	func_name,
-		int		directive,	// MADV_PAGEOUT, MADV_DONTNEED
-		int64_t	beg_page,	// 从第几页开始(跳过几页.	负数表示:从倒数第几页开始)
-		int64_t	end_page,	// 到第几页(不含本页.		负数表示:至倒数第几页,0表示全部)
-		size_t&	last_end
-	);
-
-	//---- 内部变量 ---------------------------------------------
-	str_t		_shm_n {};	// 名字
-	void*		_shm_p {};	// 基址
-	size_t		_bytes {};	// 大小
-	size_t		_pages {};	// 共占多少页
-	size_t		_1page {};	// 单页大小(字节)
-	size_t		_coold {};	// 上次标冷的页序号, 用于再次标记时计算新增页数
-	size_t		_swapd {};	// 上次换出的页序号, 用于再次换出时计算新增页数
+	struct Imp_t;
+	Imp_t* _imp;
 };
 
 };	// namespace leon_utl
