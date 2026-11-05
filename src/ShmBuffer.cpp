@@ -51,7 +51,7 @@ size_t ShmBuffer_t::Imp_t::_page_no( const void* addr_ ) const {
 	// end_p_ 不应该小于 _shm_p, 否则就是收到了错误的参数
 	if( uptr_addr < uptr_base ) {
 		std::cerr << _shm_n << '.' << __func__ << ":收到的地址("
-				  << addr_ << ")还小于基址(" << _shm_p << "),已拒绝!";
+				  << addr_ << ")还小于基址(" << _shm_p << "),已拒绝!" << std::endl;
 		return 0;
 	}
 
@@ -60,7 +60,7 @@ size_t ShmBuffer_t::Imp_t::_page_no( const void* addr_ ) const {
 };
 
 void ShmBuffer_t::Imp_t::_mk_plug( str_cr n_, size_t b_, bool tr_,
-									int f_mask_, mode_t u_mask_, int m_mask_ ) {
+								   int f_mask_, mode_t u_mask_, int m_mask_ ) {
 	_1page = getpagesize();
 
 	if( _shm_p != nullptr || _bytes != 0 || !_shm_n.empty() )
@@ -150,7 +150,8 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 	shm_unlink( n_.c_str() );
 	path_t shm_path { "/dev/shm/" + n_ };
 	if( fs::exists( shm_path ) )
-		std::cerr << "shm_unlink之后依然存在:" << shm_path << ",shm尺寸可能错乱!" << std::endl;
+		std::cerr << "shm_unlink之后依然存在:" << shm_path
+				  << ",shm尺寸可能错乱!" << std::endl;
 
 	/* 1.权限分三类:
 		a. f_mask: 当前打开的fd对应的操作权限 (O_RDONLY | O_RDWR | O_CREAT | O_TRUNC)
@@ -168,9 +169,11 @@ size_t ShmBuffer_t::make( str_cr n_, size_t b_, bool wr_, bool log_ ) {
 	if( fs::exists( shm_path ) ) {
 		_imp->_bytes = fs::file_size( shm_path );
 		if( _imp->_bytes != b_ )
-			std::cerr << "实际创建的shm大小:" << _imp->_bytes << "不等于期望值:" << b_ << std::endl;
+			std::cerr << "实际创建的shm大小:" << _imp->_bytes << "不等于期望值:"
+					  << b_ << std::endl;
 		else if( log_ )
-			std::cout << "成功创建shm:" << shm_path << ",文件尺寸:" << _imp->_bytes;
+			std::cout << "成功创建shm:" << shm_path << ",文件尺寸:"
+					  << _imp->_bytes << std::endl;
 	} else {
 		unplug( false, log_ );
 		throw std::runtime_error( shm_path.native() + ":shm创建完了居然不存在?" );
@@ -311,7 +314,21 @@ void ShmBuffer_t::tagHuge() {
 		_imp->_madvise( __func__, MADV_COLLAPSE, 0, 0, fake_last );
 	else */
 
-	_imp->_madvise( __func__, MADV_HUGEPAGE, 0, 0, fake_last );
+
+	/* 有必要对齐到巨页边界吗?
+	_imp->_madvise( __func__, MADV_HUGEPAGE, 0, 0, fake_last ); */
+
+	constexpr uintptr_t HUGE_SIZE = 2 * 1024 * 1024;
+	auto head = reinterpret_cast<uintptr_t>( _imp->_shm_p );
+	auto tail = ( head + _imp->_bytes ) / HUGE_SIZE * HUGE_SIZE;
+	head = ( head + HUGE_SIZE - 1 ) / HUGE_SIZE * HUGE_SIZE;
+	if( tail <= head )
+		return;
+
+	_imp->_madvise( __func__, MADV_HUGEPAGE,
+					_imp->_page_no( reinterpret_cast<void*>( head ) ),
+					_imp->_page_no( reinterpret_cast<void*>( tail ) ),
+					fake_last );
 };
 
 };	// namespace leon_utl

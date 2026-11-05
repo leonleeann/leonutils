@@ -38,6 +38,7 @@ int main() {
 	lg_info << "对方也已标冷,开始换出...";
 	beg_tp = steady_clock::now();
 	buf.pageOut( 0, 0, true );
+	buf.tagHuge();
 	elapse = steady_clock::now() - beg_tp;
 	prod_stat->store( Swaped );
 
