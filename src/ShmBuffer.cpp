@@ -277,6 +277,33 @@ void ShmBuffer_t::swapIn() {
 	clearTagRanges();
 };
 
+void ShmBuffer_t::lockIn( bool swap_in_ ) {
+	int ret_code {};
+
+	if( swap_in_ )
+		ret_code = mlock2( _imp->_shm_p, _imp->_bytes, 0 );
+	else
+		ret_code = mlock2( _imp->_shm_p, _imp->_bytes, MLOCK_ONFAULT );
+
+	if( ret_code == 0 )
+		return;
+
+	auto e = errno;
+	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\"" << std::strerror( e )
+			  << "\"." << std::endl;
+};
+
+void ShmBuffer_t::unlock() {
+	int ret_code = munlock( _imp->_shm_p, _imp->_bytes );
+
+	if( ret_code == 0 )
+		return;
+
+	auto e = errno;
+	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\"" << std::strerror( e )
+			  << "\"." << std::endl;
+};
+
 size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_, bool force_ ) {
 	if( force_ )
 		_imp->_coold = 0;
