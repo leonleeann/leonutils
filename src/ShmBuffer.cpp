@@ -1,5 +1,5 @@
-#include <cmath>		// ceil
 #include <cerrno>		// errno
+#include <cmath>		// ceil
 #include <cstring>		// strlen, strncmp, strncpy, memset, memcpy, memmove, strerror
 #include <fcntl.h>		// O_CREAT, O_TRUNC, O_RDWR, S_IRUSR, S_IWUSR
 #include <filesystem>
@@ -68,22 +68,20 @@ void ShmBuffer_t::Imp_t::_mk_plug( str_cr n_, size_t b_, bool tr_,
 
 	auto shm_fd = shm_open( n_.c_str(), f_mask_, u_mask_ );
 	if( shm_fd < 0 )
-		throw std::runtime_error( "shm_open错误:" + str_t( std::strerror( errno ) ) );
+		throw std::runtime_error( "shm_open错误:" + std::system_category().message( errno ) );
 
 	if( tr_ && ftruncate( shm_fd, b_ ) != 0 )
-		throw std::runtime_error( "ftruncate错误:" + str_t( std::strerror( errno ) ) );
+		throw std::runtime_error( "ftruncate错误:" + std::system_category().message( errno ) );
 
 	_shm_p = mmap( NULL, b_, m_mask_, MAP_SHARED_VALIDATE, shm_fd, 0 );
 	if( _shm_p == MAP_FAILED )
-		throw std::runtime_error( "mmap错误:" + str_t( std::strerror( errno ) ) );
+		throw std::runtime_error( "mmap错误:" + std::system_category().message( errno ) );
 
 	if( close( shm_fd ) != 0 )
-		throw std::runtime_error( "close( shm_fd )错误:" +
-								  str_t( std::strerror( errno ) ) );
+		throw std::runtime_error( "close( shm_fd )错误:" + std::system_category().message( errno ) );
 
 	if( ( reinterpret_cast<uintptr_t>( _shm_p ) & ( _1page - 1 ) ) != 0 )
-		throw std::runtime_error( n_ + ":地址居然未对齐到页边界(" +
-								  std::to_string( _1page ) + ")?!" );
+		throw std::runtime_error( n_ + ":地址居然未对齐到页边界(" + std::to_string( _1page ) + ")?!" );
 
 	// 不要用浮点数的std::ceil, 害怕精度丢失, 导致页数错乱.
 	_pages = ( b_ + _1page - 1 ) / _1page;
@@ -118,9 +116,8 @@ size_t ShmBuffer_t::Imp_t::_madvise( char_cp fn_, int op_, int64_t beg_, int64_t
 	auto tag_head = reinterpret_cast<uintptr_t>( _shm_p ) + _1page * beg_;
 
 	if( madvise( reinterpret_cast<void*>( tag_head ), to_be, op_ ) != 0 ) {
-		auto e = errno;
-		std::cerr << _shm_n << '.' << fn_ << ":错误:\"" << std::strerror( e )
-				  << "\"." << std::endl;
+		std::cerr << _shm_n << '.' << fn_ << ":错误:\""
+				  << std::system_category().message( errno ) << "\"." << std::endl;
 		return 0;
 	}
 
@@ -236,7 +233,7 @@ void ShmBuffer_t::unplug( bool rm_, bool log_ ) {
 		throw bad_usage( "重复释放shm!!!" );
 
 	if( munmap( _imp->_shm_p, _imp->_bytes ) != 0 )
-		std::cerr << "munmap错误:\"" << str_t( std::strerror( errno ) )
+		std::cerr << "munmap错误:\"" << std::system_category().message( errno )
 				  << "\",shm_name:" << _imp->_shm_n << std::endl;
 	else if( log_ )
 		std::cout << "shm:'" << _imp->_shm_n << "' release:"
@@ -267,7 +264,7 @@ void ShmBuffer_t::delOsFile() const {
 	}
 
 	if( shm_unlink( _imp->_shm_n.c_str() ) != 0 )
-		std::cerr << "shm_unlink错误:\"" << std::strerror( errno )
+		std::cerr << "shm_unlink错误:\"" << std::system_category().message( errno )
 				  << "\",shm_name:" << _imp->_shm_n << std::endl;
 };
 
@@ -288,9 +285,8 @@ void ShmBuffer_t::lockIn( bool swap_in_ ) {
 	if( ret_code == 0 )
 		return;
 
-	auto e = errno;
-	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\"" << std::strerror( e )
-			  << "\"." << std::endl;
+	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\""
+			  << std::system_category().message( errno ) << "\"." << std::endl;
 };
 
 void ShmBuffer_t::unlock() {
@@ -299,9 +295,8 @@ void ShmBuffer_t::unlock() {
 	if( ret_code == 0 )
 		return;
 
-	auto e = errno;
-	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\"" << std::strerror( e )
-			  << "\"." << std::endl;
+	std::cerr << _imp->_shm_n << '.' << __func__ << ":错误:\""
+			  << std::system_category().message( errno ) << "\"." << std::endl;
 };
 
 size_t ShmBuffer_t::tagCold( const void* end_p_, size_t beg_, bool force_ ) {

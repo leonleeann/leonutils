@@ -49,14 +49,19 @@ int main() {
 	lg_info << "对方也已换出, 静待20s...";
 	sleep_for( 20s );
 
-//	buf.swapIn();
+	buf.lockIn( true );
 	lg_info << "将要重访数据...";
+	beg_tp = steady_clock::now();
 	for( size_t j = 2; j < count - 1; ++j )
 		if( base[j] != j )
 			ExitWithLog( "重访数据不符!!!" );
+	elapse = steady_clock::now() - beg_tp;
 //	sleep_for( 5s );
 
-	lg_info << "重访数据完毕, 我已退出.";
+	lg_info << "重访数据完毕,  耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+			<< "ns.";
+
+	lg_info << "我已退出.";
 	StopLog( false, false );
 	return EXIT_SUCCESS;
 };

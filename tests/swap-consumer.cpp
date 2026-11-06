@@ -58,17 +58,20 @@ int main( int argc_, const char* const* const args_ ) {
 	if( g_warm_again ) {
 		lg_info << "将要换入数据...";
 		beg_tp = steady_clock::now();
-		buf.swapIn();
+		buf.lockIn( true );
 		elapse = steady_clock::now() - beg_tp;
 		lg_info << "换入完毕,耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
 				<< "ns.";
 	}
 
 	lg_info << "将要重访数据...";
+	beg_tp = steady_clock::now();
 	for( size_t j = 1; j < count - 1; ++j )
 		if( base[j] != j )
 			ExitWithLog( "重访数据不符!!!" );
-	lg_info << "重访数据完毕, 静待10s...";
+	elapse = steady_clock::now() - beg_tp;
+	lg_info << "重访数据完毕,  耗时:" << fmt( elapse.count(), 0, 0, 3, ' ', ',' )
+			<< "ns. 静待10s...";
 	sleep_for( 10s );
 	buf.delOsFile();
 
